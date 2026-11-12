@@ -48,7 +48,7 @@
       "question": "Le validateur W3C rejette ce code, car une page ne peut contenir qu'un seul `<header>` et un seul `<footer>`.",
       "code": { "lang": "html", "content": "<body>\n  <header>Logo et menu</header>\n  <main>\n    <article>\n      <header><h2>Bien choisir son vélo</h2></header>\n      <p>…</p>\n      <footer>Par Léa, le 3 mars</footer>\n    </article>\n  </main>\n  <footer>© 2026</footer>\n</body>" },
       "answer": false,
-      "explanation": "Contrairement à `<main>`, `<header>` et `<footer>` peuvent se répéter : ils introduisent ou concluent leur `<article>` ou `<section>` parent. Seuls ceux placés directement au niveau de la page servent de repères « bannière » et « informations de contenu »."
+      "explanation": "Contrairement à `<main>`, `<header>` et `<footer>` peuvent se répéter : ils introduisent ou concluent leur `<article>` ou `<section>` parent. Seuls ceux qui ne sont pas inclus dans un `<article>`, `<section>`, `<aside>`, `<nav>` ou `<main>` servent de repères « bannière » et « informations de contenu »."
     },
     {
       "id": "html-lang",
@@ -69,7 +69,7 @@
       "code": { "lang": "html", "content": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <title>Été 2026</title>\n</head>\n<body>\n  <p>Café, thé, crème brûlée</p>\n</body>\n</html>" },
       "choices": ["`lang=\"utf-8\"` à la place de `lang=\"fr\"`", "`<meta charset=\"utf-8\">` en début de `<head>`", "`<meta name=\"encoding\" content=\"utf-8\">`", "`<meta http-equiv=\"Content-Language\" content=\"fr\">`"],
       "answer": 1,
-      "explanation": "`<meta charset=\"utf-8\">` déclare l'encodage des caractères ; il doit figurer dans les 1024 premiers octets, donc tout en haut du `<head>`, avant `<title>`. `lang` indique la langue, pas l'encodage, et `name=\"encoding\"` n'existe pas."
+      "explanation": "`<meta charset=\"utf-8\">` déclare l'encodage des caractères ; il doit figurer dans les 1024 premiers octets : place-le donc en premier dans le `<head>`, avant `<title>`, par sécurité. `lang` indique la langue, pas l'encodage, et `name=\"encoding\"` n'existe pas."
     },
     {
       "id": "head-missing-title",
@@ -93,7 +93,7 @@
       "question": "Dans une page de cartes, dans quel cas `<div>` est-il le bon choix ?",
       "choices": ["Pour chaque carte autonome (titre, résumé, lien)", "Pour le bloc de liens du menu principal", "Pour le contenu principal de la page", "Pour regrouper des éléments uniquement pour la mise en page CSS"],
       "answer": 3,
-      "explanation": "`<div>` n'a aucune sémantique : c'est le bon outil quand aucun élément plus précis ne convient, typiquement un conteneur de grille. Une carte autonome est un `<article>`, le menu un `<nav>`, le contenu principal un `<main>`."
+      "explanation": "`<div>` n'a aucune sémantique : c'est le bon outil quand aucun élément plus précis ne convient, typiquement un conteneur de grille. Une carte autonome est un `<article>`, le menu un `<nav>`, le contenu principal un `<main>` découpé en `<section>` titrées. Ces balises aident les lecteurs d'écran et, indirectement, le référencement : une page mieux comprise, pas un bonus de classement automatique."
     },
     {
       "id": "aside-complementary",
@@ -102,7 +102,7 @@
       "code": { "lang": "html", "content": "<article>\n  <h2>Bien choisir son vélo</h2>\n  <p>Commence par définir ton usage…</p>\n  <div class=\"encadre\">\n    <h3>Tu savais ?</h3>\n    <p>Les premiers vélos n'avaient pas de pédales.</p>\n  </div>\n</article>" },
       "choices": ["`<section>`", "`<footer>`", "`<figure>`", "`<aside>`"],
       "answer": 3,
-      "explanation": "`<aside>` marque un contenu en lien indirect avec ce qui l'entoure (encadré, note, publicité, barre latérale). `<section>` est une partie à part entière du contenu, `<footer>` conclut l'article, `<figure>` légende un média."
+      "explanation": "`<aside>` marque un contenu en lien indirect avec ce qui l'entoure (encadré, citation mise en exergue, liens connexes, barre latérale). `<section>` est une partie à part entière du contenu, `<footer>` conclut l'article, `<figure>` regroupe un contenu autonome référencé par le texte."
     },
     {
       "id": "heading-level-choice",
@@ -128,13 +128,6 @@
       "choices": ["Le validateur W3C les exige sur toute image", "Pour que le navigateur réserve la place et évite les décalages de mise en page", "Pour que le navigateur télécharge une version plus légère", "Pour décrire la taille de l'image aux lecteurs d'écran"],
       "answer": 1,
       "explanation": "Le navigateur en déduit le ratio de l'image avant son chargement et réserve l'espace, ce qui évite que le contenu saute. Le CSS (`max-width: 100%; height: auto;`) garde l'image responsive."
-    },
-    {
-      "id": "img-lazy-hero",
-      "type": "truefalse",
-      "question": "Il faut ajouter `loading=\"lazy\"` à toutes les images, y compris la grande image visible dès l'ouverture de la page.",
-      "answer": false,
-      "explanation": "Le chargement différé retarde l'affichage d'une image déjà visible et dégrade la performance perçue. Réserve `loading=\"lazy\"` aux images situées plus bas dans la page."
     },
     {
       "id": "figure-figcaption",
@@ -222,6 +215,14 @@
       "choices": ["`<img src=\"a.jpg\" alt=\"\" loading=\"lazy\">`", "`<img src=\"a.jpg\" alt=\"\" decoding=\"async\">`", "`<img src=\"a.jpg\" alt=\"\" align=\"left\">`", "`<img src=\"a.jpg\" alt=\"\" width=\"300\">`"],
       "answer": 2,
       "explanation": "`align` est un attribut de présentation obsolète en HTML5 : le validateur demande d'utiliser CSS à la place. `loading`, `decoding` et `width` sont des attributs actuels de `<img>`."
+    },
+    {
+      "id": "obsolete-element-center",
+      "type": "mcq",
+      "question": "Lequel de ces éléments le validateur W3C signale-t-il comme obsolète (« Use CSS instead ») ?",
+      "choices": ["`<b>Promo</b>`", "`<small>© 2026</small>`", "`<center>Promo</center>`", "`<s>49 €</s>`"],
+      "answer": 2,
+      "explanation": "`<center>` (comme `<font>`, `<big>` ou `<marquee>`) ne servait qu'à la présentation : il est obsolète et se remplace par CSS (`text-align: center`). `<b>`, `<small>` et `<s>` restent valides, car HTML5 leur a donné un sens (mot mis en avant, mentions légales, contenu périmé)."
     },
     {
       "id": "unclosed-div",
