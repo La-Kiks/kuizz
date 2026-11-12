@@ -1,0 +1,199 @@
+{
+  "id": "frontend-react",
+  "title": "React : la même page en composants",
+  "subject": "frontend",
+  "description": "Composants et JSX, props, état et immutabilité, listes et clés, formulaires contrôlés, useEffect pour le fetch, Vite et accessibilité.",
+  "questions": [
+    {
+      "id": "jsx-classname-htmlfor",
+      "type": "mcq",
+      "question": "Tu recopies ce HTML dans un composant. Quels noms d'attributs React attend-il en JSX ?",
+      "code": { "lang": "jsx", "content": "<label for=\"email\" class=\"label\">E-mail</label>\n<input id=\"email\" type=\"email\" />" },
+      "choices": ["`class` et `for`, comme en HTML", "`className` et `for`", "`className` et `htmlFor`", "`class` et `htmlFor`"],
+      "answer": 2,
+      "explanation": "JSX est du JavaScript : `class` et `for` y sont des mots réservés, React utilise donc les noms des propriétés DOM `className` et `htmlFor`. Le HTML généré contient bien `class` et `for`."
+    },
+    {
+      "id": "jsx-single-root-fragment",
+      "type": "mcq",
+      "question": "Ce composant ne compile pas. Quelle correction le répare sans ajouter d'élément dans le DOM ?",
+      "code": { "lang": "jsx", "content": "function Hero() {\n  return (\n    <h1>Kuizz</h1>\n    <p>Révise le web</p>\n  );\n}" },
+      "choices": ["Séparer les deux éléments par une virgule", "Les envelopper dans un `<div>`", "Mettre un `return` devant chaque élément", "Les envelopper dans un fragment `<>…</>`"],
+      "answer": 3,
+      "explanation": "Une expression JSX doit avoir une seule racine, car elle devient un seul appel de fonction. Le fragment `<>…</>` regroupe sans produire de nœud, alors qu'un `<div>` en ajoute un (et peut casser une grille CSS ou la sémantique)."
+    },
+    {
+      "id": "fragment-key-in-list",
+      "type": "flashcard",
+      "front": "Dans un `map`, chaque item rend un `<dt>` et un `<dd>` sans conteneur. Comment donner une `key` au groupe ?",
+      "code": { "lang": "jsx", "content": "import { Fragment } from 'react';\n\nterms.map((t) => (\n  <Fragment key={t.id}>\n    <dt>{t.word}</dt>\n    <dd>{t.definition}</dd>\n  </Fragment>\n));" },
+      "back": "Avec `<Fragment key={…}>` importé de `react`. La syntaxe courte `<>…</>` n'accepte aucun attribut, donc pas de `key`."
+    },
+    {
+      "id": "props-destructuring-default",
+      "type": "flashcard",
+      "front": "Comment un composant `Card` récupère-t-il ses props `title` et `price`, avec `0` comme prix par défaut ?",
+      "code": { "lang": "jsx", "content": "<Card title=\"Clavier\" price={49} />" },
+      "back": "En déstructurant l'objet props dans les paramètres : `function Card({ title, price = 0 }) { … }`. Les props sont en lecture seule : le composant ne doit jamais les modifier."
+    },
+    {
+      "id": "children-prop",
+      "type": "mcq",
+      "question": "Que reçoit `Panel` dans sa prop `children` ?",
+      "code": { "lang": "jsx", "content": "function Panel({ title, children }) {\n  return (\n    <section>\n      <h2>{title}</h2>\n      {children}\n    </section>\n  );\n}\n\n<Panel title=\"Promo\"><p>-20 % ce week-end</p></Panel>" },
+      "choices": ["La chaîne `\"Promo\"` passée dans `title`", "L'élément `<p>` écrit entre les balises", "Un tableau vide, faute de prop `children`", "La liste des composants enfants de `<section>`"],
+      "answer": 1,
+      "explanation": "Le contenu placé entre la balise ouvrante et la balise fermante d'un composant lui est transmis dans la prop spéciale `children`. C'est ce qui permet d'écrire des composants « enveloppes » (panneau, carte, mise en page)."
+    },
+    {
+      "id": "state-mutation-push",
+      "type": "mcq",
+      "question": "Le clic n'affiche pas le nouveau produit. Pourquoi ?",
+      "code": { "lang": "jsx", "content": "const [products, setProducts] = useState([]);\n\nfunction handleAdd(product) {\n  products.push(product);\n  setProducts(products);\n}" },
+      "choices": ["`useState` n'accepte pas de tableau comme valeur initiale", "`setProducts` est asynchrone, il faudrait un `await`", "Même tableau repassé : React ne voit aucun changement", "`push` est interdit à l'intérieur d'un composant fonction"],
+      "answer": 2,
+      "explanation": "React compare l'ancienne et la nouvelle valeur avec `Object.is` : même référence, donc pas de nouveau rendu. Il faut créer un nouveau tableau, par exemple `setProducts([...products, product])`, sans muter l'état."
+    },
+    {
+      "id": "immutable-object-update",
+      "type": "flashcard",
+      "front": "L'état `user` vaut `{ name: 'Léa', city: 'Lyon' }`. Comment changer seulement `city` ?",
+      "back": "En créant un nouvel objet : `setUser({ ...user, city: 'Nantes' })`. Le spread recopie les autres propriétés ; écrire `user.city = 'Nantes'` muterait l'état sans déclencher de rendu."
+    },
+    {
+      "id": "functional-update-batching",
+      "type": "mcq",
+      "question": "`count` vaut `0`. Que vaut-il après un clic ?",
+      "code": { "lang": "jsx", "content": "function handleClick() {\n  setCount(count + 1);\n  setCount(count + 1);\n  setCount(count + 1);\n}" },
+      "choices": ["`1`", "`3`", "`0`", "Une erreur « Too many re-renders »"],
+      "answer": 0,
+      "explanation": "Pendant ce rendu, `count` vaut `0` partout : les trois appels demandent `0 + 1`. Pour enchaîner sur la valeur précédente, utilise la mise à jour fonctionnelle `setCount(prev => prev + 1)`."
+    },
+    {
+      "id": "conditional-render-zero",
+      "type": "mcq",
+      "question": "Le panier est vide (`items.length` vaut `0`). Qu'affiche ce paragraphe ?",
+      "code": { "lang": "jsx", "content": "<p>\n  {items.length && `${items.length} article(s)`}\n</p>" },
+      "choices": ["Rien, le paragraphe est vide", "Le texte `false`", "Le chiffre `0`", "Le texte `0 article(s)`"],
+      "answer": 2,
+      "explanation": "`0 && …` vaut `0`, et React affiche les nombres (il n'ignore que `false`, `null`, `undefined` et `true`). Écris `items.length > 0 && …` ou un ternaire `cond ? a : b`."
+    },
+    {
+      "id": "list-key-choice",
+      "type": "mcq",
+      "question": "La liste de cartes peut être filtrée et triée. Quelle `key` choisir ?",
+      "code": { "lang": "jsx", "content": "{products.map((product, index) => (\n  <Card key={/* ? */} product={product} />\n))}" },
+      "choices": ["`index`, fourni par `map`", "`product.id`, venant de l'API", "`Math.random()`, toujours unique", "`crypto.randomUUID()` à chaque rendu"],
+      "answer": 1,
+      "explanation": "La `key` doit être stable et identifier l'élément : React s'en sert pour associer chaque carte à son état d'un rendu à l'autre. L'index change quand on trie ou filtre, et une valeur aléatoire change à chaque rendu (remontage de tous les composants)."
+    },
+    {
+      "id": "key-sibling-scope",
+      "type": "truefalse",
+      "question": "Une `key` doit être unique dans toute l'application, pas seulement dans sa liste.",
+      "answer": false,
+      "explanation": "L'unicité n'est exigée qu'entre éléments frères d'une même liste. Deux listes différentes peuvent utiliser les mêmes clés."
+    },
+    {
+      "id": "onclick-called-at-render",
+      "type": "mcq",
+      "question": "Que fait ce bouton ?",
+      "code": { "lang": "jsx", "content": "<button onClick={handleDelete(product.id)}>\n  Supprimer\n</button>" },
+      "choices": ["Il supprime le produit au clic, exactement comme prévu", "Il appelle `handleDelete` à chaque rendu, pas au clic", "Il n'appelle jamais `handleDelete`, même au clic", "Il supprime le produit deux fois par clic"],
+      "answer": 1,
+      "explanation": "Les parenthèses exécutent la fonction pendant le rendu ; `onClick` reçoit sa valeur de retour. Passe une fonction : `onClick={() => handleDelete(product.id)}` (ou `onClick={handle}` sans argument)."
+    },
+    {
+      "id": "controlled-input-pattern",
+      "type": "flashcard",
+      "front": "Qu'est-ce qu'un champ « contrôlé » en React ?",
+      "code": { "lang": "jsx", "content": "const [query, setQuery] = useState('');\n\n<input\n  value={query}\n  onChange={(e) => setQuery(e.target.value)}\n/>" },
+      "back": "Un champ dont la valeur vient de l'état (`value`) et que chaque frappe met à jour via `onChange`. L'état React devient la seule source de vérité : tu peux filtrer, valider ou vider le champ depuis le code."
+    },
+    {
+      "id": "controlled-value-without-onchange",
+      "type": "truefalse",
+      "question": "Un `<input value={query} />` sans `onChange` reste modifiable au clavier.",
+      "answer": false,
+      "explanation": "Avec `value` fixé par React et sans `onChange`, le champ est en lecture seule et React affiche un avertissement en console. Ajoute `onChange`, ou utilise `defaultValue` pour un champ non contrôlé."
+    },
+    {
+      "id": "effect-empty-deps",
+      "type": "mcq",
+      "question": "Quand cet effet s'exécute-t-il (hors double appel de développement) ?",
+      "code": { "lang": "jsx", "content": "useEffect(() => {\n  loadProducts();\n}, []);" },
+      "choices": ["Avant le tout premier rendu du composant", "Après chaque rendu du composant", "Uniquement au démontage du composant", "Une fois, après l'affichage initial"],
+      "answer": 3,
+      "explanation": "Un tableau de dépendances vide signifie « aucune valeur dont l'effet dépend » : il ne tourne qu'après le premier rendu. Sans tableau, il tournerait après chaque rendu ; avec `[id]`, à chaque changement de `id`."
+    },
+    {
+      "id": "effect-infinite-loop",
+      "type": "mcq",
+      "question": "Ce composant envoie des requêtes en boucle. Pourquoi ?",
+      "code": { "lang": "jsx", "content": "useEffect(() => {\n  fetch('/api/products')\n    .then((res) => res.json())\n    .then((data) => setProducts(data));\n});" },
+      "choices": ["`fetch` est rappelé tant que la réponse n'est pas `ok`", "Il manque `await` devant l'appel à `fetch`", "`res.json()` relance la requête à chaque appel", "Chaque rendu relance l'effet, faute de dépendances"],
+      "answer": 3,
+      "explanation": "L'effet tourne après chaque rendu ; `setProducts` reçoit un nouveau tableau, ce qui provoque un rendu, qui relance l'effet… Ajoute le tableau de dépendances (`[]` ici)."
+    },
+    {
+      "id": "effect-async-directly",
+      "type": "truefalse",
+      "question": "On peut écrire `useEffect(async () => { … }, [])` pour utiliser `await` dans l'effet.",
+      "answer": false,
+      "explanation": "Une fonction `async` renvoie toujours une promesse, alors que React attend une fonction de nettoyage ou rien. Déclare une fonction `async` à l'intérieur de l'effet et appelle-la."
+    },
+    {
+      "id": "effect-cleanup-abort",
+      "type": "flashcard",
+      "front": "Comment annuler le fetch d'un effet quand `url` change ou que le composant est démonté ?",
+      "code": { "lang": "jsx", "content": "useEffect(() => {\n  const controller = new AbortController();\n  fetch(url, { signal: controller.signal })\n    .then((res) => res.json())\n    .then(setData)\n    .catch((err) => {\n      if (err.name !== 'AbortError') setError(err);\n    });\n  return () => controller.abort();\n}, [url]);" },
+      "back": "La fonction renvoyée par l'effet est son nettoyage : React l'appelle avant de relancer l'effet et au démontage. `abort()` annule la requête, ce qui évite d'afficher une réponse périmée."
+    },
+    {
+      "id": "strictmode-double-effect",
+      "type": "truefalse",
+      "question": "En développement, sous `<StrictMode>`, React monte, démonte puis remonte le composant : l'effet de fetch part deux fois.",
+      "answer": true,
+      "explanation": "Ce double cycle volontaire, uniquement en développement, révèle les effets sans nettoyage correct. Il ne se produit pas en production ; la bonne réponse est un nettoyage (`abort()`), pas la suppression de `StrictMode`."
+    },
+    {
+      "id": "initial-state-undefined-map",
+      "type": "mcq",
+      "question": "Au premier affichage, la page plante sur `products.map`. Pourquoi ?",
+      "code": { "lang": "jsx", "content": "const [products, setProducts] = useState();\n\nuseEffect(() => {\n  fetch('/api/products')\n    .then((res) => res.json())\n    .then(setProducts);\n}, []);\n\nreturn <ul>{products.map((p) => <li key={p.id}>{p.name}</li>)}</ul>;" },
+      "choices": ["`products` vaut `undefined` avant la réponse du fetch", "`map` ne fonctionne pas à l'intérieur du JSX", "Il faut écrire `setProducts(data)` et non `setProducts`", "L'effet s'exécute avant le rendu, trop tôt pour `fetch`"],
+      "answer": 0,
+      "explanation": "Le premier rendu a lieu avant la réponse : l'état vaut sa valeur initiale, ici `undefined`. Initialise avec `useState([])` et gère des états `loading` et `error` pour afficher « Chargement… » ou un message d'erreur en attendant."
+    },
+    {
+      "id": "component-split-fetch-owner",
+      "type": "mcq",
+      "question": "Ta page compte `Navbar`, `ProductList` et `Card`. Où placer le fetch et l'état `products` ?",
+      "choices": ["Dans chaque `Card`, qui charge lui-même son propre produit", "Dans `ProductList`, qui passe un produit à chaque `Card`", "Dans `Navbar`, puisqu'elle est rendue en premier dans la page", "Dans une variable globale hors des composants"],
+      "answer": 1,
+      "explanation": "L'état vit dans le composant qui en a besoin pour tout son sous-arbre : la liste charge les données, puis chaque `Card` reste un composant d'affichage qui reçoit son produit par props. Une `Card` qui fetch ferait une requête par carte."
+    },
+    {
+      "id": "jsx-auto-escape",
+      "type": "truefalse",
+      "question": "Si `comment.text` contient `<img src=x onerror=alert(1)>`, écrire `<p>{comment.text}</p>` exécute le code.",
+      "answer": false,
+      "explanation": "React échappe le texte inséré avec `{}` : la balise s'affiche telle quelle, comme avec `textContent`. Seul `dangerouslySetInnerHTML` injecte du HTML brut, à réserver à du contenu sûr ou assaini."
+    },
+    {
+      "id": "vite-create-project",
+      "type": "flashcard",
+      "front": "Comment créer et lancer un projet React avec Vite ?",
+      "code": { "lang": "bash", "content": "npm create vite@latest ma-page -- --template react\ncd ma-page\nnpm install\nnpm run dev" },
+      "back": "`npm create vite@latest` génère le projet (modèle `react`), puis `npm run dev` lance le serveur de développement (port `5173` par défaut). `npm run build` produit les fichiers statiques dans `dist/`."
+    },
+    {
+      "id": "a11y-div-onclick",
+      "type": "mcq",
+      "question": "En React, pourquoi `<div onClick={toggleMenu}>Menu</div>` pose-t-il un problème d'accessibilité ?",
+      "choices": ["React refuse d'attacher `onClick` à un élément `<div>`", "Le `<div>` n'est ni focusable ni activable au clavier", "Le clic n'est jamais détecté sur un écran tactile", "JSX exige `aria-label` sur tout élément cliquable"],
+      "answer": 1,
+      "explanation": "React génère du HTML ordinaire : les règles WCAG/RGAA s'appliquent telles quelles. Un `<button type=\"button\">` est focusable, activable avec Entrée et Espace, et annoncé comme bouton, ce que le `<div>` n'est pas."
+    }
+  ]
+}
