@@ -28,7 +28,7 @@
         "4,0 s"
       ],
       "answer": 0,
-      "explanation": "Un LCP de 2,5 s ou moins est bon, entre 2,5 et 4 s il est à améliorer, au-delà de 4 s il est mauvais. C'est aussi le seuil que ta checklist de mise en production vérifie avec Lighthouse."
+      "explanation": "Un LCP de 2,5 s ou moins est bon, entre 2,5 et 4 s il est à améliorer, au-delà de 4 s il est mauvais ; web.dev juge ces seuils sur le 75e percentile des visites réelles. C'est aussi le seuil que ta checklist de mise en production vérifie avec Lighthouse."
     },
     {
       "id": "lcp-candidate-elements",
@@ -68,20 +68,24 @@
         "Déplacer cette balise `<img>` juste avant le `</body>`"
       ],
       "answer": 1,
-      "explanation": "Le chargement différé fait attendre l'image LCP jusqu'à ce que la mise en page soit calculée ; `fetchpriority=\"high\"` la place au contraire en tête de la file. Une `background-image` serait découverte encore plus tard, après le CSS."
+      "explanation": "Le chargement différé fait attendre l'image LCP jusqu'à ce que la mise en page soit calculée ; `fetchpriority=\"high\"` la place au contraire en tête de la file. Une `background-image` ne règle rien : elle aussi n'est découverte qu'une fois le CSS téléchargé et appliqué."
     },
     {
-      "id": "lazy-which-image",
+      "id": "lazy-carousel-slides",
       "type": "mcq",
-      "question": "Sur ta page d'accueil, quelle image mérite `loading=\"lazy\"` ?",
+      "question": "Ta bannière d'accueil est un carrousel de trois diapositives ; seule la première est visible à l'ouverture. Comment règles-tu `loading` ?",
+      "code": {
+        "lang": "html",
+        "content": "<div class=\"carousel\">\n  <img src=\"slide-1.avif\" alt=\"Nos sites vitrines\" …>\n  <img src=\"slide-2.avif\" alt=\"Nos boutiques en ligne\" …>\n  <img src=\"slide-3.avif\" alt=\"Notre accompagnement SEO\" …>\n</div>"
+      },
       "choices": [
-        "Le logo affiché dans l'en-tête du site",
-        "La bannière qui occupe le haut de l'écran",
-        "Les photos de galerie en bas de page",
-        "La photo de profil placée près du `<h1>`"
+        "`lazy` sur les trois, puisqu'elles se ressemblent",
+        "`lazy` sur la 1re seule, les autres chargées d'office",
+        "Diapo 1 sans `lazy`, `lazy` sur les diapos 2 et 3",
+        "Aucun `lazy` : un carrousel doit tout charger d'avance"
       ],
       "answer": 2,
-      "explanation": "Le chargement différé ne télécharge une image qu'à l'approche du défilement : il ne sert qu'aux images situées sous la ligne de flottaison. Les images visibles dès l'ouverture doivent partir tout de suite."
+      "explanation": "La première diapositive est affichée dès l'ouverture et sera sans doute l'élément LCP : elle doit partir tout de suite. Les suivantes restent hors champ tant que le visiteur ne fait pas défiler le carrousel ; les différer libère de la bande passante pour la première."
     },
     {
       "id": "max-width-same-weight",
@@ -109,7 +113,7 @@
         "content": "<img src=\"petite.jpg\"\n     srcset=\"petite.jpg 480w, grande.jpg 1200w\"\n     alt=\"L'équipe au travail\">"
       },
       "answer": false,
-      "explanation": "`srcset` ne fait que proposer des candidats : le navigateur choisit en tenant compte de la densité de pixels. Un écran 3x a besoin d'environ 1200 pixels réels pour 400 px affichés, il prendra donc `grande.jpg`."
+      "explanation": "`srcset` ne fait que proposer des candidats : le navigateur choisit en tenant compte de la densité de pixels. Sans `sizes`, il suppose une image large de 100vw ; un écran 3x a donc besoin d'environ 1200 pixels réels pour 400 px affichés et prendra `grande.jpg`."
     },
     {
       "id": "art-direction-picture",
@@ -165,28 +169,28 @@
       "back": "À qualité visuelle comparable, ces formats donnent des fichiers nettement plus légers ; l'AVIF compresse en général encore mieux que le WebP. Garde un repli JPEG dans un `<picture>` avec l'attribut `type` pour les navigateurs anciens."
     },
     {
-      "id": "cls-img-dimensions",
+      "id": "cls-injected-promo-banner",
       "type": "mcq",
-      "question": "Au chargement, le paragraphe saute vers le bas quand la photo arrive. Quelle correction évite ce décalage ?",
+      "question": "Deux secondes après le chargement, ce script insère un bandeau promo en haut de la page et tout le contenu descend. Quelle correction supprime ce décalage ?",
       "code": {
-        "lang": "html",
-        "content": "<h2>Nos réalisations</h2>\n<img src=\"projet.webp\" alt=\"Site vitrine d'un fleuriste\">\n<p>Refonte complète livrée en 2026.</p>"
+        "lang": "js",
+        "content": "setTimeout(() => {\n  const promo = document.createElement('div');\n  promo.className = 'promo';\n  promo.textContent = '-20 % ce week-end !';\n  document.body.prepend(promo);\n}, 2000);"
       },
       "choices": [
-        "Ajouter `loading=\"lazy\"` sur cette image",
-        "Convertir la photo au format AVIF",
-        "Indiquer `width` et `height` à l'image",
-        "Ajouter `decoding=\"async\"` sur cette image"
+        "Charger ce script avec l'attribut `defer` dans le `<head>`",
+        "Afficher le bandeau par-dessus ou lui réserver sa place",
+        "Faire apparaître le bandeau en animant sa hauteur de 0 à 60 px",
+        "Ajouter `loading=\"lazy\"` aux images placées sous le bandeau"
       ],
-      "answer": 2,
-      "explanation": "Avec `width` et `height`, le navigateur connaît le ratio de l'image et lui réserve sa place avant le téléchargement : plus de saut, donc un meilleur CLS. Le CSS `max-width: 100%; height: auto;` garde l'image responsive."
+      "answer": 1,
+      "explanation": "Un contenu inséré au-dessus de l'existant sans action de l'utilisateur pousse tout vers le bas : c'est un décalage inattendu qui dégrade le CLS. En superposition (`position: fixed`) ou dans un emplacement de hauteur réservée dès le départ, il ne déplace plus rien ; animer sa hauteur provoquerait encore des décalages."
     },
     {
       "id": "cls-unitless-score",
       "type": "truefalse",
       "question": "Le CLS est un score sans unité : une page est jugée bonne si son CLS vaut 0,1 ou moins.",
       "answer": true,
-      "explanation": "Le CLS additionne l'ampleur des décalages de mise en page inattendus ; ce n'est pas une durée. web.dev considère un CLS de 0,1 ou moins comme bon."
+      "explanation": "Le CLS retient la plus forte rafale (fenêtre de session) de décalages de mise en page inattendus, en additionnant leurs scores : ce n'est pas une durée. web.dev considère un CLS de 0,1 ou moins comme bon."
     },
     {
       "id": "inp-measures",
@@ -227,12 +231,12 @@
         "content": "<video autoplay muted loop preload=\"none\"\n       poster=\"apercu.webp\" src=\"demo.mp4\"></video>"
       },
       "answer": false,
-      "explanation": "`autoplay` a priorité sur `preload` : la lecture démarre seule, donc la vidéo est téléchargée tout de suite. Pour économiser la bande passante, retire `autoplay` et laisse l'utilisateur lancer la lecture."
+      "explanation": "`autoplay` a priorité sur `preload` : la lecture démarre seule, donc la vidéo est téléchargée tout de suite. Pour économiser la bande passante, retire `autoplay` et ajoute `controls` pour que l'utilisateur lance lui-même la lecture."
     },
     {
       "id": "font-display-in-font-face",
       "type": "mcq",
-      "question": "Le texte reste invisible tant que `inter.woff2` n'est pas arrivé. Pourquoi `font-display: swap` n'a-t-il aucun effet ?",
+      "question": "Pendant le chargement de `inter.woff2`, le texte reste invisible plusieurs secondes (jusqu'à environ 3 s). Pourquoi `font-display: swap` n'a-t-il aucun effet ?",
       "code": {
         "lang": "css",
         "content": "@font-face {\n  font-family: \"Inter\";\n  src: url(\"inter.woff2\") format(\"woff2\");\n}\nbody {\n  font-family: \"Inter\", sans-serif;\n  font-display: swap;\n}"
@@ -244,7 +248,7 @@
         "Il faut plutôt la valeur `block` dans ce cas"
       ],
       "answer": 1,
-      "explanation": "`font-display` est un descripteur de `@font-face`, pas une propriété applicable à `body` : ici il est simplement ignoré. Déplacé dans `@font-face`, il affiche le texte en police système en attendant la webfont."
+      "explanation": "`font-display` est un descripteur de `@font-face`, pas une propriété applicable à `body` : ici il est simplement ignoré. Placé dans `@font-face`, il rend le texte lisible tout de suite avec une police de secours, puis bascule sur Inter dès qu'elle est prête."
     },
     {
       "id": "font-swap-fout",
@@ -297,7 +301,7 @@
       "type": "truefalse",
       "question": "Si Lighthouse affiche un LCP de 1,8 s sur ton poste, tous tes visiteurs réels ont forcément un LCP inférieur à 2,5 s.",
       "answer": false,
-      "explanation": "Lighthouse produit des mesures de laboratoire : un seul chargement simulé, avec un appareil et un réseau donnés. Les vrais visiteurs ont d'autres téléphones et connexions ; leurs données de terrain apparaissent par exemple dans PageSpeed Insights."
+      "explanation": "Lighthouse produit des mesures de laboratoire : un seul chargement simulé, avec un appareil et un réseau donnés. Les vrais visiteurs ont d'autres téléphones et connexions ; leurs données de terrain, jugées sur le 75e percentile des visites, apparaissent par exemple dans PageSpeed Insights."
     },
     {
       "id": "lighthouse-what",
