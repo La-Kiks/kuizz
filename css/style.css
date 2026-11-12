@@ -1,0 +1,9 @@
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip-link { position: absolute; left: -999px; }
+.skip-link:focus { left: 1rem; top: 1rem; }
+.container { max-width: 44rem; margin: 0 auto; padding: 0 1rem; }
+.code-block { overflow-x: auto; }
+[hidden] { display: none !important; }
