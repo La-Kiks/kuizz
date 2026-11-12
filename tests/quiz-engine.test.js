@@ -1,0 +1,135 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  shuffle, createSession, currentQuestion, answerCurrent, next, isFinished,
+  score, missedQuestions, updateToReview, nextProgress, correctAnswerText,
+} from '../js/quiz-engine.js';
+
+const quiz = {
+  id: 'demo',
+  title: 'Démo',
+  subject: 'frontend',
+  questions: [
+    { id: 'q1', type: 'mcq', question: 'A ?', choices: ['a', 'b', 'c'], answer: 2, explanation: 'c' },
+    { id: 'q2', type: 'truefalse', question: 'B ?', answer: false },
+    { id: 'q3', type: 'flashcard', front: 'C', back: 'D' },
+  ],
+};
+
+function seeded(seed = 1) {
+  return () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+}
+
+function sessionInOrder(options = {}) {
+  const session = createSession(quiz, { random: seeded(), ...options });
+  session.questions.sort((a, b) => a.id.localeCompare(b.id));
+  return session;
+}
+
+test('shuffle renvoie une permutation sans modifier l\'original', () => {
+  const input = [1, 2, 3, 4, 5];
+  const out = shuffle(input, seeded(42));
+  assert.deepEqual(input, [1, 2, 3, 4, 5]);
+  assert.deepEqual([...out].sort(), [1, 2, 3, 4, 5]);
+});
+
+test('createSession en mode all contient toutes les questions', () => {
+  const s = createSession(quiz, { random: seeded() });
+  assert.equal(s.mode, 'all');
+  assert.equal(s.quizId, 'demo');
+  assert.equal(s.current, 0);
+  assert.deepEqual(s.results, []);
+  assert.deepEqual(s.questions.map((q) => q.id).sort(), ['q1', 'q2', 'q3']);
+});
+
+test('createSession en mode review ne garde que les questions à revoir', () => {
+  const s = createSession(quiz, { mode: 'review', toReview: ['q2', 'inconnue'], random: seeded() });
+  assert.deepEqual(s.questions.map((q) => q.id), ['q2']);
+});
+
+test('les choix QCM mélangés gardent leur index d\'origine', () => {
+  const s = createSession(quiz, { random: seeded(7) });
+  const q = s.questions.find((x) => x.id === 'q1');
+  assert.deepEqual(q.displayChoices.map((c) => c.text).sort(), ['a', 'b', 'c']);
+  for (const c of q.displayChoices) assert.equal(q.choices[c.index], c.text);
+  assert.equal(quiz.questions[0].displayChoices, undefined, 'le quiz source n\'est pas modifié');
+});
+
+test('déroulé complet : correction, score et erreurs', () => {
+  const s = sessionInOrder();
+  assert.equal(currentQuestion(s).id, 'q1');
+  assert.equal(answerCurrent(s, 2), true);
+  next(s);
+  assert.equal(answerCurrent(s, true), false);
+  next(s);
+  assert.equal(answerCurrent(s, false), false);
+  next(s);
+  assert.equal(isFinished(s), true);
+  assert.equal(currentQuestion(s), null);
+  assert.deepEqual(score(s), { correct: 1, total: 3, ratio: 1 / 3 });
+  assert.deepEqual(missedQuestions(s).map((q) => q.id), ['q2', 'q3']);
+});
+
+test('answerCurrent refuse une double réponse, next exige une réponse', () => {
+  const s = sessionInOrder();
+  assert.throws(() => next(s), /pas encore répondu/);
+  answerCurrent(s, 0);
+  assert.throws(() => answerCurrent(s, 1), /déjà répondu/);
+});
+
+test('answerCurrent sur une session terminée', () => {
+  const s = createSession(quiz, { mode: 'review', toReview: [], random: seeded() });
+  assert.equal(isFinished(s), true);
+  assert.throws(() => answerCurrent(s, true), /terminée/);
+});
+
+test('score d\'une session vide', () => {
+  const s = createSession(quiz, { mode: 'review', toReview: [] });
+  assert.deepEqual(score(s), { correct: 0, total: 0, ratio: 0 });
+});
+
+test('updateToReview ajoute les ratées et retire les réussies', () => {
+  const out = updateToReview(['q1', 'q9'], [{ id: 'q1', correct: true }, { id: 'q2', correct: false }]);
+  assert.deepEqual([...out].sort(), ['q2', 'q9']);
+});
+
+test('nextProgress : meilleur score mis à jour en mode all', () => {
+  const now = new Date('2026-11-12T10:00:00Z');
+  const s = sessionInOrder();
+  answerCurrent(s, 2); next(s);
+  answerCurrent(s, false); next(s);
+  answerCurrent(s, true); next(s);
+  const prev = { bestScore: 0.5, lastPlayed: null, toReview: ['q2'] };
+  assert.deepEqual(nextProgress(prev, s, now), {
+    bestScore: 1, lastPlayed: '2026-11-12T10:00:00.000Z', toReview: [],
+  });
+});
+
+test('nextProgress : meilleur score inchangé en mode review', () => {
+  const now = new Date('2026-11-12T10:00:00Z');
+  const r = createSession(quiz, { mode: 'review', toReview: ['q2'], random: seeded() });
+  answerCurrent(r, true); next(r);
+  const prev = { bestScore: 0.5, lastPlayed: null, toReview: ['q2'] };
+  assert.deepEqual(nextProgress(prev, r, now), {
+    bestScore: 0.5, lastPlayed: '2026-11-12T10:00:00.000Z', toReview: ['q2'],
+  });
+  assert.equal(nextProgress({ bestScore: null, lastPlayed: null, toReview: [] }, r, now).bestScore, null);
+});
+
+test('nextProgress : premier score enregistré même s\'il est bas', () => {
+  const s = sessionInOrder();
+  answerCurrent(s, 0); next(s);
+  answerCurrent(s, true); next(s);
+  answerCurrent(s, false); next(s);
+  assert.equal(nextProgress({ bestScore: null, lastPlayed: null, toReview: [] }, s).bestScore, 0);
+});
+
+test('correctAnswerText selon le type', () => {
+  assert.equal(correctAnswerText(quiz.questions[0]), 'c');
+  assert.equal(correctAnswerText(quiz.questions[1]), 'Faux');
+  assert.equal(correctAnswerText({ type: 'truefalse', answer: true }), 'Vrai');
+  assert.equal(correctAnswerText(quiz.questions[2]), 'D');
+});
