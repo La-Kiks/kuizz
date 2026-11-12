@@ -1,4 +1,7 @@
-import { parseRoute } from './router.js';
+import { parseRoute, quizPath } from './router.js';
+import { createSession, nextProgress } from './quiz-engine.js';
+import { renderSession } from './render/session.js';
+import { renderResults } from './render/results.js';
 import { LoadError, findQuizEntry, loadIndex, loadQuiz } from './quiz-loader.js';
 import { createStorage } from './storage.js';
 import { renderHome } from './render/home.js';
@@ -8,6 +11,7 @@ import { renderMessage } from './render/message.js';
 const app = document.getElementById('app');
 const storage = createStorage();
 let routeToken = 0;
+let lastRun = null; // { quizId, session } de la dernière session terminée
 
 function show(title, render) {
   document.title = `${title} · Kuizz`;
@@ -51,6 +55,27 @@ async function showQuizRoute(route, isCurrent) {
     show(quiz.title, (c) => renderQuizStart(c, {
       quiz, subject: found.subject, progress, storageAvailable: storage.available,
     }));
+  } else if (route.name === 'session') {
+    const session = createSession(quiz, { mode: route.mode, toReview: progress.toReview });
+    if (session.questions.length === 0) {
+      location.replace(quizPath(quiz.id));
+      return;
+    }
+    show(route.mode === 'review' ? `${quiz.title} — révision` : quiz.title, (c) => renderSession(c, {
+      quiz,
+      session,
+      onFinish: () => {
+        storage.saveProgress(quiz.id, nextProgress(progressOf(quiz), session));
+        lastRun = { quizId: quiz.id, session };
+        location.hash = quizPath(quiz.id, 'results');
+      },
+    }));
+  } else if (route.name === 'results') {
+    if (!lastRun || lastRun.quizId !== quiz.id) {
+      location.replace(quizPath(quiz.id));
+      return;
+    }
+    show(`${quiz.title} — résultats`, (c) => renderResults(c, { quiz, session: lastRun.session, progress }));
   }
 }
 
