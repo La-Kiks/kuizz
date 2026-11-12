@@ -25,6 +25,178 @@
       "type": "flashcard",
       "front": "À quoi sert l'attribut `lang` sur `<html>` ?",
       "back": "Il indique la langue du document : prononciation des lecteurs d'écran, traduction automatique, césure. Exigé par le RGAA (critère 8.3)."
+    },
+    {
+      "id": "doctype-standards-mode",
+      "type": "flashcard",
+      "front": "À quoi sert `<!DOCTYPE html>` en tête du document ?",
+      "back": "Il fait passer le navigateur en mode standard ; sans lui, la page est rendue en mode « quirks » (compatibilité avec les vieux navigateurs). Il est insensible à la casse et ne charge aucune DTD."
+    },
+    {
+      "id": "head-missing-title",
+      "type": "mcq",
+      "question": "Le validateur W3C renvoie une erreur sur ce document. Quel élément manque ?",
+      "code": { "lang": "html", "content": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n</head>\n<body>…</body>\n</html>" },
+      "choices": ["`<meta name=\"description\">`", "`<link rel=\"stylesheet\">`", "`<title>`", "`<base href=\"/\">`"],
+      "answer": 2,
+      "explanation": "`<title>` est le seul enfant obligatoire de `<head>` dans une page normale (« Element head is missing a required instance of child element title »). Les autres sont utiles mais facultatifs."
+    },
+    {
+      "id": "viewport-meta",
+      "type": "flashcard",
+      "front": "Que fait cette ligne, et que se passe-t-il sur mobile sans elle ?",
+      "code": { "lang": "html", "content": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
+      "back": "Elle aligne la largeur du viewport sur celle de l'écran, sans zoom initial. Sans elle, les navigateurs mobiles simulent un écran large (souvent 980 px) puis dézooment : tes media queries mobile first ne s'appliquent pas comme prévu."
+    },
+    {
+      "id": "div-use-case",
+      "type": "mcq",
+      "question": "Dans une page de cartes, dans quel cas `<div>` est-il le bon choix ?",
+      "choices": ["Pour chaque carte autonome (titre, résumé, lien)", "Pour le bloc de liens du menu principal", "Pour le contenu principal de la page", "Pour regrouper des éléments uniquement pour la mise en page CSS"],
+      "answer": 3,
+      "explanation": "`<div>` n'a aucune sémantique : c'est le bon outil quand aucun élément plus précis ne convient, typiquement un conteneur de grille. Une carte autonome est un `<article>`, le menu un `<nav>`, le contenu principal un `<main>`."
+    },
+    {
+      "id": "heading-level-choice",
+      "type": "mcq",
+      "question": "Sous un `<h2>` « Articles récents », le titre de chaque carte doit paraître petit. Quelle approche est correcte ?",
+      "choices": ["Utiliser `<h6>` car c'est le titre le plus petit", "Utiliser `<h3>` et réduire sa taille en CSS", "Utiliser `<p><strong>` pour éviter un titre trop gros", "Utiliser `<h5>` pour laisser de la place aux sous-titres"],
+      "answer": 1,
+      "explanation": "Le niveau d'un titre exprime sa place dans la structure, pas sa taille : les lecteurs d'écran naviguent par titres et un saut de niveau casse ce plan. L'apparence se règle toujours en CSS."
+    },
+    {
+      "id": "link-vs-button",
+      "type": "mcq",
+      "question": "Un bouton « Menu » affiche ou masque la navigation mobile, sans changer de page. Quel balisage choisir ?",
+      "choices": ["`<a href=\"#\">Menu</a>`", "`<div onclick=\"toggle()\">Menu</div>`", "`<span tabindex=\"0\">Menu</span>`", "`<button type=\"button\">Menu</button>`"],
+      "answer": 3,
+      "explanation": "Un lien mène vers une ressource (une URL) ; une action sur la page est un bouton. `<button>` est nativement focusable, activable avec Entrée et Espace et annoncé « bouton » par les lecteurs d'écran."
+    },
+    {
+      "id": "img-alt-decorative",
+      "type": "mcq",
+      "question": "Comment baliser une image purement décorative (motif, illustration sans information) ?",
+      "choices": ["Supprimer l'attribut `alt`", "`alt=\"image décorative\"`", "`alt=\"\"`", "`title=\"\"` sans `alt`"],
+      "answer": 2,
+      "explanation": "Un `alt` vide indique aux technologies d'assistance d'ignorer l'image. Sans `alt`, le validateur signale une erreur et certains lecteurs d'écran lisent le nom du fichier."
+    },
+    {
+      "id": "img-width-height",
+      "type": "mcq",
+      "question": "Pourquoi mettre `width` et `height` sur une `<img>` même si le CSS la redimensionne ?",
+      "code": { "lang": "html", "content": "<img src=\"chat.jpg\" alt=\"Chat roux endormi\" width=\"800\" height=\"600\">" },
+      "choices": ["Le validateur W3C les exige sur toute image", "Pour que le navigateur réserve la place et évite les décalages de mise en page", "Pour que le navigateur télécharge une version plus légère", "Pour décrire la taille de l'image aux lecteurs d'écran"],
+      "answer": 1,
+      "explanation": "Le navigateur en déduit le ratio de l'image avant son chargement et réserve l'espace, ce qui évite que le contenu saute. Le CSS (`max-width: 100%; height: auto;`) garde l'image responsive."
+    },
+    {
+      "id": "img-lazy-hero",
+      "type": "truefalse",
+      "question": "Il faut ajouter `loading=\"lazy\"` à toutes les images, y compris la grande image visible dès l'ouverture de la page.",
+      "answer": false,
+      "explanation": "Le chargement différé retarde l'affichage d'une image déjà visible et dégrade la performance perçue. Réserve `loading=\"lazy\"` aux images situées plus bas dans la page."
+    },
+    {
+      "id": "figure-figcaption",
+      "type": "flashcard",
+      "front": "À quoi servent `<figure>` et `<figcaption>` ?",
+      "code": { "lang": "html", "content": "<figure>\n  <img src=\"graphe.png\" alt=\"Ventes en hausse de 20 % en 2025\">\n  <figcaption>Évolution des ventes 2024–2025</figcaption>\n</figure>" },
+      "back": "`<figure>` regroupe un contenu autonome (image, schéma, extrait de code) et `<figcaption>` lui donne une légende, en premier ou dernier enfant. La légende ne remplace pas l'`alt` : ils n'ont pas le même rôle."
+    },
+    {
+      "id": "list-children",
+      "type": "mcq",
+      "question": "Le validateur signale une erreur sur ce code. Pourquoi ?",
+      "code": { "lang": "html", "content": "<ul>\n  <h3>Liens utiles</h3>\n  <li><a href=\"/faq\">FAQ</a></li>\n  <li><a href=\"/contact\">Contact</a></li>\n</ul>" },
+      "choices": ["Un `<a>` ne peut pas être placé dans un `<li>`", "Il faudrait `<ol>` car les liens sont numérotables", "`<ul>` n'accepte que des `<li>` comme enfants directs", "Un `<h3>` doit toujours suivre un `<h2>` dans la même liste"],
+      "answer": 2,
+      "explanation": "Le contenu autorisé de `<ul>` et `<ol>` se limite à des `<li>` (plus `<script>` et `<template>`). Le titre doit être placé avant la liste (« Element h3 not allowed as child of element ul »)."
+    },
+    {
+      "id": "label-for-id",
+      "type": "mcq",
+      "question": "Pourquoi cliquer sur le texte « E-mail » ne place-t-il pas le curseur dans le champ ?",
+      "code": { "lang": "html", "content": "<label for=\"email\">E-mail</label>\n<input type=\"email\" id=\"mail\" name=\"email\">" },
+      "choices": ["`for` doit reprendre l'`id` du champ, pas son `name`", "Le `<label>` doit être placé après le champ", "`type=\"email\"` est incompatible avec `<label>`", "Il manque l'attribut `aria-label` sur le champ"],
+      "answer": 0,
+      "explanation": "`for` pointe vers l'`id` du champ : ici `email` ≠ `mail`, donc aucune association, ni pour le clic ni pour les lecteurs d'écran. Le validateur le signale aussi."
+    },
+    {
+      "id": "input-type-email",
+      "type": "mcq",
+      "question": "Qu'apporte `type=\"email\"` par rapport à `type=\"text\"` ?",
+      "choices": ["La vérification que l'adresse existe vraiment", "Le chiffrement de la valeur lors de l'envoi", "Un clavier adapté sur mobile et un contrôle natif du format", "La désactivation du remplissage automatique"],
+      "answer": 2,
+      "explanation": "Le navigateur vérifie seulement la forme de l'adresse et propose un clavier avec `@` sur mobile. Il ne sait pas si la boîte existe, et toute validation côté client se contourne : le serveur doit revérifier."
+    },
+    {
+      "id": "button-default-type",
+      "type": "truefalse",
+      "question": "Dans ce formulaire, cliquer sur « Afficher » ne soumet pas le formulaire.",
+      "code": { "lang": "html", "content": "<form action=\"/connexion\" method=\"post\">\n  <input type=\"password\" id=\"mdp\" name=\"mdp\">\n  <button onclick=\"afficherMdp()\">Afficher</button>\n  <button type=\"submit\">Se connecter</button>\n</form>" },
+      "answer": false,
+      "explanation": "Sans attribut `type`, un `<button>` dans un formulaire vaut `type=\"submit\"` : le clic envoie le formulaire. Pour une simple action, écris `type=\"button\"`."
+    },
+    {
+      "id": "fieldset-legend",
+      "type": "flashcard",
+      "front": "Quand utiliser `<fieldset>` et `<legend>` ?",
+      "back": "Pour regrouper des champs liés, typiquement un groupe de boutons radio ou de cases à cocher. `<legend>` (premier enfant du `<fieldset>`) donne l'intitulé du groupe, annoncé par les lecteurs d'écran avec les champs."
+    },
+    {
+      "id": "boolean-attr-false",
+      "type": "mcq",
+      "question": "Dans quel état s'affiche cette case ?",
+      "code": { "lang": "html", "content": "<input type=\"checkbox\" id=\"cgu\" checked=\"false\">" },
+      "choices": ["Décochée, car la valeur vaut `false`", "Cochée, car seule la présence de l'attribut compte", "Décochée, car le navigateur ignore l'attribut", "Indéterminée (ni cochée ni décochée)"],
+      "answer": 1,
+      "explanation": "Pour un attribut booléen (`checked`, `disabled`, `required`…), la présence signifie vrai. Pour obtenir faux, il faut retirer l'attribut ; `\"false\"` n'est d'ailleurs pas une valeur autorisée."
+    },
+    {
+      "id": "p-div-nesting",
+      "type": "mcq",
+      "question": "Que se passe-t-il avec ce code ?",
+      "code": { "lang": "html", "content": "<p>\n  Introduction\n  <div class=\"note\">Remarque</div>\n</p>" },
+      "choices": ["Le `<div>` s'affiche en ligne dans le paragraphe", "Le navigateur ignore le `<div>` et son contenu", "Rien : HTML5 autorise tout contenu dans `<p>`", "Le `<p>` est fermé avant le `<div>` et le `</p>` final devient une erreur"],
+      "answer": 3,
+      "explanation": "`<p>` n'accepte que du contenu phrasé : l'ouverture du `<div>` ferme implicitement le paragraphe. Le `</p>` orphelin crée un `<p>` vide (« No p element in scope but a p end tag seen »)."
+    },
+    {
+      "id": "nested-links",
+      "type": "truefalse",
+      "question": "On peut placer un `<a>` dans un autre `<a>` (par exemple un lien « Auteur » dans une carte entièrement cliquable) si les deux `href` sont différents.",
+      "answer": false,
+      "explanation": "Un `<a>` ne peut contenir ni un autre `<a>` ni aucun élément interactif (`<button>`, `<input>`…). Le navigateur casse l'imbrication ; pour une carte cliquable, garde un seul lien principal."
+    },
+    {
+      "id": "duplicate-id",
+      "type": "truefalse",
+      "question": "Deux cartes peuvent porter `id=\"card\"` si elles sont dans des `<section>` différentes.",
+      "answer": false,
+      "explanation": "Un `id` doit être unique dans tout le document (« Duplicate ID card »), sinon `getElementById`, les ancres et les `label for` deviennent ambigus. Pour un style partagé, utilise une `class`."
+    },
+    {
+      "id": "obsolete-attr",
+      "type": "mcq",
+      "question": "Quelle image provoque une erreur « attribut obsolète » au validateur W3C ?",
+      "choices": ["`<img src=\"a.jpg\" alt=\"\" loading=\"lazy\">`", "`<img src=\"a.jpg\" alt=\"\" decoding=\"async\">`", "`<img src=\"a.jpg\" alt=\"\" align=\"left\">`", "`<img src=\"a.jpg\" alt=\"\" width=\"300\">`"],
+      "answer": 2,
+      "explanation": "`align` est un attribut de présentation obsolète en HTML5 : le validateur demande d'utiliser CSS à la place. `loading`, `decoding` et `width` sont des attributs actuels de `<img>`."
+    },
+    {
+      "id": "unclosed-div",
+      "type": "mcq",
+      "question": "Quelle erreur le validateur W3C signale-t-il ici ?",
+      "code": { "lang": "html", "content": "<main>\n  <div class=\"cards\">\n    <article>…</article>\n    <article>…</article>\n</main>" },
+      "choices": ["`<article>` n'est pas autorisé dans un `<div>`", "Un `<div>` n'est jamais fermé (« Unclosed element div »)", "`<main>` doit être l'enfant direct de `<body>`", "Les deux `<article>` doivent avoir un `id` distinct"],
+      "answer": 1,
+      "explanation": "Le `</main>` arrive alors que le `<div>` est encore ouvert : le validateur signale les éléments restés ouverts. Une indentation propre aide à repérer ces oublis."
+    },
+    {
+      "id": "validator-scope",
+      "type": "flashcard",
+      "front": "Une page sans erreur au validateur W3C : que prouve-t-elle, et que ne prouve-t-elle pas ?",
+      "back": "Elle prouve que le balisage respecte la syntaxe et les règles d'imbrication de HTML. Elle ne prouve ni l'accessibilité (pertinence des `alt`, contrastes…) ni le bon rendu. Les avertissements ne rendent pas la page invalide, mais signalent souvent un vrai problème."
     }
   ]
 }
