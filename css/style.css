@@ -55,6 +55,7 @@
   --measure: 40rem;
 }
 
+/* Tokens sombres : ce bloc et :root[data-theme="dark"] ci-dessous doivent rester IDENTIQUES. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: oklch(0.17 0.012 265);
@@ -97,6 +98,7 @@
   }
 }
 
+/* Copie exacte du bloc sombre ci-dessus (choix manuel du thème). */
 :root[data-theme="dark"] {
   --bg: oklch(0.17 0.012 265);
   --surface: oklch(0.21 0.014 265);
@@ -226,9 +228,10 @@ code, pre { font-family: var(--font-mono); }
 .site-header .container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   min-height: 3.5rem;
 }
-.site-header .container { justify-content: space-between; gap: 1rem; }
 .theme-toggle {
   display: inline-flex;
   align-items: center;
