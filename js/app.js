@@ -9,6 +9,8 @@ import { createStorage } from './storage.js';
 import { renderHome } from './render/home.js';
 import { renderQuizStart } from './render/quiz-start.js';
 import { renderMessage } from './render/message.js';
+import { announce } from './render/dom.js';
+import { initThemeToggle } from './theme.js';
 
 const app = document.getElementById('app');
 const storage = createStorage();
@@ -132,5 +134,6 @@ document.querySelector('.skip-link').addEventListener('click', (event) => {
   event.preventDefault();
   app.focus();
 });
+initThemeToggle(document.querySelector('.theme-toggle'), { announce });
 window.addEventListener('hashchange', handleRoute);
 handleRoute();

@@ -1,7 +1,7 @@
 /* Kuizz — feuille de styles
    Direction : « carnet de révision » — papier chaud et encre, une seule couleur
    d'action (cobalt), vert/rouge réservés au verdict juste/faux.
-   Mobile first ; thème sombre via prefers-color-scheme. */
+   Mobile first ; thème sombre via prefers-color-scheme ou data-theme. */
 
 /* ---------- Tokens ---------- */
 :root {
@@ -56,7 +56,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: oklch(0.17 0.012 265);
     --surface: oklch(0.21 0.014 265);
     --surface-2: oklch(0.25 0.016 265);
@@ -96,6 +96,49 @@
     --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 6px 18px oklch(0 0 0 / 0.25);
   }
 }
+
+:root[data-theme="dark"] {
+  --bg: oklch(0.17 0.012 265);
+  --surface: oklch(0.21 0.014 265);
+  --surface-2: oklch(0.25 0.016 265);
+  --text: oklch(0.94 0.008 85);
+  --text-muted: oklch(0.75 0.015 265);
+  --border: oklch(0.32 0.016 265);
+  --border-strong: oklch(0.55 0.02 265);
+
+  --accent: oklch(0.74 0.13 264);
+  --accent-hover: oklch(0.8 0.11 264);
+  --accent-text: oklch(0.8 0.11 264);
+  --on-accent: oklch(0.17 0.03 265);
+  --accent-soft: oklch(0.29 0.06 264);
+
+  --ok-bg: oklch(0.255 0.045 150);
+  --ok-border: oklch(0.62 0.13 150);
+  --ok-text: oklch(0.85 0.13 150);
+  --ok-solid: oklch(0.78 0.15 150);
+  --on-ok: oklch(0.18 0.03 150);
+
+  --ko-bg: oklch(0.255 0.05 22);
+  --ko-border: oklch(0.64 0.16 25);
+  --ko-text: oklch(0.84 0.09 25);
+  --ko-solid: oklch(0.76 0.13 25);
+  --on-ko: oklch(0.18 0.03 25);
+
+  --neutral-bg: oklch(0.26 0.03 264);
+  --neutral-border: oklch(0.5 0.07 264);
+
+  --code-bg: oklch(0.13 0.012 265);
+  --code-text: oklch(0.92 0.01 265);
+  --code-muted: oklch(0.7 0.02 265);
+  --inline-code-bg: oklch(0.29 0.025 265);
+  --inline-code-text: oklch(0.88 0.06 264);
+
+  --focus: oklch(0.8 0.12 264);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 6px 18px oklch(0 0 0 / 0.25);
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 
 /* ---------- Base ---------- */
 *,
@@ -185,6 +228,24 @@ code, pre { font-family: var(--font-mono); }
   align-items: center;
   min-height: 3.5rem;
 }
+.site-header .container { justify-content: space-between; gap: 1rem; }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -0.5rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.theme-toggle:hover { background: var(--surface-2); border-color: var(--border); }
+.theme-toggle[data-target="dark"] .icon-sun,
+.theme-toggle[data-target="light"] .icon-moon { display: none; }
 .brand {
   display: inline-flex;
   align-items: center;
