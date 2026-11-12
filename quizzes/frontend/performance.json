@@ -1,0 +1,309 @@
+{
+  "id": "frontend-performance",
+  "title": "Performance web & Core Web Vitals",
+  "subject": "integration",
+  "description": "LCP, INP et CLS, images légères et responsives, chargement différé, vidéos, polices web et audit avec l'onglet Réseau et Lighthouse.",
+  "questions": [
+    {
+      "id": "cwv-current-trio",
+      "type": "mcq",
+      "question": "Quelles métriques forment aujourd'hui les Core Web Vitals ?",
+      "choices": [
+        "LCP, FID et CLS",
+        "FCP, TTFB et CLS",
+        "LCP, INP et CLS",
+        "LCP, TBT et INP"
+      ],
+      "answer": 2,
+      "explanation": "Depuis mars 2024, l'INP a remplacé le FID : le trio mesure le chargement (LCP), la réactivité (INP) et la stabilité visuelle (CLS). FCP, TTFB et TBT sont des métriques utiles, mais pas des Core Web Vitals."
+    },
+    {
+      "id": "lcp-good-threshold",
+      "type": "mcq",
+      "question": "Selon web.dev, jusqu'à quelle valeur le LCP d'une page est-il jugé « bon » ?",
+      "choices": [
+        "2,5 s",
+        "1,8 s",
+        "3,5 s",
+        "4,0 s"
+      ],
+      "answer": 0,
+      "explanation": "Un LCP de 2,5 s ou moins est bon, entre 2,5 et 4 s il est à améliorer, au-delà de 4 s il est mauvais. C'est aussi le seuil que ta checklist de mise en production vérifie avec Lighthouse."
+    },
+    {
+      "id": "lcp-candidate-elements",
+      "type": "flashcard",
+      "front": "Quels éléments peuvent être retenus comme élément LCP ?",
+      "back": "Le plus grand élément visible dans la fenêtre au chargement : une `<img>`, l'image `poster` d'une vidéo, une `background-image` chargée via `url()`, ou un bloc de texte (titre, paragraphe). Sur une page vitrine, c'est très souvent la bannière."
+    },
+    {
+      "id": "lcp-element-guess",
+      "type": "mcq",
+      "question": "Sur un écran d'ordinateur, quel élément de cette page sera très probablement l'élément LCP ?",
+      "code": {
+        "lang": "html",
+        "content": "<header>\n  <img src=\"logo.svg\" alt=\"WebCréa\" width=\"120\" height=\"40\">\n</header>\n<main>\n  <h1>Agence web à Lyon</h1>\n  <img src=\"equipe.avif\" alt=\"L'équipe en réunion\"\n       width=\"1600\" height=\"900\">\n  <p>Nous créons des sites sur mesure.</p>\n</main>"
+      },
+      "choices": [
+        "Le logo `logo.svg` de l'en-tête",
+        "Le titre principal `<h1>`",
+        "Le paragraphe `<p>` final",
+        "La grande image `equipe.avif`"
+      ],
+      "answer": 3,
+      "explanation": "Le LCP retient le plus grand élément affiché dans la fenêtre au chargement ; une image de 1600 × 900 occupe bien plus de surface que le logo ou les textes. C'est donc elle qu'il faut charger en priorité."
+    },
+    {
+      "id": "lcp-lazy-banner-fix",
+      "type": "mcq",
+      "question": "Lighthouse annonce un LCP de 4,1 s et signale que l'image LCP est chargée en différé. Quelle correction appliques-tu ?",
+      "code": {
+        "lang": "html",
+        "content": "<section class=\"hero\">\n  <img src=\"hero.avif\" alt=\"Atelier de l'agence\"\n       width=\"1600\" height=\"900\" loading=\"lazy\">\n</section>"
+      },
+      "choices": [
+        "Garder `loading=\"lazy\"` et ajouter `decoding=\"async\"`",
+        "Retirer `loading=\"lazy\"` ; mettre `fetchpriority=\"high\"`",
+        "Passer la bannière en `background-image` dans le CSS",
+        "Déplacer cette balise `<img>` juste avant le `</body>`"
+      ],
+      "answer": 1,
+      "explanation": "Le chargement différé fait attendre l'image LCP jusqu'à ce que la mise en page soit calculée ; `fetchpriority=\"high\"` la place au contraire en tête de la file. Une `background-image` serait découverte encore plus tard, après le CSS."
+    },
+    {
+      "id": "lazy-which-image",
+      "type": "mcq",
+      "question": "Sur ta page d'accueil, quelle image mérite `loading=\"lazy\"` ?",
+      "choices": [
+        "Le logo affiché dans l'en-tête du site",
+        "La bannière qui occupe le haut de l'écran",
+        "Les photos de galerie en bas de page",
+        "La photo de profil placée près du `<h1>`"
+      ],
+      "answer": 2,
+      "explanation": "Le chargement différé ne télécharge une image qu'à l'approche du défilement : il ne sert qu'aux images situées sous la ligne de flottaison. Les images visibles dès l'ouverture doivent partir tout de suite."
+    },
+    {
+      "id": "max-width-same-weight",
+      "type": "mcq",
+      "question": "`hero.jpg` mesure 4000 px de large et pèse 3 Mo. Avec ce CSS, que télécharge un smartphone de 375 px de large ?",
+      "code": {
+        "lang": "css",
+        "content": "img {\n  max-width: 100%;\n  height: auto;\n}"
+      },
+      "choices": [
+        "Une copie réduite à 375 px créée par le navigateur",
+        "Le fichier complet de 3 Mo, affiché en plus petit",
+        "Environ 10 % du fichier, au prorata de la largeur",
+        "Rien tant que l'image n'entre pas dans la fenêtre"
+      ],
+      "answer": 1,
+      "explanation": "`max-width: 100%` empêche seulement l'image de déborder de son conteneur : le fichier téléchargé reste le même. Pour alléger le mobile, il faut proposer d'autres fichiers avec `srcset` ou `<picture>`."
+    },
+    {
+      "id": "srcset-browser-chooses",
+      "type": "truefalse",
+      "question": "Avec ce code, un smartphone de 400 px de large est obligé de télécharger `petite.jpg`.",
+      "code": {
+        "lang": "html",
+        "content": "<img src=\"petite.jpg\"\n     srcset=\"petite.jpg 480w, grande.jpg 1200w\"\n     alt=\"L'équipe au travail\">"
+      },
+      "answer": false,
+      "explanation": "`srcset` ne fait que proposer des candidats : le navigateur choisit en tenant compte de la densité de pixels. Un écran 3x a besoin d'environ 1200 pixels réels pour 400 px affichés, il prendra donc `grande.jpg`."
+    },
+    {
+      "id": "art-direction-picture",
+      "type": "mcq",
+      "question": "Ta bannière doit montrer un recadrage portrait sur mobile et une vue paysage sur ordinateur. Quel outil choisis-tu ?",
+      "choices": [
+        "Un `srcset` avec des descripteurs `w`",
+        "Deux `<img>`, l'une masquée en `display: none`",
+        "Un `<picture>` avec un `<source media>`",
+        "Un attribut `sizes` contenant une media query"
+      ],
+      "answer": 2,
+      "explanation": "Changer de cadrage, c'est de la direction artistique : seul `<picture>` impose un fichier par condition `media`. `srcset` et `sizes` servent à choisir une résolution du même visuel, et une `<img>` masquée peut quand même être téléchargée."
+    },
+    {
+      "id": "picture-media-tablet",
+      "type": "mcq",
+      "question": "Sur une tablette de 800 px de large, quel fichier ce code télécharge-t-il ?",
+      "code": {
+        "lang": "html",
+        "content": "<picture>\n  <source media=\"(min-width: 992px)\"\n          srcset=\"banniere-large.avif\">\n  <img src=\"banniere-etroite.avif\" alt=\"Vue de l'atelier\">\n</picture>"
+      },
+      "choices": [
+        "`banniere-etroite.avif`, celui du `<img>`",
+        "`banniere-large.avif`, réduit par le CSS",
+        "Les deux, puis il garde le plus net",
+        "Aucun : seul le texte `alt` s'affiche"
+      ],
+      "answer": 0,
+      "explanation": "La condition `(min-width: 992px)` est fausse à 800 px : le navigateur ignore la `<source>` et utilise le `src` de l'`<img>`. Un seul fichier est téléchargé, et l'`<img>` reste obligatoire dans tout `<picture>`."
+    },
+    {
+      "id": "picture-type-fallback",
+      "type": "mcq",
+      "question": "Un navigateur sait afficher le WebP mais pas l'AVIF. Quel fichier télécharge-t-il ?",
+      "code": {
+        "lang": "html",
+        "content": "<picture>\n  <source srcset=\"photo.avif\" type=\"image/avif\">\n  <source srcset=\"photo.webp\" type=\"image/webp\">\n  <img src=\"photo.jpg\" alt=\"Façade de l'agence\"\n       width=\"800\" height=\"600\">\n</picture>"
+      },
+      "choices": [
+        "`photo.avif`, puis il abandonne",
+        "`photo.jpg`, le repli du `<img>`",
+        "`photo.webp` puis `photo.jpg`",
+        "`photo.webp` et rien d'autre"
+      ],
+      "answer": 3,
+      "explanation": "Le navigateur parcourt les `<source>` dans l'ordre et retient la première dont le `type` lui est connu, sans rien télécharger pour les autres. Le JPEG ne sert qu'aux navigateurs qui ne lisent aucun des deux formats."
+    },
+    {
+      "id": "avif-webp-why",
+      "type": "flashcard",
+      "front": "Pourquoi servir des images AVIF ou WebP plutôt que du JPEG ou du PNG ?",
+      "back": "À qualité visuelle comparable, ces formats donnent des fichiers nettement plus légers ; l'AVIF compresse en général encore mieux que le WebP. Garde un repli JPEG dans un `<picture>` avec l'attribut `type` pour les navigateurs anciens."
+    },
+    {
+      "id": "cls-img-dimensions",
+      "type": "mcq",
+      "question": "Au chargement, le paragraphe saute vers le bas quand la photo arrive. Quelle correction évite ce décalage ?",
+      "code": {
+        "lang": "html",
+        "content": "<h2>Nos réalisations</h2>\n<img src=\"projet.webp\" alt=\"Site vitrine d'un fleuriste\">\n<p>Refonte complète livrée en 2026.</p>"
+      },
+      "choices": [
+        "Ajouter `loading=\"lazy\"` sur cette image",
+        "Convertir la photo au format AVIF",
+        "Indiquer `width` et `height` à l'image",
+        "Ajouter `decoding=\"async\"` sur cette image"
+      ],
+      "answer": 2,
+      "explanation": "Avec `width` et `height`, le navigateur connaît le ratio de l'image et lui réserve sa place avant le téléchargement : plus de saut, donc un meilleur CLS. Le CSS `max-width: 100%; height: auto;` garde l'image responsive."
+    },
+    {
+      "id": "cls-unitless-score",
+      "type": "truefalse",
+      "question": "Le CLS est un score sans unité : une page est jugée bonne si son CLS vaut 0,1 ou moins.",
+      "answer": true,
+      "explanation": "Le CLS additionne l'ampleur des décalages de mise en page inattendus ; ce n'est pas une durée. web.dev considère un CLS de 0,1 ou moins comme bon."
+    },
+    {
+      "id": "inp-measures",
+      "type": "mcq",
+      "question": "Que mesure l'INP (Interaction to Next Paint) ?",
+      "choices": [
+        "Le délai d'arrivée du premier octet envoyé par le serveur",
+        "Le temps d'affichage du plus grand élément visible",
+        "La latence des clics, taps et touches sur toute la visite",
+        "L'ampleur des décalages de mise en page inattendus"
+      ],
+      "answer": 2,
+      "explanation": "L'INP observe les interactions de toute la visite et retient l'une des plus lentes ; il est bon à 200 ms ou moins. Il a remplacé le FID, qui ne mesurait que le délai de la première interaction."
+    },
+    {
+      "id": "video-preload-none-poster",
+      "type": "mcq",
+      "question": "Au chargement de la page, que télécharge en principe le navigateur pour ce lecteur ?",
+      "code": {
+        "lang": "html",
+        "content": "<video controls preload=\"none\"\n       poster=\"apercu.webp\" src=\"presentation.mp4\">\n</video>"
+      },
+      "choices": [
+        "Les métadonnées seules : durée et dimensions",
+        "La vidéo entière, mise en cache sans être lue",
+        "Rien : le lecteur reste noir jusqu'au clic",
+        "`apercu.webp` ; la vidéo attend la lecture"
+      ],
+      "answer": 3,
+      "explanation": "`preload=\"none\"` demande de ne rien précharger de la vidéo, et `poster` affiche une vignette à la place. C'est une indication que les navigateurs respectent en pratique ; `preload=\"metadata\"` chargerait seulement durée et dimensions."
+    },
+    {
+      "id": "video-autoplay-overrides-preload",
+      "type": "truefalse",
+      "question": "Ici, `preload=\"none\"` empêche le téléchargement de `demo.mp4` au chargement de la page.",
+      "code": {
+        "lang": "html",
+        "content": "<video autoplay muted loop preload=\"none\"\n       poster=\"apercu.webp\" src=\"demo.mp4\"></video>"
+      },
+      "answer": false,
+      "explanation": "`autoplay` a priorité sur `preload` : la lecture démarre seule, donc la vidéo est téléchargée tout de suite. Pour économiser la bande passante, retire `autoplay` et laisse l'utilisateur lancer la lecture."
+    },
+    {
+      "id": "font-display-in-font-face",
+      "type": "mcq",
+      "question": "Le texte reste invisible tant que `inter.woff2` n'est pas arrivé. Pourquoi `font-display: swap` n'a-t-il aucun effet ?",
+      "code": {
+        "lang": "css",
+        "content": "@font-face {\n  font-family: \"Inter\";\n  src: url(\"inter.woff2\") format(\"woff2\");\n}\nbody {\n  font-family: \"Inter\", sans-serif;\n  font-display: swap;\n}"
+      },
+      "choices": [
+        "`swap` ne marche qu'avec des polices au format TTF",
+        "Ce descripteur n'est lu que dans `@font-face`",
+        "Il faut d'abord précharger le fichier de police",
+        "Il faut plutôt la valeur `block` dans ce cas"
+      ],
+      "answer": 1,
+      "explanation": "`font-display` est un descripteur de `@font-face`, pas une propriété applicable à `body` : ici il est simplement ignoré. Déplacé dans `@font-face`, il affiche le texte en police système en attendant la webfont."
+    },
+    {
+      "id": "font-swap-fout",
+      "type": "truefalse",
+      "question": "Avec `font-display: swap`, le texte s'affiche d'abord dans une police de secours, puis change d'apparence quand la webfont arrive.",
+      "answer": true,
+      "explanation": "`swap` supprime le texte invisible (FOIT) au prix d'un bref changement de police (FOUT). Il n'accélère pas le téléchargement de la police : il change seulement ce qui s'affiche en attendant."
+    },
+    {
+      "id": "google-fonts-display-swap",
+      "type": "flashcard",
+      "front": "Avec Google Fonts, comment obtenir `font-display: swap` sans écrire toi-même le `@font-face` ?",
+      "code": {
+        "lang": "html",
+        "content": "<link rel=\"stylesheet\"\n  href=\"https://fonts.googleapis.com/css2?family=Inter&display=swap\">"
+      },
+      "back": "Ajoute le paramètre `display=swap` à l'URL. La feuille générée par Google place alors `font-display: swap` dans chacun de ses `@font-face`."
+    },
+    {
+      "id": "lcp-background-preload",
+      "type": "flashcard",
+      "front": "Ta bannière LCP est une `background-image` CSS. Pourquoi arrive-t-elle tard et comment l'aider ?",
+      "code": {
+        "lang": "html",
+        "content": "<link rel=\"preload\" as=\"image\" href=\"hero.avif\"\n      fetchpriority=\"high\">"
+      },
+      "back": "Le navigateur ne la découvre qu'après avoir téléchargé et appliqué le CSS. Un `<link rel=\"preload\" as=\"image\">` dans le `<head>` la signale dès la lecture du HTML ; une vraie `<img>` reste la solution la plus simple."
+    },
+    {
+      "id": "network-throttling",
+      "type": "mcq",
+      "question": "Pour reproduire dans l'onglet Réseau le chargement de ta page sur un mobile en 4G, que dois-tu régler ?",
+      "choices": [
+        "Un profil de limitation du débit (throttling)",
+        "L'émulation d'appareil, pour la taille d'écran",
+        "Un filtre des requêtes sur le type `Img`",
+        "Une fenêtre de navigation privée"
+      ],
+      "answer": 0,
+      "explanation": "Seule la limitation du débit ralentit le réseau comme une connexion mobile. L'émulation d'appareil change la taille de l'écran mais garde la connexion rapide de ton poste, et le filtre `Img` ne fait que trier l'affichage."
+    },
+    {
+      "id": "network-find-heavy-image",
+      "type": "flashcard",
+      "front": "Dans l'onglet Réseau des DevTools, comment repérer l'image qui plombe le chargement ?",
+      "back": "Coche « Disable cache », recharge, filtre sur `Img` et trie par la colonne de taille. La cascade (Waterfall) montre aussi quand chaque requête démarre : une image LCP qui part tard est suspecte."
+    },
+    {
+      "id": "lighthouse-lab-vs-field",
+      "type": "truefalse",
+      "question": "Si Lighthouse affiche un LCP de 1,8 s sur ton poste, tous tes visiteurs réels ont forcément un LCP inférieur à 2,5 s.",
+      "answer": false,
+      "explanation": "Lighthouse produit des mesures de laboratoire : un seul chargement simulé, avec un appareil et un réseau donnés. Les vrais visiteurs ont d'autres téléphones et connexions ; leurs données de terrain apparaissent par exemple dans PageSpeed Insights."
+    },
+    {
+      "id": "lighthouse-what",
+      "type": "flashcard",
+      "front": "Qu'est-ce que Lighthouse et où le lances-tu ?",
+      "back": "Un outil d'audit intégré aux DevTools de Chrome (onglet Lighthouse), aussi utilisé par PageSpeed Insights. Il simule par défaut un mobile au réseau bridé et note la performance (dont le LCP), l'accessibilité, les bonnes pratiques et le SEO."
+    }
+  ]
+}

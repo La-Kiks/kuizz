@@ -5,7 +5,8 @@
       "title": "Intégration front-end",
       "quizzes": [
         { "id": "frontend-html", "file": "frontend/html.json" },
-        { "id": "frontend-css", "file": "frontend/css.json" }
+        { "id": "frontend-css", "file": "frontend/css.json" },
+        { "id": "frontend-performance", "file": "frontend/performance.json" }
       ]
     },
     {
