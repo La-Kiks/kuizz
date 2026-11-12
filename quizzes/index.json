@@ -4,7 +4,8 @@
       "id": "frontend",
       "title": "Frontend",
       "quizzes": [
-        { "id": "frontend-html", "file": "frontend/html.json" }
+        { "id": "frontend-html", "file": "frontend/html.json" },
+        { "id": "frontend-css", "file": "frontend/css.json" }
       ]
     }
   ]

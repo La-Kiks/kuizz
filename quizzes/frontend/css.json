@@ -1,0 +1,208 @@
+{
+  "id": "frontend-css",
+  "title": "CSS responsive & mise en page",
+  "subject": "frontend",
+  "description": "Cascade, modèle de boîte, flexbox, grid, mobile first, navbar et cards responsives, accessibilité visuelle et nouveautés CSS.",
+  "questions": [
+    {
+      "id": "specificity-classes-vs-types",
+      "type": "mcq",
+      "question": "Le lien est dans `<nav class=\"nav\"><ul><li><a class=\"link\">`. Quelle couleur prend-il, et pourquoi ?",
+      "code": { "lang": "css", "content": ".nav .link { color: green; }\nnav ul li a { color: blue; }" },
+      "choices": ["Bleu : à égalité, la dernière règle déclarée gagne", "Bleu : quatre sélecteurs de type battent deux classes", "Vert : deux classes battent quatre sélecteurs de type", "Vert : la première règle déclarée est prioritaire"],
+      "answer": 2,
+      "explanation": "La spécificité se compare colonne par colonne (id, classes, types) : `0-2-0` l'emporte sur `0-0-4`, quel que soit le nombre de sélecteurs de type. L'ordre d'apparition ne départage que deux règles de même spécificité."
+    },
+    {
+      "id": "inheritance-defaults",
+      "type": "flashcard",
+      "front": "Quelles propriétés CSS sont héritées par défaut, et comment forcer l'héritage ?",
+      "back": "Surtout les propriétés de texte (`color`, `font-family`, `font-size`, `line-height`…). Les propriétés de boîte (`margin`, `padding`, `border`, `background`) ne le sont pas. Le mot-clé `inherit` force l'héritage d'une propriété."
+    },
+    {
+      "id": "box-model-content-box",
+      "type": "mcq",
+      "question": "Sans réglage de `box-sizing`, quelle largeur totale occupe cette carte à l'écran (marges exclues) ?",
+      "code": { "lang": "css", "content": ".card {\n  width: 300px;\n  padding: 20px;\n  border: 2px solid;\n}" },
+      "choices": ["`300px`", "`320px`", "`340px`", "`344px`"],
+      "answer": 3,
+      "explanation": "Par défaut `box-sizing: content-box` : `width` ne concerne que le contenu, on ajoute le padding (2 × 20) et la bordure (2 × 2). Avec `box-sizing: border-box`, la carte ferait 300 px, padding et bordure compris."
+    },
+    {
+      "id": "rem-em-compute",
+      "type": "mcq",
+      "question": "Que valent `font-size` et `padding` pour `.card p` ?",
+      "code": { "lang": "css", "content": "/* taille par défaut du navigateur : 16px */\n.card { font-size: 1.25rem; }\n.card p {\n  font-size: 1.5em;\n  padding: 1rem;\n}" },
+      "choices": ["`24px` et `16px`", "`30px` et `16px`", "`30px` et `30px`", "`24px` et `20px`"],
+      "answer": 1,
+      "explanation": "`rem` se rapporte toujours à la taille de police de la racine (16 px). `em` sur `font-size` se rapporte à celle du parent : 1,5 × 20 px = 30 px ; sur les autres propriétés, il se rapporte à la police de l'élément lui-même."
+    },
+    {
+      "id": "units-percent-vw-ch",
+      "type": "flashcard",
+      "front": "Que représentent les unités `%`, `vw` et `ch` ?",
+      "back": "`%` : une fraction d'une valeur de référence, par exemple la largeur du bloc conteneur pour `width`. `1vw` : 1 % de la largeur du viewport. `1ch` : la largeur du caractère « 0 » de la police, pratique pour limiter une ligne de texte (`max-width: 65ch`)."
+    },
+    {
+      "id": "mobile-first-min-width",
+      "type": "mcq",
+      "question": "Que produit ce code écrit en mobile first ?",
+      "code": { "lang": "css", "content": ".cards {\n  display: grid;\n  gap: 1rem;\n}\n@media (min-width: 48em) {\n  .cards { grid-template-columns: 1fr 1fr; }\n}" },
+      "choices": ["Une colonne par défaut, deux à partir de `48em` de large", "Deux colonnes par défaut, une seule en dessous de `48em`", "Deux colonnes uniquement sur les écrans de moins de `48em`", "Une colonne partout : la règle `@media` est ignorée sur mobile"],
+      "answer": 0,
+      "explanation": "Les styles hors media query s'appliquent partout et visent le mobile (une grille sans colonnes définies n'en a qu'une). `min-width` ajoute ensuite la mise en page des écrans plus larges, sans avoir à défaire des styles desktop."
+    },
+    {
+      "id": "viewport-block-zoom",
+      "type": "truefalse",
+      "question": "Ce meta viewport nuit à l'accessibilité.",
+      "code": { "lang": "html", "content": "<meta name=\"viewport\"\n      content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no\">" },
+      "answer": true,
+      "explanation": "`maximum-scale=1` et `user-scalable=no` empêchent de zoomer, alors que les personnes malvoyantes ont besoin d'agrandir le contenu (WCAG : redimensionnement du texte). Garde seulement `width=device-width, initial-scale=1`."
+    },
+    {
+      "id": "flex-column-cross-axis",
+      "type": "mcq",
+      "question": "Quelle déclaration ajouter à `.menu` pour centrer horizontalement ses liens ?",
+      "code": { "lang": "css", "content": ".menu {\n  display: flex;\n  flex-direction: column;\n}" },
+      "choices": ["`justify-content: center;`", "`align-items: center;`", "`justify-items: center;`", "`vertical-align: middle;`"],
+      "answer": 1,
+      "explanation": "Avec `flex-direction: column`, l'axe principal est vertical et l'axe secondaire horizontal. `justify-content` agit sur l'axe principal, `align-items` sur l'axe secondaire ; `justify-items` est ignoré en flexbox."
+    },
+    {
+      "id": "flex-gap-support",
+      "type": "truefalse",
+      "question": "Ici, `gap` est ignoré : cette propriété ne fonctionne qu'avec CSS Grid.",
+      "code": { "lang": "css", "content": ".tags {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 0.5rem;\n}" },
+      "answer": false,
+      "explanation": "`gap` fonctionne aussi en flexbox dans tous les navigateurs actuels. Avec `flex-wrap: wrap`, les étiquettes passent à la ligne et `gap` espace à la fois les éléments et les lignes, sans marge parasite sur les bords."
+    },
+    {
+      "id": "flex-1-shorthand",
+      "type": "flashcard",
+      "front": "Que fait `flex: 1` sur `.content` ?",
+      "code": { "lang": "css", "content": ".layout { display: flex; }\n.sidebar { width: 15rem; }\n.content { flex: 1; }" },
+      "back": "C'est le raccourci de `flex: 1 1 0` : l'élément peut grandir et rétrécir à partir d'une base nulle. Ici, `.content` occupe tout l'espace laissé par la barre latérale. Plusieurs éléments en `flex: 1` se partagent l'espace à parts égales."
+    },
+    {
+      "id": "grid-auto-fit-minmax",
+      "type": "mcq",
+      "question": "Quelle mise en page produit ce code ?",
+      "code": { "lang": "css", "content": ".cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: 1rem;\n}" },
+      "choices": ["Autant de colonnes d'au moins `16rem` que la place le permet", "Exactement 16 colonnes égales, quelle que soit la largeur d'écran", "Une colonne de `16rem`, puis une seconde qui prend le reste", "Des colonnes de `16rem` pile, centrées dans le conteneur"],
+      "answer": 0,
+      "explanation": "Le navigateur crée autant de colonnes que possible sans descendre sous `16rem`, puis `1fr` les étire pour remplir la ligne : une grille responsive sans media query. Sous `16rem` de large, la grille déborde : `minmax(min(16rem, 100%), 1fr)` corrige ce cas."
+    },
+    {
+      "id": "grid-fr-after-gap",
+      "type": "flashcard",
+      "front": "Quelle largeur font les deux colonnes ?",
+      "code": { "lang": "css", "content": ".grid {\n  width: 930px;\n  display: grid;\n  grid-template-columns: 1fr 2fr;\n  gap: 30px;\n}" },
+      "back": "`300px` et `600px` : `fr` partage l'espace restant une fois les gouttières retirées (930 − 30 = 900, en 3 parts). Avec des `%` (33,33 % + 66,67 %), le `gap` ferait déborder la grille."
+    },
+    {
+      "id": "burger-toggle-js",
+      "type": "mcq",
+      "question": "Que doit faire le JavaScript à chaque clic sur ce bouton ?",
+      "code": { "lang": "html", "content": "<button type=\"button\" aria-controls=\"menu\" aria-expanded=\"false\">\n  <span class=\"sr-only\">Menu</span>\n</button>\n<ul id=\"menu\" hidden>…</ul>" },
+      "choices": ["Basculer `hidden` sur le menu ; le navigateur met `aria-expanded` à jour", "Basculer `aria-hidden` sur le bouton et `display` sur le menu", "Basculer `hidden` sur le menu et `aria-expanded` sur le bouton", "Ajouter `role=\"button\"` au bouton, puis basculer `hidden` sur le menu"],
+      "answer": 2,
+      "explanation": "`aria-expanded` n'est pas mis à jour automatiquement : c'est ton script qui doit le passer à `\"true\"` ou `\"false\"` en même temps qu'il affiche ou masque le menu. `role=\"button\"` est inutile sur un `<button>`, et masquer le bouton aux lecteurs d'écran le rendrait inutilisable."
+    },
+    {
+      "id": "burger-button-aria",
+      "type": "flashcard",
+      "front": "Pourquoi le menu burger doit-il être un `<button>` avec `aria-expanded` ?",
+      "back": "`<button>` est focusable, activable au clavier (Entrée, Espace) et annoncé comme bouton. `aria-expanded` indique aux lecteurs d'écran si le menu est ouvert ou fermé. Une icône seule exige aussi un nom accessible (texte masqué ou `aria-label`)."
+    },
+    {
+      "id": "card-object-fit-cover",
+      "type": "mcq",
+      "question": "Les photos des cartes ont des formats variés. Quel résultat donne ce code ?",
+      "code": { "lang": "css", "content": ".card img {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n  object-fit: cover;\n}" },
+      "choices": ["Les images sont étirées en 16:9, quitte à être déformées", "Les images sont en 16:9, recadrées sans être déformées", "Les images gardent leur format, avec des bandes vides", "Les images font 16 px de large sur 9 px de haut"],
+      "answer": 1,
+      "explanation": "`aspect-ratio` impose une boîte 16:9 identique pour toutes les cartes, et `object-fit: cover` remplit cette boîte en conservant les proportions, quitte à rogner les bords. `contain` laisserait des bandes vides, `fill` (la valeur par défaut) déformerait l'image."
+    },
+    {
+      "id": "position-absolute-reference",
+      "type": "flashcard",
+      "front": "Par rapport à quoi le badge est-il placé ?",
+      "code": { "lang": "css", "content": ".card { position: relative; }\n.card .badge {\n  position: absolute;\n  top: 0.5rem;\n  right: 0.5rem;\n}" },
+      "back": "Par rapport à l'ancêtre positionné le plus proche (`position` autre que `static`), ici la `.card` : il se cale dans son coin supérieur droit. Sans ancêtre positionné, il se placerait par rapport au bloc conteneur initial. Un élément en `absolute` sort du flux : les autres l'ignorent."
+    },
+    {
+      "id": "img-max-width-no-upscale",
+      "type": "truefalse",
+      "question": "`img { max-width: 100%; }` agrandit chaque image pour qu'elle remplisse toute la largeur de son conteneur.",
+      "answer": false,
+      "explanation": "`max-width` ne fait que limiter : une grande image est réduite à la largeur du conteneur, une petite garde sa taille naturelle. Pour remplir le conteneur, il faut `width: 100%` ; ajoute `height: auto` pour garder les proportions."
+    },
+    {
+      "id": "srcset-sizes",
+      "type": "mcq",
+      "question": "Que fait le navigateur avec `srcset` et `sizes` ?",
+      "code": { "lang": "html", "content": "<img src=\"chat-800.jpg\"\n     srcset=\"chat-400.jpg 400w, chat-800.jpg 800w, chat-1600.jpg 1600w\"\n     sizes=\"(min-width: 48em) 50vw, 100vw\"\n     alt=\"Chat roux endormi\">" },
+      "choices": ["Il télécharge les trois fichiers et affiche le plus net", "Il prend `chat-1600.jpg` seulement sur un écran de 1600 px", "Il demande au serveur de redimensionner `chat-800.jpg`", "Il choisit le fichier adapté à la taille affichée"],
+      "answer": 3,
+      "explanation": "`srcset` liste les fichiers avec leur largeur réelle (`w`), `sizes` indique la largeur d'affichage prévue ; le navigateur en déduit le fichier suffisant pour l'écran et sa densité de pixels, et n'en télécharge qu'un. `src` sert de solution de repli."
+    },
+    {
+      "id": "dark-theme-variables",
+      "type": "mcq",
+      "question": "Qu'est-ce qui fait passer cette page en thème sombre ?",
+      "code": { "lang": "css", "content": ":root { --bg: #fff; --text: #1a1a1a; }\n@media (prefers-color-scheme: dark) {\n  :root { --bg: #121212; --text: #eee; }\n}\nbody {\n  background: var(--bg);\n  color: var(--text);\n}" },
+      "choices": ["La préférence clair/sombre réglée sur l'appareil", "L'heure locale de l'appareil, à partir de la tombée de la nuit", "Un clic de l'utilisateur sur un bouton de changement de thème", "Le capteur de luminosité ambiante de l'écran du téléphone"],
+      "answer": 0,
+      "explanation": "`prefers-color-scheme` reflète la préférence de thème de l'utilisateur, réglée dans son système (ou son navigateur). Grâce aux variables CSS, il suffit de redéfinir les valeurs dans la media query : toutes les règles qui utilisent `var()` suivent. Un bouton de thème manuel demanderait du JavaScript en plus."
+    },
+    {
+      "id": "reduced-motion-not-automatic",
+      "type": "truefalse",
+      "question": "Quand l'utilisateur active « réduire les animations » dans son système, le navigateur désactive lui-même les animations et transitions CSS du site.",
+      "answer": false,
+      "explanation": "Le navigateur expose seulement la préférence via la media query `prefers-reduced-motion: reduce`. C'est au site de supprimer ou d'adoucir ses animations dans ce cas, notamment les mouvements amples qui peuvent provoquer des nausées."
+    },
+    {
+      "id": "focus-visible-keyboard",
+      "type": "mcq",
+      "question": "Quelle pseudo-classe permet de styler l'indicateur de focus pour la navigation au clavier, sans l'afficher au clic souris sur un bouton ?",
+      "choices": ["`:focus`", "`:focus-visible`", "`:focus-within`", "`:active`"],
+      "answer": 1,
+      "explanation": "`:focus-visible` s'applique quand le navigateur juge que le focus doit être montré, typiquement au clavier. `:focus` s'applique aussi au clic, `:focus-within` cible un parent de l'élément focalisé. Ne supprime jamais l'`outline` sans indicateur de remplacement."
+    },
+    {
+      "id": "clamp-fluid-type",
+      "type": "mcq",
+      "question": "Quelle taille de police obtient-on ?",
+      "code": { "lang": "css", "content": "h1 {\n  font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);\n}" },
+      "choices": ["La plus grande des trois valeurs, soit `2.5rem` partout", "`1.5rem` sur mobile, puis `2.5rem` au-delà de `2vw`", "`1rem + 2vw`, bornée entre `1.5rem` et `2.5rem`", "La moyenne des trois valeurs, recalculée en continu"],
+      "answer": 2,
+      "explanation": "`clamp(MIN, VAL, MAX)` utilise la valeur idéale tant qu'elle reste entre le minimum et le maximum : le titre grandit avec l'écran, dans des limites. La part en `rem` garde l'effet du zoom texte, contrairement à une taille en `vw` seul."
+    },
+    {
+      "id": "has-parent-selector",
+      "type": "mcq",
+      "question": "Quels éléments ce sélecteur cible-t-il ?",
+      "code": { "lang": "css", "content": ".card:has(img) {\n  padding-top: 0;\n}" },
+      "choices": ["Les `<img>` situées à l'intérieur d'une `.card`", "Les `.card` placées juste avant une `<img>`", "Les `.card` qui ne contiennent aucune `<img>`", "Les `.card` contenant au moins une `<img>`"],
+      "answer": 3,
+      "explanation": "`:has()` sélectionne l'élément à gauche (la `.card`) selon ce qu'il contient : c'est le « sélecteur de parent » longtemps attendu. La règle s'applique à la carte, pas à l'image."
+    },
+    {
+      "id": "container-queries",
+      "type": "flashcard",
+      "front": "En quoi cette requête diffère-t-elle d'une media query ?",
+      "code": { "lang": "css", "content": ".cards { container-type: inline-size; }\n\n@container (min-width: 30rem) {\n  .card { display: flex; gap: 1rem; }\n}" },
+      "back": "Elle teste la largeur du conteneur le plus proche (ici `.cards`, déclaré avec `container-type`), pas celle du viewport. La même carte s'adapte donc à la place qu'on lui donne : colonne étroite ou zone principale."
+    },
+    {
+      "id": "native-nesting",
+      "type": "truefalse",
+      "question": "Ce code fonctionne directement dans les navigateurs récents, sans Sass ni autre préprocesseur.",
+      "code": { "lang": "css", "content": ".card {\n  padding: 1rem;\n\n  & h3 { font-size: 1.25rem; }\n\n  &:hover { box-shadow: 0 0 0 2px; }\n}" },
+      "answer": true,
+      "explanation": "L'imbrication native (CSS nesting) est prise en charge par les principaux navigateurs depuis 2023. `&` représente le sélecteur parent : `&:hover` équivaut à `.card:hover` et `& h3` à `.card h3`."
+    }
+  ]
+}
