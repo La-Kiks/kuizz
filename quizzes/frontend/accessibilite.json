@@ -1,0 +1,202 @@
+{
+  "id": "frontend-accessibilite",
+  "title": "Accessibilité : WCAG & RGAA",
+  "subject": "frontend",
+  "description": "Référentiels, contrastes, clavier, formulaires, ARIA et outils de test : rendre une page conforme WCAG AA et RGAA.",
+  "questions": [
+    {
+      "id": "wcag-vs-rgaa",
+      "type": "flashcard",
+      "front": "WCAG et RGAA : qui les publie, et quel lien entre les deux ?",
+      "back": "Les WCAG sont les règles internationales publiées par le W3C (version actuelle : 2.2). Le RGAA (version 4.1) est le référentiel français : il reprend les critères WCAG de niveaux A et AA et fournit une méthode de test pour vérifier chacun."
+    },
+    {
+      "id": "rgaa-who",
+      "type": "mcq",
+      "question": "En France, quels sites ont l'obligation légale d'être accessibles, avec le RGAA comme référentiel ?",
+      "choices": ["Tous les sites, y compris les blogs personnels", "Les sites publics et certaines grandes entreprises", "Uniquement les sites des ministères et services de l'État", "Uniquement les sites qui vendent en ligne"],
+      "answer": 1,
+      "explanation": "La loi du 11 février 2005 (article 47) vise les services publics (État, collectivités, organismes chargés d'une mission de service public) et les entreprises au-delà d'un seuil de chiffre d'affaires. Un site personnel n'y est pas soumis, même s'il gagne à être accessible."
+    },
+    {
+      "id": "principle-operable",
+      "type": "mcq",
+      "question": "Un menu ne s'ouvre qu'au survol de la souris : impossible de l'atteindre au clavier. Quel principe des WCAG est enfreint en premier lieu ?",
+      "choices": ["Perceptible", "Utilisable", "Compréhensible", "Robuste"],
+      "answer": 1,
+      "explanation": "Les WCAG reposent sur quatre principes (POUR en anglais) : perceptible, utilisable, compréhensible, robuste. « Utilisable » couvre l'accès au clavier, le temps laissé et la navigation : toute fonction doit être utilisable sans souris."
+    },
+    {
+      "id": "aaa-not-required",
+      "type": "truefalse",
+      "question": "Pour bien faire, il faut viser le niveau AAA sur l'ensemble d'un site.",
+      "answer": false,
+      "explanation": "Les niveaux sont cumulatifs (AA inclut A). Le W3C déconseille d'exiger AAA pour un site entier, car certains contenus ne peuvent pas satisfaire tous ses critères : la cible courante, et celle du RGAA, est AA."
+    },
+    {
+      "id": "contrast-thresholds",
+      "type": "mcq",
+      "question": "Au niveau AA, quels ratios de contraste minimaux s'appliquent respectivement au texte normal et au grand texte ?",
+      "choices": ["4,5:1 et 3:1", "3:1 et 4,5:1", "7:1 et 4,5:1", "4,5:1 dans les deux cas"],
+      "answer": 0,
+      "explanation": "Un grand texte (au moins 24 px, ou environ 18,7 px en gras) reste lisible avec moins de contraste, d'où 3:1 contre 4,5:1. Les seuils 7:1 et 4,5:1 correspondent au niveau AAA."
+    },
+    {
+      "id": "non-text-contrast",
+      "type": "truefalse",
+      "question": "Au niveau AA, la bordure qui permet de repérer un champ de formulaire n'a aucune exigence de contraste, puisque ce n'est pas du texte.",
+      "answer": false,
+      "explanation": "Depuis les WCAG 2.1, les composants d'interface et les éléments graphiques nécessaires à la compréhension (bordure d'un champ, icône porteuse de sens) doivent atteindre 3:1 avec leur arrière-plan."
+    },
+    {
+      "id": "color-only-error",
+      "type": "truefalse",
+      "question": "Signaler un champ en erreur uniquement avec ce style est conforme, du moment que le rouge est assez contrasté.",
+      "code": { "lang": "css", "content": ".champ-invalide {\n  border-color: #d00;\n}" },
+      "answer": false,
+      "explanation": "Une information ne doit jamais passer uniquement par la couleur : une personne daltonienne ne la perçoit pas et un lecteur d'écran ne l'annonce pas. Ajoute un message texte (et éventuellement une icône)."
+    },
+    {
+      "id": "informative-vs-decorative",
+      "type": "flashcard",
+      "front": "Comment décider si une image est informative ou décorative ?",
+      "back": "Demande-toi ce qu'on perd si on la retire. Si une information disparaît, elle est informative : son `alt` transmet cette information, sans « image de… » (le lecteur d'écran annonce déjà une image). Sinon, elle est décorative : `alt=\"\"`."
+    },
+    {
+      "id": "alt-image-link",
+      "type": "mcq",
+      "question": "Ce logo est le seul contenu du lien vers l'accueil. Quel `alt` lui donner ?",
+      "code": { "lang": "html", "content": "<a href=\"/\">\n  <img src=\"logo.svg\" alt=\"?\">\n</a>" },
+      "choices": ["`alt=\"\"` (image décorative)", "`alt=\"Logo\"`", "`alt=\"Kuizz – accueil\"`", "`alt=\"Image du logo Kuizz\"`"],
+      "answer": 2,
+      "explanation": "Quand l'image est le seul contenu d'un lien, son `alt` devient l'intitulé du lien : il doit indiquer sa destination. Avec `alt=\"\"`, le lien n'a plus de nom et le lecteur d'écran se rabat souvent sur l'URL."
+    },
+    {
+      "id": "tabindex-positive-order",
+      "type": "mcq",
+      "question": "Dans quel ordre la touche Tab parcourt-elle ces liens ?",
+      "code": { "lang": "html", "content": "<a href=\"/\" tabindex=\"2\">Accueil</a>\n<a href=\"/blog\">Blog</a>\n<a href=\"/contact\" tabindex=\"1\">Contact</a>" },
+      "choices": ["Accueil, Blog, Contact", "Contact, Blog, Accueil", "Blog, Contact, Accueil", "Contact, Accueil, Blog"],
+      "answer": 3,
+      "explanation": "Les `tabindex` positifs passent en premier, par valeur croissante, puis viennent les autres éléments dans l'ordre du DOM : l'ordre ne suit plus la lecture. On évite donc les valeurs positives ; `0` ajoute un élément à l'ordre naturel et `-1` le rend focusable seulement en JS."
+    },
+    {
+      "id": "outline-none",
+      "type": "mcq",
+      "question": "Pourquoi cette règle CSS pose-t-elle un problème d'accessibilité ?",
+      "code": { "lang": "css", "content": "button:focus {\n  outline: none;\n}" },
+      "choices": ["On ne voit plus quel élément a le focus au clavier", "Le bouton ne peut plus recevoir le focus au clavier", "Les lecteurs d'écran n'annoncent plus le bouton", "Le bouton ne réagit plus au clic de la souris"],
+      "answer": 0,
+      "explanation": "Le bouton reste focusable, mais l'indicateur visuel disparaît : en naviguant au Tab, on ne sait plus où l'on se trouve. Le focus doit rester visible ; si le style natif ne convient pas, remplace-le au lieu de le supprimer."
+    },
+    {
+      "id": "skip-link-purpose",
+      "type": "mcq",
+      "question": "À quoi sert le premier lien de cette page ?",
+      "code": { "lang": "html", "content": "<body>\n  <a href=\"#contenu\" class=\"skip-link\">Aller au contenu</a>\n  <header>…<nav>…</nav></header>\n  <main id=\"contenu\">…</main>\n</body>" },
+      "choices": ["Revenir en haut de page depuis le pied de page", "Améliorer le référencement du contenu principal", "Permettre au clavier de sauter les menus répétés", "Remplacer le `<nav>` pour les lecteurs d'écran"],
+      "answer": 2,
+      "explanation": "Ce lien d'évitement évite de tabuler à travers toute la navigation sur chaque page. On peut le masquer visuellement jusqu'à ce qu'il reçoive le focus, mais pas avec `display: none`, qui le retire de l'ordre de tabulation."
+    },
+    {
+      "id": "screen-reader-navigation",
+      "type": "flashcard",
+      "front": "Comment un utilisateur de lecteur d'écran se repère-t-il rapidement dans une page ?",
+      "back": "Il saute de titre en titre, ou de région en région : `<header>`, `<nav>`, `<main>` et `<footer>` de la page deviennent des repères (landmarks). D'où l'importance d'une hiérarchie de titres logique et de balises sémantiques plutôt que de `<div>`."
+    },
+    {
+      "id": "multiple-nav-label",
+      "type": "mcq",
+      "question": "Pourquoi donner un `aria-label` à chacun de ces deux `<nav>` ?",
+      "code": { "lang": "html", "content": "<header>\n  <nav aria-label=\"Menu principal\">…</nav>\n</header>\n<footer>\n  <nav aria-label=\"Liens légaux\">…</nav>\n</footer>" },
+      "choices": ["Car le validateur W3C refuse deux `<nav>` sans nom", "Pour afficher une infobulle au survol de chaque menu", "Pour que le navigateur les affiche dans le bon ordre", "Pour que les lecteurs d'écran les distinguent"],
+      "answer": 3,
+      "explanation": "Les deux régions seraient annoncées « navigation » sans distinction. `aria-label` leur donne un nom, invisible à l'écran mais lu par les technologies d'assistance ; il n'a aucun effet visuel."
+    },
+    {
+      "id": "placeholder-not-label",
+      "type": "truefalse",
+      "question": "Un `placeholder` suffit comme étiquette de champ : pas besoin de `<label>` visible.",
+      "code": { "lang": "html", "content": "<input type=\"email\" id=\"email\" placeholder=\"Votre e-mail\">" },
+      "answer": false,
+      "explanation": "Le `placeholder` disparaît dès qu'on commence à taper, et son contraste est souvent faible : on ne sait plus ce qu'on remplit. Garde un `<label>` visible ; le `placeholder` peut seulement donner un exemple."
+    },
+    {
+      "id": "error-message-describedby",
+      "type": "mcq",
+      "question": "Quel est le rôle de `aria-describedby` dans ce champ en erreur ?",
+      "code": { "lang": "html", "content": "<label for=\"email\">E-mail</label>\n<input type=\"email\" id=\"email\"\n  aria-invalid=\"true\" aria-describedby=\"email-err\">\n<p id=\"email-err\">Format attendu : nom@exemple.fr</p>" },
+      "choices": ["Il affiche le message uniquement en cas d'erreur", "Il fait lire le message en même temps que le champ", "Il vérifie le format de l'adresse dans le navigateur", "Il remplace l'étiquette du champ par le message"],
+      "answer": 1,
+      "explanation": "`aria-describedby` relie le champ à une description, lue après son étiquette quand il reçoit le focus ; `aria-invalid` signale l'erreur. Le message doit être en texte et dire comment corriger."
+    },
+    {
+      "id": "lang-passage",
+      "type": "mcq",
+      "question": "Comment faire prononcer correctement cette citation anglaise par un lecteur d'écran ?",
+      "code": { "lang": "html", "content": "<html lang=\"fr\">\n…\n<blockquote>\n  <p>Stay hungry, stay foolish.</p>\n</blockquote>" },
+      "choices": ["Ajouter `lang=\"en\"` sur le `<blockquote>`", "Passer le `lang` de `<html>` à `\"en\"`", "Ajouter `translate=\"no\"` sur la citation", "Ajouter `aria-label=\"anglais\"` au `<p>`"],
+      "answer": 0,
+      "explanation": "En plus de la langue de la page, chaque passage dans une autre langue doit être signalé par `lang` : la synthèse vocale change alors de prononciation. `translate=\"no\"` empêche seulement la traduction automatique."
+    },
+    {
+      "id": "page-title-relevant",
+      "type": "mcq",
+      "question": "Quel `<title>` est le plus pertinent pour la page de contact du site Kuizz ?",
+      "choices": ["« Kuizz »", "« Page 3 »", "« Contact – Kuizz »", "« Bienvenue sur notre site ! »"],
+      "answer": 2,
+      "explanation": "Le titre est souvent la première chose annoncée par un lecteur d'écran et sert à identifier l'onglet : il doit décrire la page et être différent sur chaque page, l'information spécifique en premier."
+    },
+    {
+      "id": "first-rule-aria",
+      "type": "mcq",
+      "question": "Que dit la première règle d'utilisation d'ARIA ?",
+      "choices": ["Toujours ajouter un `role` explicite à chaque élément", "Réserver ARIA aux éléments `<div>` et `<span>`", "Utiliser ARIA pour tout composant interactif", "Préférer un élément HTML natif quand il existe"],
+      "answer": 3,
+      "explanation": "Un élément natif apporte à la fois la sémantique et le comportement (focus, clavier), alors qu'ARIA ne change que ce qui est annoncé. Un ARIA mal utilisé dégrade l'accessibilité : mieux vaut pas d'ARIA qu'un mauvais ARIA."
+    },
+    {
+      "id": "div-role-button",
+      "type": "flashcard",
+      "front": "Ce `div` est annoncé « bouton ». Que lui manque-t-il pour en être vraiment un ?",
+      "code": { "lang": "html", "content": "<div role=\"button\" onclick=\"ouvrir()\">Ouvrir</div>" },
+      "back": "Le focus clavier (`tabindex=\"0\"`) et l'activation avec Entrée et Espace (gestionnaire `keydown`) : `role` ne change que l'annonce, pas le comportement. Un `<button type=\"button\">` offre tout cela nativement."
+    },
+    {
+      "id": "aria-live-polite",
+      "type": "mcq",
+      "question": "Que perçoit un utilisateur de lecteur d'écran quand ce script met à jour le paragraphe ?",
+      "code": { "lang": "html", "content": "<p id=\"statut\" aria-live=\"polite\"></p>\n\n<script type=\"module\">\n  const statut = document.querySelector('#statut');\n  statut.textContent = '12 produits chargés';\n</script>" },
+      "choices": ["Le message coupe immédiatement la lecture en cours", "Le message est lu une fois la lecture en cours terminée", "Le focus passe sur le paragraphe, qui est alors lu", "Rien, tant qu'il ne place pas le focus sur le paragraphe"],
+      "answer": 1,
+      "explanation": "Une région `aria-live=\"polite\"` est annoncée sans déplacer le focus, dès que le lecteur est disponible ; `assertive` interromprait la lecture. La région doit exister dans le DOM avant que son contenu change."
+    },
+    {
+      "id": "target-size-22",
+      "type": "mcq",
+      "question": "Nouveauté des WCAG 2.2 (niveau AA) : quelle taille minimale doit offrir une cible cliquable, sauf exceptions ?",
+      "choices": ["16 × 16 px CSS", "44 × 44 px CSS", "24 × 24 px CSS", "48 × 48 px CSS"],
+      "answer": 2,
+      "explanation": "Le critère « Taille de la cible (minimum) » demande 24 × 24 px, sauf exceptions comme un espacement suffisant autour de la cible ou un lien dans une phrase. Les 44 × 44 px relèvent d'un critère de niveau AAA."
+    },
+    {
+      "id": "automated-audit-not-enough",
+      "type": "truefalse",
+      "question": "Si une extension d'audit comme axe ou WAVE ne signale aucune erreur, la page est accessible.",
+      "answer": false,
+      "explanation": "Un outil automatique vérifie qu'un `alt` existe, pas qu'il est pertinent ; il ne juge ni l'ordre de lecture ni l'utilisabilité au clavier d'un composant. Il ne couvre qu'une partie des critères : les tests manuels restent indispensables."
+    },
+    {
+      "id": "manual-tests",
+      "type": "flashcard",
+      "front": "Quels tests manuels faire sur ta page, en complément d'une extension d'audit ?",
+      "back": "La parcourir entièrement au clavier (Tab, Maj+Tab, Entrée, Espace) en surveillant le focus et son ordre. Zoomer à 200 %. L'écouter avec un lecteur d'écran : NVDA (Windows, gratuit) ou VoiceOver (intégré à macOS et iOS)."
+    },
+    {
+      "id": "accessibility-statement",
+      "type": "flashcard",
+      "front": "Que contient la déclaration d'accessibilité d'un site soumis au RGAA ?",
+      "back": "L'état de conformité issu d'un audit (totalement, partiellement ou non conforme), la liste des contenus non accessibles et un moyen de contact pour signaler un problème. Elle indique aussi les voies de recours, comme le Défenseur des droits."
+    }
+  ]
+}

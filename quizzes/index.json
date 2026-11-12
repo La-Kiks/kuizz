@@ -6,7 +6,8 @@
       "quizzes": [
         { "id": "frontend-html", "file": "frontend/html.json" },
         { "id": "frontend-css", "file": "frontend/css.json" },
-        { "id": "frontend-javascript", "file": "frontend/javascript.json" }
+        { "id": "frontend-javascript", "file": "frontend/javascript.json" },
+        { "id": "frontend-accessibilite", "file": "frontend/accessibilite.json" }
       ]
     }
   ]
