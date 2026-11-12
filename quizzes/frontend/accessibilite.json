@@ -2,7 +2,7 @@
   "id": "frontend-accessibilite",
   "title": "Accessibilité : WCAG & RGAA",
   "subject": "ux-accessibilite",
-  "description": "Référentiels, contrastes, clavier, formulaires, ARIA et outils de test : rendre une page conforme WCAG AA et RGAA.",
+  "description": "Référentiels, contrastes et hiérarchie visuelle, clavier, formulaires, ARIA et outils de test : rendre une page conforme WCAG AA et RGAA.",
   "questions": [
     {
       "id": "wcag-vs-rgaa",
@@ -57,6 +57,12 @@
       "explanation": "Une information ne doit jamais passer uniquement par la couleur : une personne daltonienne peut ne pas la percevoir et un lecteur d'écran ne l'annonce pas. Ajoute un message texte (et éventuellement une icône)."
     },
     {
+      "id": "visual-hierarchy-levers",
+      "type": "flashcard",
+      "front": "Qu'est-ce que la hiérarchie visuelle, et comment la construire sans nuire à l'accessibilité ?",
+      "back": "C'est l'ordre d'importance perçu au premier coup d'œil, créé par la taille, la graisse, le contraste, l'espacement et la position. Elle doit refléter la structure HTML (le titre le plus visible est le `<h1>`) et rester cohérente d'une page à l'autre. Ne la fonde jamais sur la seule couleur et garde des contrastes conformes au niveau AA."
+    },
+    {
       "id": "informative-vs-decorative",
       "type": "flashcard",
       "front": "Comment décider si une image est informative ou décorative ?",
@@ -70,6 +76,14 @@
       "choices": ["`alt=\"\"` (image décorative)", "`alt=\"Logo\"`", "`alt=\"Kuizz – accueil\"`", "`alt=\"Image du logo Kuizz\"`"],
       "answer": 2,
       "explanation": "Quand l'image est le seul contenu d'un lien, son `alt` devient l'intitulé du lien : il doit indiquer sa destination. Avec `alt=\"\"`, le lien n'a plus de nom et le lecteur d'écran se rabat souvent sur l'URL."
+    },
+    {
+      "id": "alt-missing-vs-empty",
+      "type": "truefalse",
+      "question": "Pour cette image purement décorative, omettre l'attribut `alt` revient au même que d'écrire `alt=\"\"`.",
+      "code": { "lang": "html", "content": "<img src=\"separateur-vague.svg\" width=\"600\" height=\"20\">" },
+      "answer": false,
+      "explanation": "`alt=\"\"` indique explicitement aux technologies d'assistance d'ignorer l'image. Sans `alt`, un lecteur d'écran annonce souvent le nom du fichier, et le validateur W3C signale une erreur : l'attribut doit être présent, et laissé vide pour une image décorative."
     },
     {
       "id": "tabindex-positive-order",
@@ -99,12 +113,6 @@
       "explanation": "Ce lien d'évitement évite de tabuler à travers toute la navigation sur chaque page. On peut le masquer visuellement jusqu'à ce qu'il reçoive le focus, mais pas avec `display: none`, qui le retire de l'ordre de tabulation."
     },
     {
-      "id": "screen-reader-navigation",
-      "type": "flashcard",
-      "front": "Comment un utilisateur de lecteur d'écran se repère-t-il rapidement dans une page ?",
-      "back": "Il saute de titre en titre, ou de région en région : `<header>`, `<nav>`, `<main>` et `<footer>` de la page deviennent des repères (landmarks). D'où l'importance d'une hiérarchie de titres logique et de balises sémantiques plutôt que de `<div>`."
-    },
-    {
       "id": "multiple-nav-label",
       "type": "mcq",
       "question": "Pourquoi donner un `aria-label` à chacun de ces deux `<nav>` ?",
@@ -131,6 +139,33 @@
       "explanation": "`aria-describedby` relie le champ à une description, lue après son étiquette quand il reçoit le focus ; `aria-invalid` signale l'erreur. Le message doit être en texte et dire comment corriger."
     },
     {
+      "id": "required-vs-aria-required",
+      "type": "mcq",
+      "question": "Quelle différence entre `required` et `aria-required=\"true\"` sur un `<input>` ?",
+      "code": { "lang": "html", "content": "<label for=\"nom\">Nom</label>\n<input type=\"text\" id=\"nom\" name=\"nom\"\n  required aria-required=\"true\">" },
+      "choices": ["Les deux bloquent l'envoi ; `aria-required` ajoute en plus l'annonce vocale", "`required` bloque l'envoi et l'annonce ; `aria-required` annonce seulement", "`required` l'annonce seulement ; `aria-required` bloque aussi l'envoi", "Aucune : `aria-required` est l'ancien nom de l'attribut `required`"],
+      "answer": 1,
+      "explanation": "`required` active la validation native et expose déjà l'état « obligatoire » aux technologies d'assistance ; `aria-required` ne change que l'annonce et sert surtout sur un composant personnalisé. Le cours conseille de mettre les deux ; la spécification ARIA in HTML juge `aria-required` redondant à côté de `required` : inutile, mais sans danger."
+    },
+    {
+      "id": "asterisk-aria-hidden",
+      "type": "mcq",
+      "question": "Pourquoi l'astérisque de ce libellé porte-t-il `aria-hidden=\"true\"` ?",
+      "code": { "lang": "html", "content": "<p>Les champs suivis d'un astérisque (*) sont obligatoires.</p>\n<label for=\"email\">\n  E-mail <span aria-hidden=\"true\">*</span>\n</label>\n<input type=\"email\" id=\"email\" name=\"email\"\n  required autocomplete=\"email\">" },
+      "choices": ["Pour masquer l'astérisque à l'écran sur les petits écrans", "Pour que le validateur W3C accepte un `<span>` dans le `<label>`", "Pour empêcher qu'un clic sur l'astérisque active le champ", "Pour éviter sa lecture : `required` annonce déjà l'obligation"],
+      "answer": 3,
+      "explanation": "`aria-hidden=\"true\"` retire l'élément de ce que perçoivent les technologies d'assistance, sans le cacher à l'écran : on évite un « astérisque » lu en plus de « obligatoire ». Côté visuel, la phrase en tête de formulaire explique ce que signifie le symbole."
+    },
+    {
+      "id": "autocomplete-given-name",
+      "type": "mcq",
+      "question": "Quelle valeur d'`autocomplete` permet au navigateur de proposer le prénom enregistré de l'utilisateur ?",
+      "code": { "lang": "html", "content": "<label for=\"prenom\">Prénom</label>\n<input type=\"text\" id=\"prenom\" name=\"prenom\"\n  autocomplete=\"?\">" },
+      "choices": ["`first-name`", "`prenom`", "`given-name`", "`name`"],
+      "answer": 2,
+      "explanation": "Les valeurs d'`autocomplete` forment une liste normalisée en anglais : `given-name` (prénom), `family-name` (nom), `name` (nom complet), `email`, `tel`… `first-name` n'en fait pas partie. Les renseigner simplifie la saisie et répond au critère WCAG 1.3.5 « Identifier la finalité de la saisie » (niveau AA)."
+    },
+    {
       "id": "lang-passage",
       "type": "mcq",
       "question": "Comment faire prononcer correctement cette citation anglaise par un lecteur d'écran ?",
@@ -138,14 +173,6 @@
       "choices": ["Ajouter `lang=\"en\"` sur le `<blockquote>`", "Passer le `lang` de `<html>` à `\"en\"`", "Ajouter `translate=\"no\"` sur la citation", "Ajouter `aria-label=\"anglais\"` au `<p>`"],
       "answer": 0,
       "explanation": "En plus de la langue de la page, chaque passage dans une autre langue doit être signalé par `lang` : la synthèse vocale change alors de prononciation. `translate=\"no\"` empêche seulement la traduction automatique."
-    },
-    {
-      "id": "page-title-relevant",
-      "type": "mcq",
-      "question": "Quel `<title>` est le plus pertinent pour la page de contact du site Kuizz ?",
-      "choices": ["« Kuizz »", "« Page 3 »", "« Contact – Kuizz »", "« Bienvenue sur notre site ! »"],
-      "answer": 2,
-      "explanation": "Le titre est souvent la première chose annoncée par un lecteur d'écran et sert à identifier l'onglet : il doit décrire la page et être idéalement différent sur chaque page, l'information spécifique en premier."
     },
     {
       "id": "first-rule-aria",
@@ -161,6 +188,14 @@
       "front": "Ce `div` est annoncé « bouton ». Que lui manque-t-il pour en être vraiment un ?",
       "code": { "lang": "html", "content": "<div role=\"button\" onclick=\"ouvrir()\">Ouvrir</div>" },
       "back": "Le focus clavier (`tabindex=\"0\"`) et l'activation avec Entrée et Espace (gestionnaire `keydown`) : `role` ne change que l'annonce, pas le comportement. Un `<button type=\"button\">` offre tout cela nativement."
+    },
+    {
+      "id": "implicit-role-redundant",
+      "type": "truefalse",
+      "question": "Pour que les lecteurs d'écran reconnaissent ce menu comme une navigation, il faut lui ajouter `role=\"navigation\"`.",
+      "code": { "lang": "html", "content": "<nav aria-label=\"Menu principal\">\n  <ul>…</ul>\n</nav>" },
+      "answer": false,
+      "explanation": "`<nav>` possède déjà le rôle implicite `navigation`, comme `<main>` a le rôle `main` ou `<button>` le rôle `button`. Répéter ce rôle est redondant et le validateur W3C le signale par un avertissement : un `role` explicite ne sert que lorsqu'aucun élément natif ne convient."
     },
     {
       "id": "aria-live-polite",
@@ -185,6 +220,12 @@
       "question": "Si une extension d'audit comme axe ou WAVE ne signale aucune erreur, la page est accessible.",
       "answer": false,
       "explanation": "Un outil automatique vérifie qu'un `alt` existe, pas qu'il est pertinent ; il ne juge ni l'ordre de lecture ni l'utilisabilité au clavier d'un composant. Il ne couvre qu'une partie des critères : les tests manuels restent indispensables."
+    },
+    {
+      "id": "w3c-aria-conformance-tools",
+      "type": "flashcard",
+      "front": "Avec quels outils vérifier qu'une interface respecte les standards W3C et ARIA ?",
+      "back": "Le Nu HTML Checker du W3C : syntaxe et imbrication, mais aussi `role` ou attributs `aria-*` invalides ou redondants. Une extension comme axe ou WAVE, ou l'audit Lighthouse, pour les erreurs détectables automatiquement (contraste, `alt` manquant, champ sans nom). L'arbre d'accessibilité des DevTools pour voir le rôle et le nom calculés de chaque élément."
     },
     {
       "id": "manual-tests",
