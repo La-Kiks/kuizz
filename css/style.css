@@ -10,6 +10,17 @@
   color-scheme: light dark;
 
   --font-sans: "Host Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Échelle typographique (DESIGN.md › Typography). */
+  --fs-display: clamp(2rem, 1.35rem + 2.6vw, 2.875rem);
+  --fs-score: clamp(3rem, 2.2rem + 4vw, 4.75rem);
+  --fs-headline: clamp(1.3125rem, 1.15rem + 0.8vw, 1.625rem);
+  --fs-title: 1.125rem;
+  --fs-body: 1.0625rem;
+  --fs-ui: 1rem;
+  --fs-small: 0.9375rem;
+  --fs-code: 0.875rem;
+  --fs-label: 0.8125rem;
+  --fs-code-inline: 0.875em;
   --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
   --bg: oklch(0.972 0.004 255);
@@ -177,7 +188,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 1.0625rem;
+  font-size: var(--fs-body);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   caret-color: var(--accent);
@@ -252,7 +263,7 @@ code, pre { font-family: var(--font-mono); }
   gap: 0.5rem;
   min-height: 44px;
   color: var(--text);
-  font-size: 1.1875rem;
+  font-size: var(--fs-title);
   font-weight: 750;
   letter-spacing: -0.02em;
   text-decoration: none;
@@ -295,12 +306,12 @@ main.container {
   border-top: 1px solid var(--rule);
   padding: 1.25rem 0 1.5rem;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
 }
 
 /* ---------- Typo de page ---------- */
 .page-title {
-  font-size: clamp(2rem, 1.35rem + 2.6vw, 2.875rem);
+  font-size: var(--fs-display);
   font-weight: 750;
   letter-spacing: -0.035em;
   line-height: 1.08;
@@ -318,14 +329,14 @@ main.container {
 .page-sub {
   margin-top: 0.625rem;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
 }
 
 .lead {
   margin-top: 0.75rem;
   max-width: 62ch;
   color: var(--text-muted);
-  font-size: 1.125rem;
+  font-size: var(--fs-title);
 }
 
 /* ---------- Marques de statut (SVG + points CSS) ---------- */
@@ -362,7 +373,7 @@ main.container {
   background: var(--surface);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
   font-variant-numeric: tabular-nums;
   line-height: 1.5;
   white-space: nowrap;
@@ -371,7 +382,7 @@ main.container {
 .badge-ok { border-color: var(--add-rule); background: var(--add-bg); color: var(--add-text); }
 .badge-review { border-color: var(--del-rule); background: var(--del-bg); color: var(--del-text); }
 .badge-progress { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text); }
-.badge-count { color: var(--text); }
+.badge-count { padding-left: 0.625rem; color: var(--text); }
 
 /* ---------- Accueil : modules = dépôts ---------- */
 .page-head { margin-bottom: 0.5rem; }
@@ -400,13 +411,13 @@ main.container {
   align-items: baseline;
   gap: 0 0.625rem;
   min-width: 0;
-  font-size: 1rem;
+  font-size: var(--fs-ui);
   font-weight: 650;
   letter-spacing: -0.01em;
 }
 .subject-slug {
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0;
   overflow-wrap: anywhere;
@@ -432,7 +443,7 @@ main.container {
   justify-content: flex-end;
   column-gap: 0.25rem;
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
 }
 
 .quiz-list {
@@ -463,7 +474,7 @@ main.container {
   border-right: 1px solid var(--rule);
   background: var(--surface-2);
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: var(--fs-ui);
 }
 .quiz-card-gutter .icon {
   box-sizing: content-box;
@@ -480,7 +491,7 @@ main.container {
 .quiz-card-gutter.is-unavailable { color: var(--del-text); }
 .quiz-card-main { min-width: 0; padding: 1rem 1rem 1.125rem; }
 .quiz-card-title {
-  font-size: 1.125rem;
+  font-size: var(--fs-title);
   font-weight: 650;
   letter-spacing: -0.015em;
   line-height: 1.3;
@@ -504,7 +515,7 @@ main.container {
   margin-top: 0.25rem;
   max-width: 62ch;
   color: var(--text-muted);
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
   line-height: 1.5;
 }
 .quiz-card-meta {
@@ -514,11 +525,11 @@ main.container {
   gap: 0.375rem 0.5rem;
   margin-top: 0.625rem;
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
 }
-.quiz-card-idle { font-family: var(--font-sans); font-size: 0.875rem; }
+.quiz-card-idle { font-family: var(--font-sans); font-size: var(--fs-code); }
 .quiz-card.is-idle .quiz-card-title { font-weight: 600; }
-.quiz-card.is-unavailable .quiz-card-title { color: var(--text-muted); font-family: var(--font-mono); font-size: 1rem; }
+.quiz-card.is-unavailable .quiz-card-title { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-ui); }
 
 @media (min-width: 40rem) {
   .quiz-card-main { padding: 1.125rem 1.25rem 1.25rem; }
@@ -535,7 +546,7 @@ main.container {
   border: 1px solid transparent;
   border-radius: var(--radius);
   font: inherit;
-  font-size: 1rem;
+  font-size: var(--fs-ui);
   font-weight: 650;
   line-height: 1.25;
   text-align: center;
@@ -571,7 +582,7 @@ main.container {
   cursor: not-allowed;
 }
 .btn-hint {
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
   font-weight: 500;
   opacity: 0.92;
 }
@@ -602,7 +613,7 @@ main.container {
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   background: var(--surface-2);
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
 }
 
 .back-link {
@@ -611,12 +622,12 @@ main.container {
   gap: 0.375rem;
   min-height: 44px;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
   text-decoration: none;
 }
 .back-link:hover { color: var(--text); text-decoration: underline; }
 .crumb-sep { color: var(--rule-strong); }
-.crumb-path { color: var(--text); font-size: 0.8125rem; font-weight: 700; }
+.crumb-path { color: var(--text); font-size: var(--fs-label); font-weight: 700; }
 
 /* ---------- Lancement d'un quiz : en-tête de PR ---------- */
 .quiz-start { padding-top: 0; }
@@ -631,7 +642,7 @@ main.container {
 .quiz-composition {
   margin-top: 0.75rem;
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
 }
 /* La zone d'actions devient la « boîte de fusion » de la PR. */
 .merge-box {
@@ -650,7 +661,7 @@ main.container {
   background: var(--surface-2);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
   font-variant-numeric: tabular-nums;
 }
 .merge-head.is-dot { color: var(--accent-text); }
@@ -675,14 +686,14 @@ main.container {
   grid-area: title;
   margin-top: 0.125rem;
   color: var(--text-muted);
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
   font-weight: 600;
   letter-spacing: 0;
 }
 .progress-label {
   grid-area: label;
   color: var(--text);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
   font-weight: 600;
 }
 /* La barre native reste dans le DOM comme valeur de référence ; le pipeline l'affiche. */
@@ -709,7 +720,7 @@ main.container {
 .session-body { margin-top: 1.75rem; }
 
 .question-text {
-  font-size: clamp(1.3125rem, 1.15rem + 0.8vw, 1.625rem);
+  font-size: var(--fs-headline);
   font-weight: 650;
   letter-spacing: -0.02em;
   line-height: 1.3;
@@ -722,7 +733,7 @@ code.inline {
   border-radius: var(--radius-s);
   background: var(--inline-code-bg);
   color: var(--inline-code-text);
-  font-size: 0.875em;
+  font-size: var(--fs-code-inline);
   overflow-wrap: anywhere;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -733,7 +744,7 @@ code.inline {
   border: 1px solid var(--code-rule);
   border-radius: var(--radius);
   color: var(--code-text);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
   line-height: 1.65;
   overflow: auto;
   tab-size: 2;
@@ -755,7 +766,7 @@ code.inline {
   border-bottom: 1px solid var(--code-rule);
   background: var(--code-head);
   color: var(--code-gutter);
-  font-size: 0.75rem;
+  font-size: var(--fs-label);
   letter-spacing: 0.04em;
 }
 .code-block[data-lang]::before { content: attr(data-lang); text-transform: uppercase; }
@@ -785,7 +796,7 @@ code.inline {
 }
 .code-block.is-long .line::before { width: calc(3ch + 1.25rem); }
 .code-block:focus-visible { outline-offset: 2px; }
-.code-block ::selection { background: oklch(0.45 0.12 277); color: oklch(0.98 0 0); }
+.code-block ::selection { background: var(--accent); color: var(--on-accent); }
 
 /* ---------- Choix : lignes d'un fichier ---------- */
 .choices {
@@ -820,7 +831,7 @@ code.inline {
   background: var(--surface-2);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
   font-variant-numeric: tabular-nums;
   transition: background-color 360ms var(--ease-out), color 360ms var(--ease-out);
 }
@@ -859,7 +870,7 @@ code.inline {
   display: flex;
   align-items: center;
   padding: 0 1rem 0 0.25rem;
-  font-size: 1.125rem;
+  font-size: var(--fs-title);
 }
 .choice-mark .icon { stroke-width: 2.6; }
 .is-correct .choice-mark { color: var(--add-text); }
@@ -894,7 +905,7 @@ code.inline {
   border: 3px solid var(--bg);
   border-radius: 50%;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
   font-weight: 800;
   line-height: 1;
 }
@@ -916,7 +927,7 @@ code.inline {
   border-radius: var(--radius) var(--radius) 0 0;
   background: var(--surface-2);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
 }
 .is-ok .feedback-head { border-color: var(--add-rule); background: var(--add-bg); }
 .is-ko .feedback-head { border-color: var(--del-rule); background: var(--del-bg); }
@@ -935,7 +946,7 @@ code.inline {
 .is-ok .feedback-content { border-color: var(--add-rule); }
 .is-ko .feedback-content { border-color: var(--del-rule); }
 .feedback-title {
-  font-size: 1.125rem;
+  font-size: var(--fs-title);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -945,7 +956,7 @@ code.inline {
   border: 1px solid var(--rule);
   border-radius: var(--radius-s);
   overflow: hidden;
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
 }
 .diff-line {
   display: grid;
@@ -1004,7 +1015,7 @@ code.inline {
   background: var(--surface-2);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
   font-weight: 600;
 }
 .flashcard-front .question-text { padding: 1.125rem 1rem 1.25rem; }
@@ -1014,7 +1025,7 @@ code.inline {
 .flashcard-text {
   position: relative;
   padding: 0.875rem 1rem 1.125rem calc(var(--gutter) + 1rem);
-  font-size: 1.0625rem;
+  font-size: var(--fs-body);
 }
 .flashcard-text::before {
   content: "1" / "";
@@ -1028,7 +1039,7 @@ code.inline {
   background: var(--surface-2);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
   text-align: center;
 }
 .flashcard-back:focus-visible { outline-offset: -3px; }
@@ -1052,7 +1063,7 @@ code.inline {
   gap: 0 0.75rem;
 }
 .score-value {
-  font-size: clamp(3rem, 2.2rem + 4vw, 4.75rem);
+  font-size: var(--fs-score);
   font-weight: 750;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
@@ -1061,12 +1072,12 @@ code.inline {
 .score-percent {
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: var(--fs-ui);
   font-variant-numeric: tabular-nums;
 }
 .run-checks {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: var(--fs-code);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
@@ -1075,13 +1086,13 @@ code.inline {
 .run-ok { color: var(--add-text); }
 .run-ko { color: var(--del-text); }
 .run-sep { color: var(--text-muted); }
-.score-message { font-size: 1.0625rem; font-weight: 600; }
+.score-message { font-size: var(--fs-body); font-weight: 600; }
 .results .quiz-stats {
   display: block;
   margin-top: 0;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--fs-label);
 }
 
 .all-good {
@@ -1099,7 +1110,7 @@ code.inline {
 
 .missed { margin-top: 2.75rem; }
 .missed h2 {
-  font-size: 1.375rem;
+  font-size: var(--fs-headline);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -1138,7 +1149,7 @@ code.inline {
   border-radius: var(--radius-s);
   background: var(--add-bg);
   overflow: hidden;
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
 }
 .missed-answer .diff-sign { background: var(--add-gutter); color: var(--add-text); padding-top: 0.4rem; }
 .missed-answer > span:last-child { padding: 0.4rem 0.75rem 0.45rem; overflow-wrap: anywhere; }
@@ -1147,7 +1158,7 @@ code.inline {
   margin-top: 0.625rem;
   max-width: 65ch;
   color: var(--text-muted);
-  font-size: 0.9375rem;
+  font-size: var(--fs-small);
 }
 
 /* ---------- Écran de message ---------- */

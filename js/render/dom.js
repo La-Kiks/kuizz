@@ -25,6 +25,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const ICON_PATHS = {
   check: 'M3.25 8.5l3 3 6.5-7',
   cross: 'M4.25 4.25l7.5 7.5M11.75 4.25l-7.5 7.5',
+  'arrow-left': 'M13 8H3.5M7.5 3.75L3.25 8l4.25 4.25',
 };
 
 /**
@@ -44,9 +45,9 @@ export function icon(name) {
   return svg;
 }
 
-/** Pastille d'état façon check : la marque est décorative, le texte porte le sens. */
+/** Pastille d'état façon check : la marque (facultative) est décorative, le texte porte le sens. */
 export function pill(kind, mark, text) {
   return el('span', { class: `badge badge-${kind}` },
-    el('span', { class: 'badge-glyph', 'aria-hidden': 'true' }, mark ? icon(mark) : '#'),
+    mark ? el('span', { class: 'badge-glyph', 'aria-hidden': 'true' }, icon(mark)) : null,
     text);
 }

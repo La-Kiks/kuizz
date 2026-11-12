@@ -38,7 +38,7 @@ export function renderQuizStart(container, { quiz, subject, progress, storageAva
 
   container.append(el('section', { class: 'quiz-start' },
     el('a', { class: 'back-link', href: '#/' },
-      el('span', { 'aria-hidden': 'true' }, '←'),
+      icon('arrow-left'),
       el('span', {}, 'Mes révisions'),
       el('span', { class: 'crumb-sep', 'aria-hidden': 'true' }, '/'),
       el('span', { class: 'crumb-path' }, `${subject.id}/`)),

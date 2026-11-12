@@ -32,7 +32,7 @@ export function renderResults(container, { quiz, session, progress }) {
   const failed = s.total - s.correct;
 
   container.append(el('section', { class: 'results' },
-    el('a', { class: 'back-link', href: quizPath(quiz.id) }, el('span', { 'aria-hidden': 'true' }, '←'), quiz.title),
+    el('a', { class: 'back-link', href: quizPath(quiz.id) }, icon('arrow-left'), quiz.title),
     el('h1', { class: 'page-title', tabindex: '-1', 'data-autofocus': true },
       session.mode === 'review' ? 'Révision terminée' : 'Quiz terminé'),
     el('div', { class: `run-summary ${failed ? 'has-failures' : 'is-green'}` },
