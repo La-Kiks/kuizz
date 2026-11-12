@@ -1,0 +1,11 @@
+{
+  "subjects": [
+    {
+      "id": "frontend",
+      "title": "Frontend",
+      "quizzes": [
+        { "id": "frontend-html", "file": "frontend/html.json" }
+      ]
+    }
+  ]
+}

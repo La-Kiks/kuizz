@@ -1,0 +1,30 @@
+{
+  "id": "frontend-html",
+  "title": "HTML sémantique & validation W3C",
+  "subject": "frontend",
+  "description": "Structure d'une page, balises sémantiques, formulaires et erreurs courantes du validateur.",
+  "questions": [
+    {
+      "id": "nav-element",
+      "type": "mcq",
+      "question": "Quelle balise doit contenir les liens de navigation principale du site ?",
+      "code": { "lang": "html", "content": "<header>\n  <a href=\"/\">Accueil</a>\n  <a href=\"/blog\">Blog</a>\n</header>" },
+      "choices": ["`<nav>`", "`<menu>`", "`<div class=\"nav\">`", "`<aside>`"],
+      "answer": 0,
+      "explanation": "`<nav>` identifie un bloc de liens de navigation majeurs ; il peut être placé dans le `<header>`."
+    },
+    {
+      "id": "single-main",
+      "type": "truefalse",
+      "question": "Une page peut contenir plusieurs balises `<main>` visibles en même temps.",
+      "answer": false,
+      "explanation": "Un seul `<main>` visible par document : les autres doivent porter l'attribut `hidden`."
+    },
+    {
+      "id": "html-lang",
+      "type": "flashcard",
+      "front": "À quoi sert l'attribut `lang` sur `<html>` ?",
+      "back": "Il indique la langue du document : prononciation des lecteurs d'écran, traduction automatique, césure. Exigé par le RGAA (critère 8.3)."
+    }
+  ]
+}
