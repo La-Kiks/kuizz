@@ -1,4 +1,5 @@
 import { announce, el } from './dom.js';
+import { reviewHead } from './mcq.js';
 import { renderCodeBlock, renderInline } from './text.js';
 
 export function renderFlashcard(question, onAnswer) {
@@ -21,9 +22,12 @@ export function renderFlashcard(question, onAnswer) {
   function grade(knewIt) {
     const { nextButton } = onAnswer(knewIt);
     actions.replaceChildren();
+    view.classList.add('is-answered');
     feedbackSlot.append(el('div', { class: 'feedback is-neutral' },
-      el('p', { class: 'feedback-title' }, knewIt ? 'Noté : tu savais.' : 'Noté : à revoir.'),
-      nextButton));
+      reviewHead(knewIt ? 'ok' : 'neutral', knewIt ? '✓' : '●', knewIt ? 'auto-évaluation : acquis' : 'auto-évaluation : à revoir'),
+      el('div', { class: 'feedback-content' },
+        el('p', { class: 'feedback-title' }, knewIt ? 'Noté : tu savais.' : 'Noté : à revoir.'),
+        nextButton)));
     announce(knewIt ? 'Noté : tu savais.' : 'Noté : carte à revoir.');
     nextButton.focus();
   }

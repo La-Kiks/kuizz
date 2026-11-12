@@ -15,18 +15,26 @@
     } catch (e) { /* stockage bloqué : on suit le système */ }
   </script>
   <title>Kuizz</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%232c4bd6'/%3E%3Cpath%20d='M9%2016.5l4.5%204.5L23%2011'%20fill='none'%20stroke='white'%20stroke-width='3.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%234338e0'/%3E%3Cpath%20d='M9%2016.5l4.5%204.5L23%2011'%20fill='none'%20stroke='white'%20stroke-width='3.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400..800&amp;display=swap">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
+<!--
+THESIS: Le quiz comme revue de code : chaque question est un check, chaque erreur un commentaire de revue avec le correctif en diff. Refuse la carte de quiz arrondie pastel et le papier crème.
+OWN-WORLD: Fond « revue » gris-blanc froid / graphite en sombre, encre quasi noire ; vert et rouge réservés au verdict sous forme de lignes de diff teintées avec gouttière +/− ; une couleur d'action indigo électrique ; pastilles de statut ✓ ✗ ● en monospace ; filets fins, coins serrés, commentaires ancrés par un rail vertical.
+STORY: L'étudiant voit ses modules comme des dépôts avec l'état de leurs checks, ouvre un quiz, répond ; une erreur s'affiche en check échoué suivi d'un commentaire de revue « − ta réponse / + la bonne » et du pourquoi ; à la fin, il relance les checks échoués.
+FIRST VIEWPORT: Barre d'en-tête (marque Kuizz + bouton de thème) ; titre « Mes révisions » ; premier module en bloc de dépôt : nom en monospace, puis une ligne par quiz avec titre, méta mono et pastilles d'état ; la ligne entière est le lien.
+FORM: Revue de PR / checks de CI, n°5 de la liste ancrée, seed 57ed3e1a.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
   <a class="skip-link" href="#app">Aller au contenu</a>
   <header class="site-header">
     <div class="container">
-      <a class="brand" href="#/">Kuizz</a>
+      <a class="brand" href="#/"><svg class="brand-mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><rect x="1" y="1" width="22" height="22" rx="4"/><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg>Kuizz</a>
       <button class="theme-toggle" type="button" data-target="dark" hidden>
         <svg class="icon-moon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         <svg class="icon-sun" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.3M12 19.2v2.3M2.5 12h2.3M19.2 12h2.3M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>

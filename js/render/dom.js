@@ -20,3 +20,10 @@ export function announce(message) {
   region.textContent = '';
   setTimeout(() => { region.textContent = message; }, 50);
 }
+
+/** Pastille d'état façon check : le glyphe est décoratif, le texte porte le sens. */
+export function pill(kind, glyph, text) {
+  return el('span', { class: `badge badge-${kind}` },
+    el('span', { class: 'badge-glyph', 'aria-hidden': 'true' }, glyph),
+    text);
+}

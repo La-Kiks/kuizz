@@ -34,8 +34,21 @@ export function renderCodeBlock(code, doc = document) {
   pre.setAttribute('role', 'region');
   pre.setAttribute('aria-label', code.lang ? `Extrait de code ${code.lang.toUpperCase()}` : 'Extrait de code');
   if (code.lang) pre.dataset.lang = code.lang;
+  // Une ligne = un <span class="line"> (numéro en CSS, hors du texte copié et lu) ;
+  // le textContent de <code> reste strictement égal au contenu source.
   const inner = doc.createElement('code');
-  inner.textContent = code.content;
+  const lines = code.content.split('\n');
+  const trailing = lines.length > 1 && lines[lines.length - 1] === '';
+  if (trailing) lines.pop();
+  lines.forEach((line, i) => {
+    if (i > 0) inner.append(doc.createTextNode('\n'));
+    const span = doc.createElement('span');
+    span.className = 'line';
+    span.textContent = line;
+    inner.append(span);
+  });
+  if (trailing) inner.append(doc.createTextNode('\n'));
+  if (lines.length >= 100) pre.classList.add('is-long');
   pre.append(inner);
   return pre;
 }
