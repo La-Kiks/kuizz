@@ -1,8 +1,8 @@
 {
   "id": "frontend-javascript",
-  "title": "JavaScript : DOM & fetch",
+  "title": "JavaScript : DOM, événements & AJAX",
   "subject": "applications-dynamiques",
-  "description": "Variables, manipulation du DOM, événements, appels fetch avec async/await, modules ES et affichage d'une liste de cards.",
+  "description": "Variables et objets, manipulation du DOM (classes, attributs, styles), événements, débogage et gestion des erreurs, AJAX avec fetch et async/await, modules ES.",
   "questions": [
     {
       "id": "const-reassign-error",
@@ -94,6 +94,45 @@
       "back": "On crée chaque élément avec `createElement`, on remplit le texte avec `textContent`, puis on l'insère avec `append`. Les données ne sont jamais interprétées comme du HTML."
     },
     {
+      "id": "classname-overwrites-classes",
+      "type": "mcq",
+      "question": "Quelles classes porte la card après la dernière ligne ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <article class=\"card card--promo\">…</article>\nconst card = document.querySelector('.card');\ncard.className = 'is-selected';"
+      },
+      "choices": [
+        "`card card--promo is-selected`",
+        "`is-selected` uniquement",
+        "`card is-selected`",
+        "Aucune : `className` est en lecture seule"
+      ],
+      "answer": 1,
+      "explanation": "Affecter `className` remplace tout l'attribut `class` : la card perd `card` et `card--promo`, donc ses styles. Pour agir sur une seule classe, utilise `classList.add()`, `classList.remove()` ou `classList.toggle()`."
+    },
+    {
+      "id": "setattribute-disabled-false",
+      "type": "truefalse",
+      "question": "Après cette ligne, le bouton redevient cliquable.",
+      "code": {
+        "lang": "js",
+        "content": "button.setAttribute('disabled', 'false');"
+      },
+      "answer": false,
+      "explanation": "Piège : `disabled` est un attribut booléen, sa seule présence désactive le bouton, quelle que soit sa valeur. Pour le réactiver, retire-le avec `button.removeAttribute('disabled')` ou écris `button.disabled = false`."
+    },
+    {
+      "id": "style-property-inline-only",
+      "type": "truefalse",
+      "question": "Ce code affiche `crimson` dans la console.",
+      "code": {
+        "lang": "js",
+        "content": "// style.css : .notice { color: crimson; }\nconst notice = document.querySelector('.notice');\nconsole.log(notice.style.color);"
+      },
+      "answer": false,
+      "explanation": "La propriété `style` ne reflète que l'attribut `style` inline de l'élément : ici elle renvoie une chaîne vide. Pour lire le style réellement appliqué, utilise `getComputedStyle(notice).color` ; pour écrire, `style` attend des noms en camelCase (`style.backgroundColor`)."
+    },
+    {
       "id": "prevent-default-submit",
       "type": "mcq",
       "question": "Sans la ligne manquante, la page se recharge à chaque envoi et le `fetch` n'a pas le temps d'aboutir. Quelle ligne manque ?",
@@ -109,6 +148,23 @@
       ],
       "answer": 2,
       "explanation": "`preventDefault()` annule l'action par défaut de l'événement, ici l'envoi du formulaire et la navigation. `stopPropagation()` empêche seulement la remontée de l'événement, et `return false` n'a aucun effet dans un écouteur `addEventListener`."
+    },
+    {
+      "id": "input-event-live-search",
+      "type": "mcq",
+      "question": "Tu filtres les cards à chaque modification du champ de recherche, y compris un collage à la souris. Quel événement mettre à la place de `???` ?",
+      "code": {
+        "lang": "js",
+        "content": "search.addEventListener('???', () => {\n  filterCards(search.value);\n});"
+      },
+      "choices": [
+        "`change`",
+        "`keyup`",
+        "`input`",
+        "`submit`"
+      ],
+      "answer": 2,
+      "explanation": "`input` se déclenche à chaque changement de la valeur, quelle qu'en soit l'origine (clavier, collage, dictée). `change` n'arrive qu'à la perte du focus et `keyup` rate le collage à la souris. Pour le survol, on écoute plutôt `mouseenter` et `mouseleave`."
     },
     {
       "id": "event-delegation",
@@ -138,11 +194,48 @@
       "explanation": "Un script classique sans attribut bloque le parseur et s'exécute aussitôt : le `<button>` n'est pas encore créé, donc `querySelector` renvoie `null`. Ajoute `defer` (ou `type=\"module\"`), ou attends l'événement `DOMContentLoaded`."
     },
     {
-      "id": "module-deferred-default",
+      "id": "devtools-debug-tools",
+      "type": "flashcard",
+      "front": "Quels outils des DevTools utiliser pour déboguer un script ?",
+      "back": "La Console affiche les erreurs avec leur fichier et leur ligne, ainsi que tes `console.log`, `console.table` ou `console.error`. Dans l'onglet Sources (Débogueur sous Firefox), un point d'arrêt met le code en pause : tu lis alors les variables et la pile d'appels, puis tu avances pas à pas."
+    },
+    {
+      "id": "debugger-needs-devtools",
       "type": "truefalse",
-      "question": "Un `<script type=\"module\">` placé dans le `<head>` est différé par défaut : il s'exécute après l'analyse complète du HTML, comme avec `defer`.",
-      "answer": true,
-      "explanation": "Les scripts module sont téléchargés en parallèle et exécutés une fois le document analysé, avant `DOMContentLoaded`. L'attribut `defer` n'a donc aucun effet sur eux."
+      "question": "Une fois le site en ligne avec ce code, le script se met en pause chez tous les visiteurs, même si leurs DevTools sont fermés.",
+      "code": {
+        "lang": "js",
+        "content": "function addToCart(product) {\n  debugger;\n  cart.push(product);\n}"
+      },
+      "answer": false,
+      "explanation": "L'instruction `debugger` agit comme un point d'arrêt seulement si un outil de débogage est ouvert ; sinon elle est ignorée. Retire-la quand même avant la mise en ligne, comme tes `console.log` de test."
+    },
+    {
+      "id": "try-catch-finally-order",
+      "type": "mcq",
+      "question": "Qu'affiche l'appel `parse('{oups}')` ?",
+      "code": {
+        "lang": "js",
+        "content": "function parse(text) {\n  try {\n    console.log('A');\n    JSON.parse(text);\n    console.log('B');\n  } catch (error) {\n    console.log('C');\n  } finally {\n    console.log('D');\n  }\n}"
+      },
+      "choices": [
+        "`A C D`",
+        "`A B C D`",
+        "`A D`",
+        "`A C`"
+      ],
+      "answer": 0,
+      "explanation": "`JSON.parse` lève une `SyntaxError` : la suite du `try` est sautée (pas de `B`) et le `catch` s'exécute. Le bloc `finally` s'exécute dans tous les cas, erreur ou non : c'est là qu'on place le nettoyage."
+    },
+    {
+      "id": "ajax-xhr-vs-fetch",
+      "type": "flashcard",
+      "front": "Qu'est-ce qu'AJAX, et quel lien entre `XMLHttpRequest` et `fetch` ?",
+      "code": {
+        "lang": "js",
+        "content": "// Historique : XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', '/api/products');\nxhr.onload = () => render(JSON.parse(xhr.responseText));\nxhr.send();\n\n// Moderne : fetch\nconst response = await fetch('/api/products');\nrender(await response.json());"
+      },
+      "back": "AJAX consiste à échanger des données avec le serveur en arrière-plan, sans recharger la page, puis à mettre à jour une partie du DOM. `XMLHttpRequest` est l'API historique, pilotée par des événements et des callbacks. `fetch` est l'API moderne, fondée sur les promesses et utilisable avec `async`/`await`."
     },
     {
       "id": "fetch-404-no-reject",
@@ -197,19 +290,6 @@
       ],
       "answer": 1,
       "explanation": "Le test de `response.ok` transforme le 404 en erreur levée dans le `try`, que le `catch` récupère, exactement comme une erreur réseau. Le même `catch` gère donc les deux cas."
-    },
-    {
-      "id": "promise-all-reject",
-      "type": "mcq",
-      "question": "Que fait `await Promise.all([p1, p2, p3])` si `p2` est rejetée ?",
-      "choices": [
-        "Il renvoie `[r1, undefined, r3]`",
-        "Il attend puis ignore `p2`",
-        "Il est rejeté avec l'erreur de `p2`",
-        "Il relance `p2` automatiquement jusqu'au succès"
-      ],
-      "answer": 2,
-      "explanation": "`Promise.all` est rejetée dès qu'une des promesses l'est, avec sa raison ; les autres résultats sont perdus. Pour obtenir le statut de chacune, utilise `Promise.allSettled`."
     },
     {
       "id": "promise-all-parallel",
@@ -318,12 +398,6 @@
       ],
       "answer": 2,
       "explanation": "`filter` garde les produits en stock, puis `map` transforme chacun en chaîne grâce au template literal, où `${…}` insère la valeur de l'expression. Le résultat reste un tableau : pour une chaîne, il faudrait ajouter `join('')`."
-    },
-    {
-      "id": "map-vs-foreach",
-      "type": "flashcard",
-      "front": "Quelle différence entre `map` et `forEach` sur un tableau ?",
-      "back": "`map` renvoie un nouveau tableau de même longueur, construit à partir des valeurs renvoyées par la fonction. `forEach` renvoie toujours `undefined` : il sert seulement à exécuter une action pour chaque élément."
     }
   ]
 }
