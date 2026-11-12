@@ -5,6 +5,21 @@
   "description": "Structure d'une page, balises sémantiques, formulaires et erreurs courantes du validateur.",
   "questions": [
     {
+      "id": "front-end-role",
+      "type": "truefalse",
+      "question": "Le développeur front-end se contente de reproduire la maquette : le temps de chargement et l'accessibilité dépendent uniquement du back-end.",
+      "answer": false,
+      "explanation": "Le front fait le pont entre la maquette et la logique serveur. Ses choix (balisage, poids des images, navigation au clavier, interactions) pèsent directement sur l'ergonomie, l'accessibilité et la vitesse d'affichage."
+    },
+    {
+      "id": "separation-of-concerns",
+      "type": "mcq",
+      "question": "Une bannière d'alerte doit s'afficher en rouge et se fermer au clic sur un bouton « Fermer ». Quelle répartition respecte la séparation des préoccupations ?",
+      "choices": ["Le texte et le bouton en HTML, le rouge et la fermeture en CSS", "Tout dans le HTML, avec un attribut `style` et un attribut `onclick`", "Le texte et le bouton en HTML, le rouge en CSS, le clic en JS", "Le texte et le rouge générés en JS, la fermeture gérée en CSS"],
+      "answer": 2,
+      "explanation": "HTML porte la structure (le fond), CSS la présentation (la forme) et JavaScript le comportement qui modifie le DOM. Les attributs `style` et `onclick` sont valides, mais mélanger les couches rend le code difficile à maintenir et à réutiliser."
+    },
+    {
       "id": "nav-element",
       "type": "mcq",
       "question": "Quelle balise doit contenir les liens de navigation principale du site ?",
@@ -14,11 +29,26 @@
       "explanation": "`<nav>` identifie un bloc de liens de navigation majeurs ; il peut être placé dans le `<header>`."
     },
     {
+      "id": "semantic-zones-div-soup",
+      "type": "flashcard",
+      "front": "Par quelles balises sémantiques remplacer ces cinq `<div>` ?",
+      "code": { "lang": "html", "content": "<div id=\"haut\">Logo</div>\n<div id=\"menu\">Liens du site</div>\n<div id=\"contenu\">Contenu principal</div>\n<div id=\"encart\">Contenu complémentaire</div>\n<div id=\"bas\">Mentions, contact</div>" },
+      "back": "`<header>`, `<nav>`, `<main>` (découpé en `<section>` titrées), `<aside>` et `<footer>`. Le rendu ne change pas, mais les lecteurs d'écran s'en servent comme repères et les moteurs de recherche comprennent mieux la page (SEO)."
+    },
+    {
       "id": "single-main",
       "type": "truefalse",
       "question": "Une page peut contenir plusieurs balises `<main>` visibles en même temps.",
       "answer": false,
       "explanation": "Un seul `<main>` visible par document : les autres doivent porter l'attribut `hidden`."
+    },
+    {
+      "id": "header-footer-in-article",
+      "type": "truefalse",
+      "question": "Le validateur W3C rejette ce code, car une page ne peut contenir qu'un seul `<header>` et un seul `<footer>`.",
+      "code": { "lang": "html", "content": "<body>\n  <header>Logo et menu</header>\n  <main>\n    <article>\n      <header><h2>Bien choisir son vélo</h2></header>\n      <p>…</p>\n      <footer>Par Léa, le 3 mars</footer>\n    </article>\n  </main>\n  <footer>© 2026</footer>\n</body>" },
+      "answer": false,
+      "explanation": "Contrairement à `<main>`, `<header>` et `<footer>` peuvent se répéter : ils introduisent ou concluent leur `<article>` ou `<section>` parent. Seuls ceux placés directement au niveau de la page servent de repères « bannière » et « informations de contenu »."
     },
     {
       "id": "html-lang",
@@ -31,6 +61,15 @@
       "type": "flashcard",
       "front": "À quoi sert `<!DOCTYPE html>` en tête du document ?",
       "back": "Il fait passer le navigateur en mode standard ; sans lui, la page est rendue en mode « quirks » (compatibilité avec les vieux navigateurs). Il est insensible à la casse et ne charge aucune DTD."
+    },
+    {
+      "id": "meta-charset-utf8",
+      "type": "mcq",
+      "question": "Ce fichier est enregistré en UTF-8, mais les accents peuvent s'afficher « Ã© » et le validateur signale un encodage non déclaré. Que faut-il ajouter ?",
+      "code": { "lang": "html", "content": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <title>Été 2026</title>\n</head>\n<body>\n  <p>Café, thé, crème brûlée</p>\n</body>\n</html>" },
+      "choices": ["`lang=\"utf-8\"` à la place de `lang=\"fr\"`", "`<meta charset=\"utf-8\">` en début de `<head>`", "`<meta name=\"encoding\" content=\"utf-8\">`", "`<meta http-equiv=\"Content-Language\" content=\"fr\">`"],
+      "answer": 1,
+      "explanation": "`<meta charset=\"utf-8\">` déclare l'encodage des caractères ; il doit figurer dans les 1024 premiers octets, donc tout en haut du `<head>`, avant `<title>`. `lang` indique la langue, pas l'encodage, et `name=\"encoding\"` n'existe pas."
     },
     {
       "id": "head-missing-title",
@@ -57,6 +96,15 @@
       "explanation": "`<div>` n'a aucune sémantique : c'est le bon outil quand aucun élément plus précis ne convient, typiquement un conteneur de grille. Une carte autonome est un `<article>`, le menu un `<nav>`, le contenu principal un `<main>`."
     },
     {
+      "id": "aside-complementary",
+      "type": "mcq",
+      "question": "Cet encadré enrichit l'article sans être indispensable à sa lecture. Par quelle balise remplacer le `<div class=\"encadre\">` ?",
+      "code": { "lang": "html", "content": "<article>\n  <h2>Bien choisir son vélo</h2>\n  <p>Commence par définir ton usage…</p>\n  <div class=\"encadre\">\n    <h3>Tu savais ?</h3>\n    <p>Les premiers vélos n'avaient pas de pédales.</p>\n  </div>\n</article>" },
+      "choices": ["`<section>`", "`<footer>`", "`<figure>`", "`<aside>`"],
+      "answer": 3,
+      "explanation": "`<aside>` marque un contenu en lien indirect avec ce qui l'entoure (encadré, note, publicité, barre latérale). `<section>` est une partie à part entière du contenu, `<footer>` conclut l'article, `<figure>` légende un média."
+    },
+    {
       "id": "heading-level-choice",
       "type": "mcq",
       "question": "Sous un `<h2>` « Articles récents », le titre de chaque carte doit paraître petit. Quelle approche est correcte ?",
@@ -71,14 +119,6 @@
       "choices": ["`<a href=\"#\">Menu</a>`", "`<div onclick=\"toggle()\">Menu</div>`", "`<span tabindex=\"0\">Menu</span>`", "`<button type=\"button\">Menu</button>`"],
       "answer": 3,
       "explanation": "Un lien mène vers une ressource (une URL) ; une action sur la page est un bouton. `<button>` est nativement focusable, activable avec Entrée et Espace et annoncé « bouton » par les lecteurs d'écran."
-    },
-    {
-      "id": "img-alt-decorative",
-      "type": "mcq",
-      "question": "Comment baliser une image purement décorative (motif, illustration sans information) ?",
-      "choices": ["Supprimer l'attribut `alt`", "`alt=\"image décorative\"`", "`alt=\"\"`", "`title=\"\"` sans `alt`"],
-      "answer": 2,
-      "explanation": "Un `alt` vide indique aux technologies d'assistance d'ignorer l'image. Sans `alt`, le validateur signale une erreur et certains lecteurs d'écran lisent le nom du fichier."
     },
     {
       "id": "img-width-height",
