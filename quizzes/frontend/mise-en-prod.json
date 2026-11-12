@@ -1,0 +1,303 @@
+{
+  "id": "frontend-mise-en-prod",
+  "title": "Mise en production : livrer le front-end d'un site",
+  "subject": "integration",
+  "description": "Scénarios du projet fil rouge : checklist de livraison, bannière responsive, navigation et section Expertises, paliers Bootstrap 5 et choix d'un framework CSS.",
+  "questions": [
+    {
+      "id": "prod-checklist-four",
+      "type": "flashcard",
+      "front": "Avant de livrer le site de l'agence, quels sont les quatre contrôles de la checklist de mise en production ?",
+      "back": "Le Nu HTML Checker du W3C valide le code à 100 %, sans aucune erreur. Tout le site se parcourt à la touche Tab avec un `:focus` bien visible, et Lighthouse mesure un LCP sous 2,5 s en 3G/4G. Aucun défilement horizontal n'apparaît entre 320 et 1920 px de large."
+    },
+    {
+      "id": "prod-nu-error-vs-warning",
+      "type": "flashcard",
+      "front": "Le Nu Checker affiche 1 « Error » et 2 « Warning » sur ta page d'accueil. Lesquels bloquent la validation à 100 %, et que fais-tu des autres ?",
+      "back": "Les erreurs rendent le document non conforme : corrige-les toutes, puis relance la vérification. Les avertissements ne rendent pas la page invalide, mais signalent souvent un oubli (par exemple une `<section>` sans titre). Lis-les et corrige ceux qui sont justifiés."
+    },
+    {
+      "id": "prod-picture-source-order",
+      "type": "mcq",
+      "question": "Sur ta bannière, le Nu Checker signale « Element `source` not allowed as child of element `picture` in this context ». Quelle correction appliques-tu ?",
+      "code": {
+        "lang": "html",
+        "content": "<picture>\n  <img src=\"hero-mobile.avif\" alt=\"L'équipe de l'agence en atelier\">\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.avif\">\n</picture>"
+      },
+      "choices": [
+        "Remplacer l'attribut `srcset` de la `<source>` par un attribut `src`",
+        "Ajouter sur la `<source>` le même attribut `alt` que sur l'`<img>`",
+        "Placer la `<source>` avant l'`<img>`, qui doit être le dernier enfant",
+        "Remplacer `<picture>` par une `<div class=\"picture\">` équivalente"
+      ],
+      "answer": 2,
+      "explanation": "Dans un `<picture>`, les `<source>` viennent d'abord et l'`<img>` ferme la liste. Dans cet ordre-là, le navigateur ignorerait en plus la `<source>` : l'image desktop ne serait jamais chargée."
+    },
+    {
+      "id": "prod-source-no-alt",
+      "type": "truefalse",
+      "question": "Pour que cette bannière soit accessible, il faut aussi ajouter un `alt` sur la `<source>`.",
+      "code": {
+        "lang": "html",
+        "content": "<picture>\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.avif\">\n  <img src=\"hero-mobile.avif\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
+      },
+      "answer": false,
+      "explanation": "Le texte alternatif se place uniquement sur l'`<img>` : il vaut quel que soit le fichier retenu. `<source>` n'a pas d'attribut `alt`, et le Nu Checker signalerait une erreur."
+    },
+    {
+      "id": "prod-hover-not-focus",
+      "type": "truefalse",
+      "question": "À la souris, chaque lien de la `nav` change de couleur au survol : le point « états `:focus` bien visibles » de la checklist est donc validé.",
+      "answer": false,
+      "explanation": "Le survol (`:hover`) et le focus clavier (`:focus`) sont deux états distincts. Seul un vrai parcours à la touche Tab montre si l'on voit où l'on se trouve, d'autant qu'un `outline: none` hérité d'un reset peut l'avoir supprimé."
+    },
+    {
+      "id": "prod-card-div-keyboard",
+      "type": "mcq",
+      "question": "Au test clavier, la touche Tab saute les trois cartes « Expertises », pourtant cliquables à la souris. Quelle correction est la plus juste ?",
+      "code": {
+        "lang": "html",
+        "content": "<div class=\"card\" onclick=\"location.href='seo.html'\">\n  <h3>Référencement</h3>\n  <p>Audit et optimisation SEO.</p>\n</div>"
+      },
+      "choices": [
+        "Ajouter `tabindex=\"1\"` sur chaque carte pour la placer en tête de l'ordre",
+        "Mettre un vrai lien `<a href=\"seo.html\">` dans la carte, sur le titre",
+        "Ajouter `role=\"link\"` sur le `<div>` sans modifier le reste du code",
+        "Ajouter `.card:focus { outline: 2px solid; }` dans la feuille de style"
+      ],
+      "answer": 1,
+      "explanation": "Un `<div>` ne reçoit pas le focus : ni un style `:focus` ni `role=\"link\"` ne le rendent atteignable ou activable avec Entrée. Un lien natif l'est d'office, alors qu'un `tabindex` positif bouleverse l'ordre de tabulation."
+    },
+    {
+      "id": "prod-lighthouse-score-not-lcp",
+      "type": "truefalse",
+      "question": "Rapport Lighthouse mobile de ta page d'accueil : score Performance 91 (vert), LCP 2,9 s. Le point « performance » de la checklist est validé.",
+      "answer": false,
+      "explanation": "La checklist exige un LCP sous 2,5 s, pas un bon score global. Le score mélange plusieurs métriques pondérées : il peut rester vert alors que la bannière s'affiche trop tard."
+    },
+    {
+      "id": "prod-hero-lcp-picture",
+      "type": "mcq",
+      "question": "Lighthouse (mobile) : LCP 4,6 s. L'élément LCP est `<img src=\"hero.jpg\">`, un JPEG paysage de 2400 px et 1,8 Mo servi à tous les écrans. Quelle action améliore le plus le LCP sur mobile ?",
+      "choices": [
+        "Ajouter `img { max-width: 100%; }` pour que la bannière tienne à l'écran",
+        "Un `<picture>` : `hero-mobile.avif` par défaut, `hero-desktop.avif` dès 992 px",
+        "Ajouter `loading=\"lazy\"` sur la bannière pour alléger le premier affichage",
+        "Passer la bannière en `background-image` CSS sur un `<div class=\"hero\">`"
+      ],
+      "answer": 1,
+      "explanation": "Le mobile télécharge alors un fichier recadré et bien plus léger. `max-width` ne réduit pas le poids, le lazy loading retarde justement l'image LCP, et une image de fond CSS est découverte plus tard qu'une `<img>`."
+    },
+    {
+      "id": "prod-hero-media-992",
+      "type": "mcq",
+      "question": "Fil rouge : la bannière paysage doit s'afficher dès 992 px, la version portrait en dessous. Que mets-tu à la place de `???` ?",
+      "code": {
+        "lang": "html",
+        "content": "<picture>\n  <source media=\"???\" srcset=\"hero-desktop.avif\">\n  <img src=\"hero-mobile.avif\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
+      },
+      "choices": [
+        "`(max-width: 992px)`",
+        "`(min-width: 768px)`",
+        "`(orientation: landscape)`",
+        "`(min-width: 992px)`"
+      ],
+      "answer": 3,
+      "explanation": "Le `src` de l'`<img>` sert de version par défaut (mobile) et la `<source>` prend le relais à partir de 992 px : c'est la logique mobile first avec `min-width`. `max-width` inverserait les deux images."
+    },
+    {
+      "id": "prod-avif-fallback",
+      "type": "flashcard",
+      "front": "Ta bannière sert directement des fichiers AVIF. Quel risque, et comment le couvrir ?",
+      "code": {
+        "lang": "html",
+        "content": "<picture>\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.avif\">\n  <img src=\"hero-mobile.avif\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
+      },
+      "back": "Un navigateur qui ne décode pas l'AVIF affiche une image cassée. Ajoute `type=\"image/avif\"` aux `<source>` AVIF et garde un JPEG ou un WebP dans le `src` de l'`<img>` en repli. Les navigateurs récents lisent tous l'AVIF : le risque vise surtout les anciens."
+    },
+    {
+      "id": "prod-rem-font-sizes",
+      "type": "mcq",
+      "question": "Une utilisatrice malvoyante a réglé la taille de police par défaut de son navigateur sur « Très grande », mais les textes du hero ne grossissent pas. Quelle réécriture applique le point du fil rouge ?",
+      "code": {
+        "lang": "css",
+        "content": "h1 { font-size: 40px; }\n.hero p { font-size: 18px; }"
+      },
+      "choices": [
+        "`h1 { font-size: 2.5vw; }` et `.hero p { font-size: 1.125vw; }`",
+        "`h1 { font-size: 30pt; }` et `.hero p { font-size: 13.5pt; }`",
+        "`h1 { font-size: 2.5rem; }` et `.hero p { font-size: 1.125rem; }`",
+        "`h1 { font-size: 40px !important; }` et `.hero p` inchangé"
+      ],
+      "answer": 2,
+      "explanation": "Le `rem` dépend de la taille de police de `<html>`, qui suit le réglage de l'utilisateur : avec 16 px par défaut, `2.5rem` vaut toujours 40 px. Le `pt` reste une unité absolue et le `vw` ignore ce réglage."
+    },
+    {
+      "id": "prod-px-page-zoom",
+      "type": "truefalse",
+      "question": "Si tes polices sont en `px`, le zoom de page du navigateur (Ctrl +) ne grossit plus le texte.",
+      "answer": false,
+      "explanation": "Le zoom de page agrandit tout, `px` compris. Ce que le `px` ignore, c'est le réglage « taille de police par défaut » du navigateur : voilà pourquoi le fil rouge impose le `rem` pour les polices."
+    },
+    {
+      "id": "prod-viewport-missing",
+      "type": "mcq",
+      "question": "Sur ton téléphone, la page d'accueil apparaît comme une version desktop miniature : texte minuscule, `nav` en ligne alors que ta media query `(min-width: 768px)` ne devrait pas s'appliquer. Que manque-t-il le plus probablement ?",
+      "choices": [
+        "Le `<meta name=\"viewport\">` avec `width=device-width`",
+        "L'attribut `lang=\"fr\"` sur l'élément `<html>`",
+        "La déclaration `<!DOCTYPE html>` en début de fichier",
+        "Un `<meta charset=\"utf-8\">` placé dans le `<head>`"
+      ],
+      "answer": 0,
+      "explanation": "Sans meta viewport, le navigateur mobile simule une page d'environ 980 px de large, puis la réduit : `(min-width: 768px)` est donc vraie. `width=device-width` lui fait utiliser la largeur réelle de l'écran."
+    },
+    {
+      "id": "prod-nav-column-row",
+      "type": "mcq",
+      "question": "Les liens de la `nav` sont en colonne sur mobile. Quel bloc ajouter pour les passer en ligne à partir de 768 px, en restant mobile first ?",
+      "code": {
+        "lang": "css",
+        "content": ".nav ul {\n  display: flex;\n  flex-direction: column;\n  gap: 0.5rem;\n}\n/* ??? */"
+      },
+      "choices": [
+        "`@media (max-width: 768px) { .nav ul { flex-direction: row; } }`",
+        "`@media (min-width: 768px) { .nav ul { flex-direction: column; } }`",
+        "`@media (min-width: 768px) { .nav ul { display: block; } }`",
+        "`@media (min-width: 768px) { .nav ul { flex-direction: row; } }`"
+      ],
+      "answer": 3,
+      "explanation": "En mobile first, le style par défaut vise le mobile et une media query `min-width` l'enrichit pour les écrans plus larges. Avec `max-width`, les petits écrans passeraient en ligne : l'inverse du besoin."
+    },
+    {
+      "id": "prod-nav-touch-spacing",
+      "type": "mcq",
+      "question": "Test sur smartphone : dans la `nav` en colonne, ta testeuse touche « Contact » en visant « Expertises ». Les liens font 14 px de haut et se touchent. Quelle correction applique le fil rouge ?",
+      "choices": [
+        "Passer la `nav` en ligne dès le mobile pour que tous les liens restent visibles",
+        "Ajouter `cursor: pointer` et un effet `:hover` plus contrasté sur chaque lien",
+        "Passer chaque lien en `display: block` avec `padding: 0.75rem 1rem`",
+        "Réduire la taille de police des liens pour que chacun tienne sur une ligne"
+      ],
+      "answer": 2,
+      "explanation": "Le `padding` sur le lien lui-même agrandit la surface qui réagit au doigt, et l'espacement évite les touches voisines. Les WCAG 2.2 exigent au moins 24 × 24 px en AA, et 44 px reste la cible recommandée."
+    },
+    {
+      "id": "prod-expertises-grid-800",
+      "type": "mcq",
+      "question": "Sur une tablette de 800 px de large, comment s'affichent les trois cartes de la section « Expertises » ?",
+      "code": {
+        "lang": "css",
+        "content": ".expertises {\n  display: grid;\n  gap: 1.5rem;\n  padding: 2rem 1rem;\n}\n@media (min-width: 992px) {\n  .expertises {\n    grid-template-columns: repeat(3, 1fr);\n    padding: 4rem 2rem;\n  }\n}"
+      },
+      "choices": [
+        "Trois colonnes, avec les paddings réduits du mobile",
+        "Deux colonnes, la troisième carte passe à la ligne",
+        "Trois colonnes, avec les paddings larges de la media query",
+        "Une seule colonne, cartes empilées avec `padding: 2rem 1rem`"
+      ],
+      "answer": 3,
+      "explanation": "À 800 px, la condition `min-width: 992px` est fausse : la grille garde sa colonne unique par défaut et les paddings mobiles. Les 3 colonnes et les paddings plus aérés n'arrivent qu'à partir de 992 px."
+    },
+    {
+      "id": "prod-overflow-fixed-width",
+      "type": "mcq",
+      "question": "Mode responsive des DevTools à 320 px : une barre de défilement horizontale apparaît. L'inspecteur pointe ce CSS des cartes « Expertises ». Quelle correction ?",
+      "code": {
+        "lang": "css",
+        "content": ".card {\n  width: 400px;\n  padding: 1.5rem;\n}"
+      },
+      "choices": [
+        "Remplacer `width: 400px` par `width: 25rem` pour respecter le zoom",
+        "Ajouter `@media (max-width: 400px) { body { zoom: 0.8; } }`",
+        "Passer le meta viewport à `width=400` pour élargir la page",
+        "Remplacer `width: 400px` par `max-width: 400px` sur la carte"
+      ],
+      "answer": 3,
+      "explanation": "Avec `max-width`, la carte garde 400 px au maximum mais rétrécit quand l'écran est plus étroit. `25rem` vaut toujours 400 px par défaut : le débordement reste le même."
+    },
+    {
+      "id": "prod-overflow-hidden-not-fix",
+      "type": "truefalse",
+      "question": "Pour valider le point « aucun défilement horizontal de 320 à 1920 px », ajouter `body { overflow-x: hidden; }` est une correction satisfaisante.",
+      "answer": false,
+      "explanation": "Cette règle masque le symptôme : l'élément trop large déborde toujours, et sa partie coupée devient illisible et inaccessible. Il faut trouver et corriger l'élément fautif (largeur fixe, image sans `max-width`…)."
+    },
+    {
+      "id": "prod-test-320-1920",
+      "type": "flashcard",
+      "front": "Comment vérifies-tu concrètement le point « aucun défilement horizontal de 320 à 1920 px » ?",
+      "back": "Ouvre le mode responsive des DevTools et fais varier la largeur de 320 à 1920 px en guettant une barre de défilement horizontale. Si elle apparaît, repère avec l'inspecteur l'élément qui dépasse (largeur fixe, image sans `max-width`, long mot insécable). Corrige la cause plutôt que de masquer le débordement."
+    },
+    {
+      "id": "prod-bootstrap-breakpoints",
+      "type": "flashcard",
+      "front": "Quels sont les paliers de Bootstrap 5, et dans quel sens s'appliquent-ils ?",
+      "back": "`sm` 576 px, `md` 768 px, `lg` 992 px, `xl` 1200 px, `xxl` 1400 px. Ce sont des largeurs minimales (`min-width`) : une classe en `-md-` s'applique à partir de 768 px et au-delà. Sous 576 px, seules les classes sans infixe comptent (mobile first)."
+    },
+    {
+      "id": "prod-bootstrap-col-lg",
+      "type": "mcq",
+      "question": "Version Bootstrap 5 de la section « Expertises » : comment s'affichent ces trois cartes sur un écran de 1024 px, puis de 800 px ?",
+      "code": {
+        "lang": "html",
+        "content": "<div class=\"row\">\n  <div class=\"col-12 col-lg-4\">Référencement</div>\n  <div class=\"col-12 col-lg-4\">Design</div>\n  <div class=\"col-12 col-lg-4\">Développement</div>\n</div>"
+      },
+      "choices": [
+        "Trois colonnes à 1024 px comme à 800 px",
+        "Une carte par ligne à 1024 px, trois colonnes à 800 px",
+        "Trois colonnes à 1024 px, une carte par ligne à 800 px",
+        "Trois colonnes à 1024 px, deux colonnes à 800 px"
+      ],
+      "answer": 2,
+      "explanation": "`lg` démarre à 992 px : à 1024 px, chaque carte prend 4 colonnes sur 12. À 800 px, seule `col-12` s'applique et chaque carte occupe toute la largeur, comme la media query native à 992 px du fil rouge."
+    },
+    {
+      "id": "prod-bootstrap-md-upward",
+      "type": "truefalse",
+      "question": "Avec Bootstrap 5, cette carte n'est en demi-largeur qu'entre 768 et 991 px ; au-delà, elle reprend toute la largeur.",
+      "code": {
+        "lang": "html",
+        "content": "<div class=\"row\">\n  <div class=\"col-12 col-md-6\">Design</div>\n</div>"
+      },
+      "answer": false,
+      "explanation": "Les paliers Bootstrap sont des `min-width` : `col-md-6` s'applique à partir de 768 px et pour toutes les largeurs supérieures, tant qu'une classe `col-lg-…` ou `col-xl-…` ne la remplace pas."
+    },
+    {
+      "id": "prod-frameworks-compare",
+      "type": "flashcard",
+      "front": "Bootstrap, Tailwind ou CSS natif : quel principe, quel atout et quelle limite pour chacun ?",
+      "back": "Bootstrap : composants préstylés et grille de 12 colonnes, pour prototyper vite, mais le design reste standardisé. Tailwind : classes utilitaires à usage unique dans le HTML, design 100 % sur mesure mais balisage chargé. CSS natif (variables, Flexbox, Grid) : zéro dépendance et performance optimale, idéal pour un petit projet."
+    },
+    {
+      "id": "prod-choose-native-css",
+      "type": "mcq",
+      "question": "L'agence te confie son site vitrine : 4 pages, maquette entièrement sur mesure, performance maximale exigée et aucune dépendance externe à maintenir. Quelle approche CSS colle le mieux ?",
+      "choices": [
+        "CSS natif : variables, Flexbox et Grid, écrits sur mesure pour le site",
+        "Bootstrap, pour sa grille de 12 colonnes et ses composants prêts à l'emploi",
+        "Tailwind, pour ses classes utilitaires à usage unique dans le HTML",
+        "Bootstrap et Tailwind combinés, pour couvrir tous les cas de figure"
+      ],
+      "answer": 0,
+      "explanation": "Sur un petit projet sur mesure, le CSS natif ne charge que ce qui sert et n'ajoute aucune dépendance. Bootstrap imposerait un rendu standardisé, et Tailwind un outil de build à maintenir."
+    },
+    {
+      "id": "prod-recognize-tailwind",
+      "type": "mcq",
+      "question": "Une collègue propose ce balisage pour la section « Expertises ». Quelle approche reconnais-tu, et quelle limite lui associe-t-on ?",
+      "code": {
+        "lang": "html",
+        "content": "<section class=\"grid gap-6 p-8 md:grid-cols-3\">\n  <article class=\"rounded-lg bg-white p-6 shadow\">\n    <h3 class=\"text-xl font-bold\">Design</h3>\n  </article>\n</section>"
+      },
+      "choices": [
+        "Tailwind (CSS utilitaire) : sur mesure, mais un HTML plus verbeux",
+        "Bootstrap : composants préstylés, au prix d'un design standardisé",
+        "CSS natif : zéro dépendance, mais aucune media query possible",
+        "Bootstrap utilitaire : grille 12 colonnes, mais sans mobile first"
+      ],
+      "answer": 0,
+      "explanation": "Des classes à rôle unique (`gap-6`, `p-8`) et des préfixes de palier comme `md:` signent Tailwind. Le style vit dans le HTML : rendu sur mesure, mais attributs `class` à rallonge."
+    }
+  ]
+}
