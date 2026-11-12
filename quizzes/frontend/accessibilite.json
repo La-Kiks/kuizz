@@ -8,7 +8,7 @@
       "id": "wcag-vs-rgaa",
       "type": "flashcard",
       "front": "WCAG et RGAA : qui les publie, et quel lien entre les deux ?",
-      "back": "Les WCAG sont les règles internationales publiées par le W3C (version actuelle : 2.2). Le RGAA (version 4.1) est le référentiel français : il reprend les critères des WCAG 2.1 de niveaux A et AA et fournit une méthode de test pour vérifier chacun."
+      "back": "Les WCAG sont les règles internationales publiées par le W3C (version actuelle : 2.2). Le RGAA (version 4.1) est le référentiel français : il reprend les critères des WCAG 2.1 de niveaux A et AA (cumulatifs : AA inclut A) et fournit une méthode de test pour chacun. La cible courante est donc AA, pas AAA."
     },
     {
       "id": "rgaa-who",
@@ -25,13 +25,6 @@
       "choices": ["Perceptible", "Utilisable", "Compréhensible", "Robuste"],
       "answer": 1,
       "explanation": "Les WCAG reposent sur quatre principes (POUR en anglais) : perceptible, utilisable, compréhensible, robuste. « Utilisable » couvre l'accès au clavier, le temps laissé et la navigation : toute fonction doit être utilisable sans souris."
-    },
-    {
-      "id": "aaa-not-required",
-      "type": "truefalse",
-      "question": "Pour bien faire, il faut viser le niveau AAA sur l'ensemble d'un site.",
-      "answer": false,
-      "explanation": "Les niveaux sont cumulatifs (AA inclut A). Le W3C déconseille d'exiger AAA pour un site entier, car certains contenus ne peuvent pas satisfaire tous ses critères : la cible courante, et celle du RGAA, est AA."
     },
     {
       "id": "contrast-thresholds",
@@ -60,7 +53,7 @@
       "id": "visual-hierarchy-levers",
       "type": "flashcard",
       "front": "Qu'est-ce que la hiérarchie visuelle, et comment la construire sans nuire à l'accessibilité ?",
-      "back": "C'est l'ordre d'importance perçu au premier coup d'œil, créé par la taille, la graisse, le contraste, l'espacement et la position. Elle doit refléter la structure HTML (le titre le plus visible est le `<h1>`) et rester cohérente d'une page à l'autre. Ne la fonde jamais sur la seule couleur et garde des contrastes conformes au niveau AA."
+      "back": "C'est l'ordre d'importance perçu au premier coup d'œil, créé par la taille, la graisse, le contraste, l'espacement et la position. Elle doit refléter la structure HTML (le titre principal, `<h1>`, doit ressortir) et rester cohérente d'une page à l'autre. Ne la fonde jamais sur la seule couleur et garde des contrastes conformes au niveau AA."
     },
     {
       "id": "informative-vs-decorative",
@@ -143,9 +136,9 @@
       "type": "mcq",
       "question": "Quelle différence entre `required` et `aria-required=\"true\"` sur un `<input>` ?",
       "code": { "lang": "html", "content": "<label for=\"nom\">Nom</label>\n<input type=\"text\" id=\"nom\" name=\"nom\"\n  required aria-required=\"true\">" },
-      "choices": ["Les deux bloquent l'envoi ; `aria-required` ajoute en plus l'annonce vocale", "`required` bloque l'envoi et l'annonce ; `aria-required` annonce seulement", "`required` l'annonce seulement ; `aria-required` bloque aussi l'envoi", "Aucune : `aria-required` est l'ancien nom de l'attribut `required`"],
+      "choices": ["Les deux bloquent l'envoi ; `aria-required` signale en plus l'obligation à l'oral", "`required` bloque l'envoi et signale l'obligation ; `aria-required` la signale seulement", "`required` signale seulement l'obligation ; `aria-required` bloque l'envoi du formulaire", "Aucune : `aria-required` est l'ancien nom, désormais obsolète, de `required`"],
       "answer": 1,
-      "explanation": "`required` active la validation native et expose déjà l'état « obligatoire » aux technologies d'assistance ; `aria-required` ne change que l'annonce et sert surtout sur un composant personnalisé. Le cours conseille de mettre les deux ; la spécification ARIA in HTML juge `aria-required` redondant à côté de `required` : inutile, mais sans danger."
+      "explanation": "`required` active la validation native et expose déjà l'état « obligatoire » aux technologies d'assistance ; `aria-required` ne change que l'annonce et sert surtout sur un composant personnalisé. Le cours conseille de mettre les deux ; la spécification ARIA in HTML juge `aria-required` redondant à côté de `required` : sans danger, mais le Nu Checker émet un avertissement (« aria-required attribute is unnecessary for elements that have attribute required »), à garder en tête si tu vises un rapport W3C sans remarque."
     },
     {
       "id": "asterisk-aria-hidden",
@@ -154,7 +147,7 @@
       "code": { "lang": "html", "content": "<p>Les champs suivis d'un astérisque (*) sont obligatoires.</p>\n<label for=\"email\">\n  E-mail <span aria-hidden=\"true\">*</span>\n</label>\n<input type=\"email\" id=\"email\" name=\"email\"\n  required autocomplete=\"email\">" },
       "choices": ["Pour masquer l'astérisque à l'écran sur les petits écrans", "Pour que le validateur W3C accepte un `<span>` dans le `<label>`", "Pour empêcher qu'un clic sur l'astérisque active le champ", "Pour éviter sa lecture : `required` annonce déjà l'obligation"],
       "answer": 3,
-      "explanation": "`aria-hidden=\"true\"` retire l'élément de ce que perçoivent les technologies d'assistance, sans le cacher à l'écran : on évite un « astérisque » lu en plus de « obligatoire ». Côté visuel, la phrase en tête de formulaire explique ce que signifie le symbole."
+      "explanation": "`aria-hidden=\"true\"` retire l'élément de ce que perçoivent les technologies d'assistance, sans le cacher à l'écran : on évite un « astérisque » lu en plus de « obligatoire ». Les icônes purement décoratives reçoivent le même traitement. Côté visuel, la phrase en tête de formulaire explique ce que signifie le symbole."
     },
     {
       "id": "autocomplete-given-name",
@@ -173,6 +166,14 @@
       "choices": ["Ajouter `lang=\"en\"` sur le `<blockquote>`", "Passer le `lang` de `<html>` à `\"en\"`", "Ajouter `translate=\"no\"` sur la citation", "Ajouter `aria-label=\"anglais\"` au `<p>`"],
       "answer": 0,
       "explanation": "En plus de la langue de la page, chaque passage dans une autre langue doit être signalé par `lang` : la synthèse vocale change alors de prononciation. `translate=\"no\"` empêche seulement la traduction automatique."
+    },
+    {
+      "id": "page-title-relevant",
+      "type": "mcq",
+      "question": "Quel `<title>` est le plus pertinent pour la page de contact du site Kuizz ?",
+      "choices": ["« Kuizz »", "« Page 3 »", "« Contact – Kuizz »", "« Bienvenue sur notre site ! »"],
+      "answer": 2,
+      "explanation": "Le titre est souvent la première chose annoncée par un lecteur d'écran et sert à identifier l'onglet : il doit décrire la page et être idéalement différent sur chaque page, l'information spécifique en premier."
     },
     {
       "id": "first-rule-aria",
@@ -195,7 +196,7 @@
       "question": "Pour que les lecteurs d'écran reconnaissent ce menu comme une navigation, il faut lui ajouter `role=\"navigation\"`.",
       "code": { "lang": "html", "content": "<nav aria-label=\"Menu principal\">\n  <ul>…</ul>\n</nav>" },
       "answer": false,
-      "explanation": "`<nav>` possède déjà le rôle implicite `navigation`, comme `<main>` a le rôle `main` ou `<button>` le rôle `button`. Répéter ce rôle est redondant et le validateur W3C le signale par un avertissement : un `role` explicite ne sert que lorsqu'aucun élément natif ne convient."
+      "explanation": "`<nav>` possède déjà le rôle implicite `navigation`, comme `<main>` a le rôle `main` ou `<button>` le rôle `button`. Répéter ce rôle est redondant et le validateur W3C le signale par un avertissement : un `role` explicite sert surtout lorsqu'aucun élément natif ne convient."
     },
     {
       "id": "aria-live-polite",
