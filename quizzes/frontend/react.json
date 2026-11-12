@@ -1,7 +1,7 @@
 {
   "id": "frontend-react",
   "title": "React : la même page en composants",
-  "subject": "frontend",
+  "subject": "applications-dynamiques",
   "description": "Composants et JSX, props, état et immutabilité, listes et clés, formulaires contrôlés, useEffect pour le fetch, Vite et accessibilité.",
   "questions": [
     {

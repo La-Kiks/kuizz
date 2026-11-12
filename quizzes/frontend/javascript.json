@@ -1,7 +1,7 @@
 {
   "id": "frontend-javascript",
   "title": "JavaScript : DOM & fetch",
-  "subject": "frontend",
+  "subject": "applications-dynamiques",
   "description": "Variables, manipulation du DOM, événements, appels fetch avec async/await, modules ES et affichage d'une liste de cards.",
   "questions": [
     {

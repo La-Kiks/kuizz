@@ -1,7 +1,7 @@
 {
   "id": "frontend-html",
   "title": "HTML sémantique & validation W3C",
-  "subject": "frontend",
+  "subject": "integration",
   "description": "Structure d'une page, balises sémantiques, formulaires et erreurs courantes du validateur.",
   "questions": [
     {

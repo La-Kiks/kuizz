@@ -1,7 +1,7 @@
 {
   "id": "frontend-css",
   "title": "CSS responsive & mise en page",
-  "subject": "frontend",
+  "subject": "integration",
   "description": "Cascade, modèle de boîte, flexbox, grid, mobile first, navbar et cards responsives, accessibilité visuelle et nouveautés CSS.",
   "questions": [
     {

@@ -1,13 +1,25 @@
 {
   "subjects": [
     {
-      "id": "frontend",
-      "title": "Frontend",
+      "id": "integration",
+      "title": "Intégration front-end",
       "quizzes": [
         { "id": "frontend-html", "file": "frontend/html.json" },
-        { "id": "frontend-css", "file": "frontend/css.json" },
+        { "id": "frontend-css", "file": "frontend/css.json" }
+      ]
+    },
+    {
+      "id": "ux-accessibilite",
+      "title": "UX/UI & accessibilité",
+      "quizzes": [
+        { "id": "frontend-accessibilite", "file": "frontend/accessibilite.json" }
+      ]
+    },
+    {
+      "id": "applications-dynamiques",
+      "title": "Applications web dynamiques",
+      "quizzes": [
         { "id": "frontend-javascript", "file": "frontend/javascript.json" },
-        { "id": "frontend-accessibilite", "file": "frontend/accessibilite.json" },
         { "id": "frontend-react", "file": "frontend/react.json" }
       ]
     }

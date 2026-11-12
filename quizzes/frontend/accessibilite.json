@@ -1,7 +1,7 @@
 {
   "id": "frontend-accessibilite",
   "title": "Accessibilité : WCAG & RGAA",
-  "subject": "frontend",
+  "subject": "ux-accessibilite",
   "description": "Référentiels, contrastes, clavier, formulaires, ARIA et outils de test : rendre une page conforme WCAG AA et RGAA.",
   "questions": [
     {
