@@ -1,0 +1,329 @@
+{
+  "id": "frontend-javascript",
+  "title": "JavaScript : DOM & fetch",
+  "subject": "frontend",
+  "description": "Variables, manipulation du DOM, événements, appels fetch avec async/await, modules ES et affichage d'une liste de cards.",
+  "questions": [
+    {
+      "id": "const-reassign-error",
+      "type": "mcq",
+      "question": "Quelle ligne de ce code lève une erreur ?",
+      "code": {
+        "lang": "js",
+        "content": "const cards = [];          // ligne 1\ncards.push({ id: 1 });     // ligne 2\ncards[0].id = 2;           // ligne 3\ncards = [];                // ligne 4"
+      },
+      "choices": [
+        "La ligne 2",
+        "La ligne 3",
+        "La ligne 4",
+        "Aucune ligne"
+      ],
+      "answer": 2,
+      "explanation": "`const` interdit de réaffecter la variable (`TypeError: Assignment to constant variable`), pas de modifier le tableau ou l'objet qu'elle référence. `push` et la modification d'une propriété sont donc permis."
+    },
+    {
+      "id": "let-var-block-scope",
+      "type": "truefalse",
+      "question": "Une variable déclarée avec `var` dans un bloc `if` reste accessible après ce bloc, dans toute la fonction.",
+      "code": {
+        "lang": "js",
+        "content": "function test() {\n  if (true) {\n    var a = 1;\n    let b = 2;\n  }\n  console.log(a, b);\n}"
+      },
+      "answer": true,
+      "explanation": "`var` a une portée de fonction : `a` est visible après le `if`. `let` et `const` ont une portée de bloc, donc ici `b` provoque une `ReferenceError`. C'est pour cela qu'on privilégie `const`, puis `let`."
+    },
+    {
+      "id": "strict-vs-loose-equality",
+      "type": "mcq",
+      "question": "Que valent ces deux expressions, dans l'ordre ?",
+      "code": {
+        "lang": "js",
+        "content": "'5' == 5\n'5' === 5"
+      },
+      "choices": [
+        "`true` puis `true`",
+        "`false` puis `false`",
+        "`false` puis `true`",
+        "`true` puis `false`"
+      ],
+      "answer": 3,
+      "explanation": "`==` convertit les opérandes vers un type commun avant de comparer (`'5'` devient `5`), alors que `===` exige aussi le même type. Utilise `===` pour éviter ces conversions implicites."
+    },
+    {
+      "id": "nodelist-no-map",
+      "type": "mcq",
+      "question": "Ce code lève `TypeError: cards.map is not a function`. Pourquoi ?",
+      "code": {
+        "lang": "js",
+        "content": "const cards = document.querySelectorAll('.card');\nconst titles = cards.map((card) => card.dataset.title);"
+      },
+      "choices": [
+        "`querySelectorAll` renvoie une `NodeList`, pas un tableau",
+        "`querySelectorAll` renvoie `null` si aucune carte n'existe",
+        "`querySelectorAll` n'accepte que des identifiants `#id`",
+        "`map` n'existe que sur les chaînes de caractères"
+      ],
+      "answer": 0,
+      "explanation": "Une `NodeList` possède `forEach` mais pas `map` ni `filter`. Convertis-la avec `Array.from(cards)` ou `[...cards]`. Sans résultat, `querySelectorAll` renvoie une `NodeList` vide (c'est `querySelector` qui renvoie `null`)."
+    },
+    {
+      "id": "innerhtml-xss",
+      "type": "mcq",
+      "question": "`comment` vient d'un formulaire rempli par un utilisateur. Quel est le risque de ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const p = document.createElement('p');\np.innerHTML = comment;\nlist.append(p);"
+      },
+      "choices": [
+        "Le texte perd tous ses retours à la ligne et ses espaces",
+        "Le commentaire peut injecter du HTML et du script (XSS)",
+        "`append` n'accepte pas un élément créé dynamiquement",
+        "Le paragraphe est ajouté avant les autres enfants"
+      ],
+      "answer": 1,
+      "explanation": "`innerHTML` interprète la chaîne comme du HTML : un `<img src=x onerror=\"…\">` exécuterait du JavaScript. Pour afficher une donnée utilisateur, utilise `textContent`, qui l'insère comme simple texte."
+    },
+    {
+      "id": "create-element-card",
+      "type": "flashcard",
+      "front": "Comment créer une card en toute sécurité sans `innerHTML` ?",
+      "code": {
+        "lang": "js",
+        "content": "const article = document.createElement('article');\nconst h3 = document.createElement('h3');\nh3.textContent = product.name;\narticle.append(h3);\ncontainer.append(article);"
+      },
+      "back": "On crée chaque élément avec `createElement`, on remplit le texte avec `textContent`, puis on l'insère avec `append`. Les données ne sont jamais interprétées comme du HTML."
+    },
+    {
+      "id": "prevent-default-submit",
+      "type": "mcq",
+      "question": "Sans la ligne manquante, la page se recharge à chaque envoi et le `fetch` n'a pas le temps d'aboutir. Quelle ligne manque ?",
+      "code": {
+        "lang": "js",
+        "content": "form.addEventListener('submit', async (event) => {\n  // ligne manquante\n  const data = new FormData(form);\n  await sendMessage(data);\n});"
+      },
+      "choices": [
+        "`event.stopPropagation();`",
+        "`form.reset();`",
+        "`event.preventDefault();`",
+        "`return false;`"
+      ],
+      "answer": 2,
+      "explanation": "`preventDefault()` annule l'action par défaut de l'événement, ici l'envoi du formulaire et la navigation. `stopPropagation()` empêche seulement la remontée de l'événement, et `return false` n'a aucun effet dans un écouteur `addEventListener`."
+    },
+    {
+      "id": "event-delegation",
+      "type": "flashcard",
+      "front": "Qu'est-ce que la délégation d'événements, et pourquoi l'utiliser pour une liste de cards ?",
+      "code": {
+        "lang": "js",
+        "content": "list.addEventListener('click', (event) => {\n  const card = event.target.closest('.card');\n  if (card) open(card.dataset.id);\n});"
+      },
+      "back": "Un seul écouteur sur le parent capte les clics qui remontent depuis ses enfants ; `event.target.closest()` retrouve la card cliquée. Ça marche aussi pour les cards ajoutées plus tard, sans un écouteur par card."
+    },
+    {
+      "id": "script-head-null",
+      "type": "mcq",
+      "question": "Ce script, placé dans le `<head>`, lève `TypeError: Cannot read properties of null`. Pourquoi ?",
+      "code": {
+        "lang": "html",
+        "content": "<head>\n  <script src=\"app.js\"></script>\n</head>\n<body>\n  <button id=\"load\">Charger</button>\n</body>\n\n// app.js\ndocument.querySelector('#load').addEventListener('click', load);"
+      },
+      "choices": [
+        "`querySelector` exige `getElementById` pour un identifiant",
+        "Le script s'exécute avant que le bouton n'existe dans le DOM",
+        "Un script externe chargé dans le `<head>` n'a pas accès à `document`",
+        "L'événement `click` n'existe pas sur un `<button>`"
+      ],
+      "answer": 1,
+      "explanation": "Un script classique sans attribut bloque le parseur et s'exécute aussitôt : le `<button>` n'est pas encore créé, donc `querySelector` renvoie `null`. Ajoute `defer` (ou `type=\"module\"`), ou attends l'événement `DOMContentLoaded`."
+    },
+    {
+      "id": "module-deferred-default",
+      "type": "truefalse",
+      "question": "Un `<script type=\"module\">` placé dans le `<head>` est différé par défaut : il s'exécute après l'analyse complète du HTML, comme avec `defer`.",
+      "answer": true,
+      "explanation": "Les scripts module sont téléchargés en parallèle et exécutés une fois le document analysé, avant `DOMContentLoaded`. L'attribut `defer` n'a donc aucun effet sur eux."
+    },
+    {
+      "id": "fetch-404-no-reject",
+      "type": "truefalse",
+      "question": "Si le serveur répond `404 Not Found`, la promesse renvoyée par `fetch()` est rejetée et le code passe dans le `catch`.",
+      "answer": false,
+      "explanation": "Piège classique : `fetch` résout la promesse dès qu'une réponse HTTP arrive, quel que soit son statut. Il faut tester `response.ok` (vrai pour un statut 200 à 299) et lever une erreur soi-même."
+    },
+    {
+      "id": "fetch-reject-cases",
+      "type": "mcq",
+      "question": "Dans lequel de ces cas la promesse renvoyée par `fetch()` est-elle rejetée ?",
+      "choices": [
+        "Le serveur répond `500 Internal Server Error`",
+        "Le serveur répond `401 Unauthorized`",
+        "La réponse contient un JSON mal formé",
+        "Le serveur est injoignable (pas de réseau)"
+      ],
+      "answer": 3,
+      "explanation": "`fetch` ne rejette qu'en cas d'échec de la requête elle-même : erreur réseau, DNS, requête bloquée par CORS… Un 401 ou un 500 restent des réponses. Un JSON invalide fait rejeter `response.json()`, pas `fetch()`."
+    },
+    {
+      "id": "json-missing-await",
+      "type": "mcq",
+      "question": "L'API renvoie un tableau de 12 produits. Qu'affiche ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const response = await fetch('/api/products');\nconst products = response.json();\nconsole.log(products.length);"
+      },
+      "choices": [
+        "`undefined`",
+        "`12`",
+        "`0`",
+        "Une `SyntaxError`"
+      ],
+      "answer": 0,
+      "explanation": "`response.json()` renvoie une promesse : sans `await`, `products` est un objet `Promise`, qui n'a pas de propriété `length`. Il faut écrire `const products = await response.json();`."
+    },
+    {
+      "id": "async-try-catch-ok",
+      "type": "mcq",
+      "question": "Avec ce code, que se passe-t-il si l'API répond `404` ?",
+      "code": {
+        "lang": "js",
+        "content": "async function loadCards() {\n  try {\n    const response = await fetch(API_URL);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    const cards = await response.json();\n    renderCards(cards);\n  } catch (error) {\n    showError(error.message);\n  }\n}"
+      },
+      "choices": [
+        "`renderCards` reçoit un tableau vide",
+        "Le `throw` déclenche `showError('HTTP 404')`",
+        "Rien : `catch` ne capte que les erreurs réseau",
+        "La page affiche une erreur non capturée"
+      ],
+      "answer": 1,
+      "explanation": "Le test de `response.ok` transforme le 404 en erreur levée dans le `try`, que le `catch` récupère comme une erreur réseau. Le même `catch` gère donc les deux cas."
+    },
+    {
+      "id": "promise-all-reject",
+      "type": "mcq",
+      "question": "Que fait `await Promise.all([p1, p2, p3])` si `p2` est rejetée ?",
+      "choices": [
+        "Il renvoie `[r1, undefined, r3]`",
+        "Il attend puis ignore `p2`",
+        "Il est rejeté avec l'erreur de `p2`",
+        "Il relance `p2` automatiquement jusqu'au succès"
+      ],
+      "answer": 2,
+      "explanation": "`Promise.all` est rejetée dès qu'une des promesses l'est, avec sa raison ; les autres résultats sont perdus. Pour obtenir le statut de chacune, utilise `Promise.allSettled`."
+    },
+    {
+      "id": "promise-all-parallel",
+      "type": "flashcard",
+      "front": "Pourquoi utiliser `Promise.all` plutôt que deux `await fetch()` successifs ?",
+      "code": {
+        "lang": "js",
+        "content": "const [users, posts] = await Promise.all([\n  fetch('/api/users').then((r) => r.json()),\n  fetch('/api/posts').then((r) => r.json()),\n]);"
+      },
+      "back": "Deux `await` successifs attendent la fin de la première requête avant de lancer la seconde. Avec `Promise.all`, les deux partent en même temps : le temps total est celui de la plus lente."
+    },
+    {
+      "id": "post-json-stringify",
+      "type": "mcq",
+      "question": "Le serveur reçoit `[object Object]` au lieu des données. Quelle correction faut-il apporter ?",
+      "code": {
+        "lang": "js",
+        "content": "await fetch('/api/messages', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: { name: 'Ada', text: 'Bonjour' },\n});"
+      },
+      "choices": [
+        "Écrire `method: 'post'` en minuscules",
+        "Retirer l'en-tête `Content-Type`",
+        "Remplacer `body` par `data`",
+        "Passer `body: JSON.stringify({ … })`"
+      ],
+      "answer": 3,
+      "explanation": "`fetch` n'encode pas un objet en JSON : il le convertit en chaîne avec `toString()`, d'où `[object Object]`. `JSON.stringify` produit la chaîne JSON attendue par le serveur."
+    },
+    {
+      "id": "post-content-type-auto",
+      "type": "truefalse",
+      "question": "Quand `body` est une chaîne produite par `JSON.stringify`, `fetch` ajoute automatiquement l'en-tête `Content-Type: application/json`.",
+      "answer": false,
+      "explanation": "Pour un `body` de type chaîne, `fetch` envoie `Content-Type: text/plain;charset=UTF-8`. Il faut déclarer `application/json` toi-même dans `headers`, sinon beaucoup d'API ne lisent pas le corps."
+    },
+    {
+      "id": "loading-error-states",
+      "type": "flashcard",
+      "front": "Quels états d'interface prévoir autour d'un `fetch` qui charge des cards ?",
+      "back": "Chargement (indicateur, bouton désactivé), succès (les cards, ou un message si la liste est vide) et erreur (message compréhensible, éventuellement un bouton « Réessayer »). Un bloc `finally` sert à retirer l'indicateur de chargement dans tous les cas."
+    },
+    {
+      "id": "cors-server-side",
+      "type": "truefalse",
+      "question": "Une erreur CORS se corrige côté client, en ajoutant l'en-tête `Access-Control-Allow-Origin` dans les options de `fetch`.",
+      "answer": false,
+      "explanation": "CORS est une règle appliquée par le navigateur : c'est le serveur qui autorise ton origine en renvoyant `Access-Control-Allow-Origin` dans sa réponse. Ajouter cet en-tête à ta requête ne change rien."
+    },
+    {
+      "id": "es-module-import",
+      "type": "mcq",
+      "question": "Le fichier `cards.js` contient le code ci-dessous. Quel import est correct dans `app.js` ?",
+      "code": {
+        "lang": "js",
+        "content": "export const API_URL = 'https://api.example.com';\nexport default function renderCards(cards) { /* … */ }"
+      },
+      "choices": [
+        "`import { renderCards, API_URL } from './cards.js';`",
+        "`import renderCards, { API_URL } from './cards.js';`",
+        "`import renderCards, API_URL from './cards.js';`",
+        "`import { default, API_URL } from './cards';`"
+      ],
+      "answer": 1,
+      "explanation": "L'export par défaut s'importe sans accolades (avec le nom de ton choix), les exports nommés entre accolades. Dans le navigateur sans outil de build, le chemin doit être complet, extension `.js` comprise."
+    },
+    {
+      "id": "destructuring-rename-default",
+      "type": "flashcard",
+      "front": "Que contiennent `title`, `label` et `price` après cette ligne ?",
+      "code": {
+        "lang": "js",
+        "content": "const card = { title: 'Lampe', category: 'Déco' };\nconst { title, category: label, price = 0 } = card;"
+      },
+      "back": "`title` vaut `'Lampe'`, `label` reçoit la propriété `category` (`'Déco'`), et `price` prend la valeur par défaut `0` car la propriété n'existe pas."
+    },
+    {
+      "id": "spread-shallow-copy",
+      "type": "mcq",
+      "question": "Qu'affiche la dernière ligne ?",
+      "code": {
+        "lang": "js",
+        "content": "const a = { title: 'A', tags: ['x'] };\nconst b = { ...a, title: 'B' };\nb.tags.push('y');\nconsole.log(a.title, a.tags.length);"
+      },
+      "choices": [
+        "`A 2`",
+        "`B 2`",
+        "`A 1`",
+        "`B 1`"
+      ],
+      "answer": 0,
+      "explanation": "Le spread fait une copie superficielle : `b.title` est une nouvelle valeur, mais `b.tags` référence le même tableau que `a.tags`. Le `push` modifie donc aussi `a.tags`."
+    },
+    {
+      "id": "filter-map-cards",
+      "type": "mcq",
+      "question": "Que contient `html` après ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const products = [\n  { name: 'Lampe', stock: 3 },\n  { name: 'Chaise', stock: 0 },\n  { name: 'Table', stock: 1 },\n];\nconst html = products\n  .filter((p) => p.stock > 0)\n  .map((p) => `${p.name} (${p.stock})`);"
+      },
+      "choices": [
+        "`['Lampe (3)', 'Chaise (0)', 'Table (1)']`",
+        "`['Chaise (0)']`",
+        "`['Lampe (3)', 'Table (1)']`",
+        "`'Lampe (3)Table (1)'`"
+      ],
+      "answer": 2,
+      "explanation": "`filter` garde les produits en stock, puis `map` transforme chacun en chaîne grâce au template literal, où `${…}` insère la valeur de l'expression. Le résultat reste un tableau : pour une chaîne, il faudrait ajouter `join('')`."
+    },
+    {
+      "id": "map-vs-foreach",
+      "type": "flashcard",
+      "front": "Quelle différence entre `map` et `forEach` sur un tableau ?",
+      "back": "`map` renvoie un nouveau tableau de même longueur, construit à partir des valeurs renvoyées par la fonction. `forEach` renvoie toujours `undefined` : il sert seulement à exécuter une action pour chaque élément."
+    }
+  ]
+}
