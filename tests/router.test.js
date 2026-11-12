@@ -13,8 +13,12 @@ test('lancement, session, résultats', () => {
   assert.deepEqual(parseRoute('#/quiz/frontend-html/results'), { name: 'results', quizId: 'frontend-html' });
 });
 
+test('#app (cible du lien d’évitement) → accueil', () => {
+  assert.deepEqual(parseRoute('#app'), { name: 'home' });
+});
+
 test('routes inconnues ou mal formées', () => {
-  for (const hash of ['#/quiz', '#/quiz/x/autre', '#/autre', '#app', '#/quiz/%E0%A4%A']) {
+  for (const hash of ['#/quiz', '#/quiz/x/autre', '#/autre', '#/quiz/%E0%A4%A']) {
     assert.deepEqual(parseRoute(hash), { name: 'notfound' }, hash);
   }
 });

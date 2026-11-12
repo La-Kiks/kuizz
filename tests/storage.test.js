@@ -59,11 +59,12 @@ test('structure inattendue → valeurs nettoyées', () => {
   assert.deepEqual(storage2.getProgress('demo'), EMPTY);
 });
 
-test('stockage indisponible → fonctionne sans sauvegarde', () => {
+test('stockage indisponible → repli en mémoire', () => {
   const storage = createStorage(null);
   assert.equal(storage.available, false);
-  assert.equal(storage.saveProgress('demo', progress), false);
   assert.deepEqual(storage.getProgress('demo'), EMPTY);
+  assert.equal(storage.saveProgress('demo', progress), true);
+  assert.deepEqual(storage.getProgress('demo'), progress);
 });
 
 test('setItem qui lève (quota plein) → saveProgress renvoie false', () => {

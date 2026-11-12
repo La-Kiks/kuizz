@@ -67,7 +67,7 @@ async function showQuizRoute(route, isCurrent) {
       onFinish: () => {
         storage.saveProgress(quiz.id, nextProgress(progressOf(quiz), session));
         lastRun = { quizId: quiz.id, session };
-        location.hash = quizPath(quiz.id, 'results');
+        location.replace(quizPath(quiz.id, 'results'));
       },
     }));
   } else if (route.name === 'results') {

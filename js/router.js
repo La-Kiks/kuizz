@@ -6,6 +6,7 @@ export function parseRoute(hash) {
   } catch {
     return { name: 'notfound' };
   }
+  if (path === 'app') return { name: 'home' };
   if (parts.length === 0 && (path === '' || path === '/')) return { name: 'home' };
   if (parts[0] === 'quiz' && parts[1]) {
     const quizId = parts[1];

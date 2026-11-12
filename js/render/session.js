@@ -32,6 +32,7 @@ export function renderSession(container, { quiz, session, onFinish }) {
         type: 'button',
         class: 'btn btn-primary next-button',
         onclick: () => {
+          nextButton.disabled = true;
           next(session);
           if (isFinished(session)) onFinish();
           else showCurrent();

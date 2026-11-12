@@ -577,6 +577,7 @@ code.inline {
 }
 .question-mcq .choice::before {
   counter-increment: choice;
+  content: counter(choice, upper-alpha);
   content: counter(choice, upper-alpha) / "";
   flex: none;
   display: grid;

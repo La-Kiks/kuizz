@@ -12,13 +12,24 @@ function browserStorage() {
   }
 }
 
+function memoryBackend() {
+  const map = new Map();
+  return {
+    getItem: (k) => (map.has(k) ? map.get(k) : null),
+    setItem: (k, v) => { map.set(k, String(v)); },
+    removeItem: (k) => { map.delete(k); },
+  };
+}
+
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 export function createStorage(backend = browserStorage()) {
+  const available = backend !== null;
+  backend ??= memoryBackend();
+
   function readAll() {
-    if (!backend) return { quizzes: {} };
     try {
       const raw = backend.getItem(KEY);
       if (!raw) return { quizzes: {} };
@@ -31,7 +42,6 @@ export function createStorage(backend = browserStorage()) {
   }
 
   function writeAll(data) {
-    if (!backend) return false;
     try {
       backend.setItem(KEY, JSON.stringify(data));
       return true;
@@ -41,7 +51,7 @@ export function createStorage(backend = browserStorage()) {
   }
 
   return {
-    available: backend !== null,
+    available,
 
     getProgress(quizId, validIds) {
       const stored = readAll().quizzes[quizId];

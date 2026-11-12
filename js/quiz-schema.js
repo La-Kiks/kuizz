@@ -104,7 +104,7 @@ export function validateIndex(index) {
       }
       if (quizIds.has(q.id)) errors.push(`${w} : id "${q.id}" en double`);
       quizIds.add(q.id);
-      if (q.file.startsWith('/') || q.file.includes('..') || !q.file.endsWith('.json')) {
+      if (q.file.startsWith('/') || q.file.includes('..') || q.file.includes(':') || q.file.includes('\\') || !q.file.endsWith('.json')) {
         errors.push(`${w} : chemin "${q.file}" invalide`);
       }
     });

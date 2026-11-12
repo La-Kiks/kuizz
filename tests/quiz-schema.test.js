@@ -105,3 +105,11 @@ test('index : chemin de fichier invalide', () => {
   index.subjects[0].quizzes[0].file = '../secret.json';
   assert.ok(validateIndex(index).some((e) => e.includes('chemin')));
 });
+
+test('index : "file" avec ":" ou "\\" refusé', () => {
+  for (const file of ['https://x.test/a.json', 'C:/a.json', 'frontend\\a.json']) {
+    const index = validIndex();
+    index.subjects[0].quizzes[0].file = file;
+    assert.ok(validateIndex(index).some((e) => e.includes('chemin')), file);
+  }
+});

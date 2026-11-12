@@ -133,3 +133,17 @@ test('correctAnswerText selon le type', () => {
   assert.equal(correctAnswerText({ type: 'truefalse', answer: true }), 'Vrai');
   assert.equal(correctAnswerText(quiz.questions[2]), 'D');
 });
+
+test('QCM : la correction utilise l’index d’origine, pas la position affichée', () => {
+  const mcq = { id: 'm', title: 'M', subject: 'frontend', questions: [quiz.questions[0]] };
+  const rightIndex = mcq.questions[0].answer;
+  const build = () => createSession(mcq, { random: () => 0 });
+  const session = build();
+  const q = currentQuestion(session);
+  const shownAt = q.displayChoices.findIndex((c) => c.index === rightIndex);
+  assert.notEqual(q.displayChoices[0].index, 0);
+  assert.notEqual(shownAt, rightIndex);
+  assert.equal(answerCurrent(session, q.displayChoices[shownAt].index), true);
+  const other = build();
+  assert.equal(answerCurrent(other, shownAt), false);
+});

@@ -33,4 +33,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Introuvable');
   }
-}).listen(port, () => console.log(`Kuizz : http://localhost:${port}/`));
+}).listen(port, '127.0.0.1', () => console.log(`Kuizz : http://localhost:${port}/`));
