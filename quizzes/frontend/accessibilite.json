@@ -166,7 +166,7 @@
       "id": "aria-live-polite",
       "type": "mcq",
       "question": "Que perçoit un utilisateur de lecteur d'écran quand ce script met à jour le paragraphe ?",
-      "code": { "lang": "html", "content": "<p id=\"statut\" aria-live=\"polite\"></p>\n<button id=\"charger\">Charger</button>\n\n<script type=\"module\">\n  const statut = document.querySelector('#statut');\n  charger.addEventListener('click', async () => {\n    await fetch('/api/produits');\n    statut.textContent = '12 produits chargés';\n  });\n</script>" },
+      "code": { "lang": "html", "content": "<p id=\"statut\" aria-live=\"polite\"></p>\n<button id=\"charger\">Charger</button>\n\n<script type=\"module\">\n  const statut = document.querySelector('#statut');\n  const charger = document.querySelector('#charger');\n  charger.addEventListener('click', async () => {\n    await fetch('/api/produits');\n    statut.textContent = '12 produits chargés';\n  });\n</script>" },
       "choices": ["Le message coupe immédiatement la lecture en cours", "Le message est lu une fois la lecture en cours terminée", "Le focus passe sur le paragraphe, qui est alors lu", "Rien, tant qu'il ne place pas le focus sur le paragraphe"],
       "answer": 1,
       "explanation": "Une région `aria-live=\"polite\"` est annoncée sans déplacer le focus, dès que le lecteur est disponible ; `assertive` interromprait la lecture. La région doit exister dans le DOM avant que son contenu change."

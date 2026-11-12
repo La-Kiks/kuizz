@@ -116,7 +116,7 @@
       "front": "Qu'est-ce que la délégation d'événements, et pourquoi l'utiliser pour une liste de cards ?",
       "code": {
         "lang": "js",
-        "content": "list.addEventListener('click', (event) => {\n  const card = event.target.closest('.card');\n  if (card) open(card.dataset.id);\n});"
+        "content": "list.addEventListener('click', (event) => {\n  const card = event.target.closest('.card');\n  if (card) openCard(card.dataset.id);\n});"
       },
       "back": "Un seul écouteur sur le parent capte les clics qui remontent depuis ses enfants ; `event.target.closest()` retrouve la card cliquée. Ça marche aussi pour les cards ajoutées plus tard, sans un écouteur par card."
     },
@@ -126,7 +126,7 @@
       "question": "Ce script, placé dans le `<head>`, lève `TypeError: Cannot read properties of null`. Pourquoi ?",
       "code": {
         "lang": "html",
-        "content": "<head>\n  <script src=\"app.js\"></script>\n</head>\n<body>\n  <button id=\"load\">Charger</button>\n</body>\n\n// app.js\ndocument.querySelector('#load').addEventListener('click', load);"
+        "content": "<head>\n  <script src=\"app.js\"></script>\n</head>\n<body>\n  <button id=\"load\">Charger</button>\n</body>\n\n<!-- app.js -->\ndocument.querySelector('#load').addEventListener('click', load);"
       },
       "choices": [
         "`querySelector` exige `getElementById` pour un identifiant",
@@ -196,7 +196,7 @@
         "La page affiche une erreur non capturée"
       ],
       "answer": 1,
-      "explanation": "Le test de `response.ok` transforme le 404 en erreur levée dans le `try`, que le `catch` récupère comme une erreur réseau. Le même `catch` gère donc les deux cas."
+      "explanation": "Le test de `response.ok` transforme le 404 en erreur levée dans le `try`, que le `catch` récupère, exactement comme une erreur réseau. Le même `catch` gère donc les deux cas."
     },
     {
       "id": "promise-all-reject",
@@ -219,7 +219,7 @@
         "lang": "js",
         "content": "const [users, posts] = await Promise.all([\n  fetch('/api/users').then((r) => r.json()),\n  fetch('/api/posts').then((r) => r.json()),\n]);"
       },
-      "back": "Deux `await` successifs attendent la fin de la première requête avant de lancer la seconde. Avec `Promise.all`, les deux partent en même temps : le temps total est celui de la plus lente."
+      "back": "Deux `await` successifs attendent la fin de la première requête avant de lancer la seconde. Ici, les deux `fetch()` sont lancés avant d'attendre, et `Promise.all` attend les deux résultats : le temps total est celui de la plus lente."
     },
     {
       "id": "post-json-stringify",
@@ -256,7 +256,7 @@
       "type": "truefalse",
       "question": "Une erreur CORS se corrige côté client, en ajoutant l'en-tête `Access-Control-Allow-Origin` dans les options de `fetch`.",
       "answer": false,
-      "explanation": "CORS est une règle appliquée par le navigateur : c'est le serveur qui autorise ton origine en renvoyant `Access-Control-Allow-Origin` dans sa réponse. Ajouter cet en-tête à ta requête ne change rien."
+      "explanation": "CORS est une règle appliquée par le navigateur : c'est le serveur qui autorise ton origine en renvoyant `Access-Control-Allow-Origin` dans sa réponse. Ajouter cet en-tête à ta requête ne sert à rien (et peut même déclencher une requête préliminaire `OPTIONS`)."
     },
     {
       "id": "es-module-import",

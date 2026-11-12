@@ -138,9 +138,9 @@
     {
       "id": "effect-async-directly",
       "type": "truefalse",
-      "question": "On peut écrire `useEffect(async () => { … }, [])` pour utiliser `await` dans l'effet.",
+      "question": "Il est correct d'écrire `useEffect(async () => { … }, [])` pour utiliser `await` dans l'effet.",
       "answer": false,
-      "explanation": "Une fonction `async` renvoie toujours une promesse, alors que React attend une fonction de nettoyage ou rien. Déclare une fonction `async` à l'intérieur de l'effet et appelle-la."
+      "explanation": "Une fonction `async` renvoie toujours une promesse, alors que React attend une fonction de nettoyage ou rien : React affiche une erreur en console et le nettoyage est perdu. Déclare une fonction `async` à l'intérieur de l'effet et appelle-la."
     },
     {
       "id": "effect-cleanup-abort",
@@ -171,7 +171,7 @@
       "question": "Ta page compte `Navbar`, `ProductList` et `Card`. Où placer le fetch et l'état `products` ?",
       "choices": ["Dans chaque `Card`, qui charge lui-même son propre produit", "Dans `ProductList`, qui passe un produit à chaque `Card`", "Dans `Navbar`, puisqu'elle est rendue en premier dans la page", "Dans une variable globale hors des composants"],
       "answer": 1,
-      "explanation": "L'état vit dans le composant qui en a besoin pour tout son sous-arbre : la liste charge les données, puis chaque `Card` reste un composant d'affichage qui reçoit son produit par props. Une `Card` qui fetch ferait une requête par carte."
+      "explanation": "L'état se place dans le plus proche parent commun des composants qui en ont besoin : la liste charge les données, puis chaque `Card` reste un composant d'affichage qui reçoit son produit par props. Une `Card` qui fetch ferait une requête par carte."
     },
     {
       "id": "jsx-auto-escape",
