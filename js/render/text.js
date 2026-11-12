@@ -1,0 +1,45 @@
+const INLINE_CODE = /`([^`]+)`/g;
+
+export function tokenizeInline(text) {
+  const tokens = [];
+  let last = 0;
+  for (const match of text.matchAll(INLINE_CODE)) {
+    if (match.index > last) tokens.push({ type: 'text', value: text.slice(last, match.index) });
+    tokens.push({ type: 'code', value: match[1] });
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) tokens.push({ type: 'text', value: text.slice(last) });
+  return tokens;
+}
+
+export function renderInline(text, doc = document) {
+  const fragment = doc.createDocumentFragment();
+  for (const token of tokenizeInline(text)) {
+    if (token.type === 'code') {
+      const code = doc.createElement('code');
+      code.className = 'inline';
+      code.textContent = token.value;
+      fragment.append(code);
+    } else {
+      fragment.append(doc.createTextNode(token.value));
+    }
+  }
+  return fragment;
+}
+
+export function renderCodeBlock(code, doc = document) {
+  const pre = doc.createElement('pre');
+  pre.className = 'code-block';
+  pre.tabIndex = 0;
+  pre.setAttribute('role', 'region');
+  pre.setAttribute('aria-label', code.lang ? `Extrait de code ${code.lang.toUpperCase()}` : 'Extrait de code');
+  if (code.lang) pre.dataset.lang = code.lang;
+  const inner = doc.createElement('code');
+  inner.textContent = code.content;
+  pre.append(inner);
+  return pre;
+}
+
+export function formatPercent(ratio) {
+  return `${Math.round(ratio * 100)} %`;
+}
