@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   shuffle, createSession, currentQuestion, answerCurrent, next, isFinished,
   score, missedQuestions, updateToReview, nextProgress, progressAfterAnswer, correctAnswerText,
+  snapshotSession, restoreSession,
 } from '../js/quiz-engine.js';
 
 const quiz = {
@@ -176,4 +177,81 @@ test('QCM : la correction utilise l’index d’origine, pas la position affich�
   assert.equal(answerCurrent(session, q.displayChoices[shownAt].index), true);
   const other = build();
   assert.equal(answerCurrent(other, shownAt), false);
+});
+
+function answeredSession(n = 2) {
+  const s = createSession(quiz, { random: seeded(7) });
+  for (let i = 0; i < n; i += 1) {
+    const q = currentQuestion(s);
+    answerCurrent(s, q.type === 'mcq' ? 1 : q.type === 'truefalse' ? false : true);
+    next(s);
+  }
+  return s;
+}
+
+function snap(n = 2) {
+  return JSON.parse(JSON.stringify(snapshotSession(answeredSession(n))));
+}
+
+test('snapshot/restore : aller-retour JSON identique', () => {
+  const s = answeredSession(2);
+  const r = restoreSession(quiz, JSON.parse(JSON.stringify(snapshotSession(s))));
+  assert.deepEqual(r.questions.map((q) => q.id), s.questions.map((q) => q.id));
+  assert.deepEqual(r.questions.filter((q) => q.type === 'mcq').map((q) => q.displayChoices),
+    s.questions.filter((q) => q.type === 'mcq').map((q) => q.displayChoices));
+  assert.equal(r.current, 2);
+  assert.equal(r.mode, 'all');
+  assert.equal(r.quizId, 'demo');
+  assert.deepEqual(r.results, s.results);
+});
+
+test('restoreSession recalcule correct depuis la réponse', () => {
+  const data = {
+    mode: 'all',
+    order: ['q2', 'q3', 'q1'],
+    choiceOrder: { q1: [0, 1, 2] },
+    results: [{ id: 'q2', response: false, correct: false }, { id: 'q3', response: false, correct: true }],
+  };
+  const r = restoreSession(quiz, data);
+  assert.deepEqual(r.results.map((x) => x.correct), [true, false]);
+  const changed = { ...quiz, questions: quiz.questions.map((q) => (q.id === 'q2' ? { ...q, answer: true } : q)) };
+  assert.equal(restoreSession(changed, data).results[0].correct, false);
+});
+
+test('restoreSession renvoie null pour les snapshots invalides', () => {
+  const bad = (mut) => { const d = snap(2); mut(d); return restoreSession(quiz, d); };
+  assert.equal(restoreSession(quiz, null), null);
+  assert.equal(restoreSession(quiz, []), null);
+  assert.equal(restoreSession(quiz, 'x'), null);
+  assert.equal(bad((d) => { d.mode = 'zzz'; }), null);
+  assert.equal(bad((d) => { d.order[0] = 'nope'; }), null);
+  assert.equal(bad((d) => { d.order[1] = d.order[0]; }), null);
+  assert.equal(bad((d) => { d.results = []; }), null);
+  assert.equal(restoreSession(quiz, snap(3)), null);
+  assert.equal(bad((d) => { d.results[0].id = 'nope'; }), null);
+  assert.equal(bad((d) => { d.results = 'x'; }), null);
+  assert.equal(bad((d) => { d.order = 'x'; }), null);
+  assert.equal(bad((d) => { d.choiceOrder.q1 = [0, 1]; }), null);
+  assert.equal(bad((d) => { d.choiceOrder.q1 = [0, 0, 1]; }), null);
+  assert.equal(bad((d) => { d.choiceOrder.q1 = [0, 1, 3]; }), null);
+  assert.equal(bad((d) => { delete d.choiceOrder.q1; }), null);
+  assert.equal(bad((d) => { d.results[0].response = 'x'; }), null);
+});
+
+test('restoreSession refuse une réponse de type invalide', () => {
+  const s = answeredSession(2);
+  const d = JSON.parse(JSON.stringify(snapshotSession(s)));
+  const i = d.order.indexOf('q1');
+  const mk = (qid, response) => {
+    const x = JSON.parse(JSON.stringify(d));
+    const idx = x.order.indexOf(qid);
+    if (idx >= 2) return null;
+    x.results[idx].response = response;
+    return restoreSession(quiz, x);
+  };
+  for (const [qid, bad] of [['q1', 9], ['q1', 1.5], ['q1', true], ['q2', 1], ['q3', 'x']]) {
+    const r = mk(qid, bad);
+    if (d.order.indexOf(qid) < 2) assert.equal(r, null, `${qid}/${bad}`);
+  }
+  assert.ok(i >= 0);
 });

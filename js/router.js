@@ -13,6 +13,8 @@ export function parseRoute(hash) {
     if (parts.length === 2) return { name: 'start', quizId };
     if (parts.length === 3 && parts[2] === 'play') return { name: 'session', quizId, mode: 'all' };
     if (parts.length === 3 && parts[2] === 'review') return { name: 'session', quizId, mode: 'review' };
+    if (parts.length === 3 && parts[2] === 'resume') return { name: 'resume', quizId };
+    if (parts.length === 3 && parts[2] === 'resume') return { name: 'resume', quizId };
     if (parts.length === 3 && parts[2] === 'results') return { name: 'results', quizId };
   }
   return { name: 'notfound' };

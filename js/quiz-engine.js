@@ -90,3 +90,55 @@ export function correctAnswerText(question) {
   if (question.type === 'truefalse') return question.answer ? 'Vrai' : 'Faux';
   return question.back;
 }
+
+function isValidResponse(question, response) {
+  if (question.type === 'mcq') return Number.isInteger(response) && response >= 0 && response < question.choices.length;
+  return typeof response === 'boolean';
+}
+
+function isPermutation(arr, n) {
+  return Array.isArray(arr) && arr.length === n && new Set(arr).size === n
+    && arr.every((x) => Number.isInteger(x) && x >= 0 && x < n);
+}
+
+export function snapshotSession(session) {
+  const choiceOrder = {};
+  for (const q of session.questions) {
+    if (q.type === 'mcq') choiceOrder[q.id] = q.displayChoices.map((c) => c.index);
+  }
+  return {
+    mode: session.mode,
+    order: session.questions.map((q) => q.id),
+    choiceOrder,
+    results: session.results.map(({ id, response }) => ({ id, response })),
+  };
+}
+
+export function restoreSession(quiz, snapshot) {
+  if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) return null;
+  const { mode, order, choiceOrder, results } = snapshot;
+  if (mode !== 'all' && mode !== 'review') return null;
+  if (!Array.isArray(order) || !Array.isArray(results)) return null;
+  if (results.length === 0 || results.length >= order.length) return null;
+  if (new Set(order).size !== order.length) return null;
+  const byId = new Map(quiz.questions.map((q) => [q.id, q]));
+  const questions = [];
+  for (const id of order) {
+    const q = typeof id === 'string' ? byId.get(id) : undefined;
+    if (!q) return null;
+    if (q.type === 'mcq') {
+      const perm = choiceOrder?.[id];
+      if (!isPermutation(perm, q.choices.length)) return null;
+      questions.push({ ...q, displayChoices: perm.map((index) => ({ text: q.choices[index], index })) });
+    } else {
+      questions.push(q);
+    }
+  }
+  const restored = [];
+  for (let i = 0; i < results.length; i += 1) {
+    const r = results[i];
+    if (!r || r.id !== order[i] || !isValidResponse(questions[i], r.response)) return null;
+    restored.push({ id: r.id, response: r.response, correct: isCorrect(questions[i], r.response) });
+  }
+  return { quizId: quiz.id, mode, questions, current: restored.length, results: restored };
+}

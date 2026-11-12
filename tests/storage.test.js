@@ -78,3 +78,36 @@ test('getItem qui lève → progression vide', () => {
   backend.getItem = () => { throw new Error('SecurityError'); };
   assert.deepEqual(createStorage(backend).getProgress('demo'), EMPTY);
 });
+
+const snapshot = { mode: 'all', order: ['a', 'b'], choiceOrder: {}, results: [{ id: 'a', response: true }] };
+
+test('saveSession / getSession / clearSession', () => {
+  const storage = createStorage(fakeBackend());
+  assert.equal(storage.getSession('demo'), null);
+  assert.equal(storage.saveSession('demo', snapshot), true);
+  assert.deepEqual(storage.getSession('demo'), snapshot);
+  assert.equal(storage.clearSession('demo'), true);
+  assert.equal(storage.getSession('demo'), null);
+});
+
+test('saveProgress conserve la session, getProgress ne l\'expose pas', () => {
+  const storage = createStorage(fakeBackend());
+  storage.saveSession('demo', snapshot);
+  storage.saveProgress('demo', progress);
+  assert.deepEqual(storage.getSession('demo'), snapshot);
+  assert.deepEqual(storage.getProgress('demo'), progress);
+  assert.equal('session' in storage.getProgress('demo'), false);
+});
+
+test('session corrompue → null', () => {
+  const backend = fakeBackend({ 'kuizz:v1': JSON.stringify({ quizzes: { demo: { session: 'x' } } }) });
+  assert.equal(createStorage(backend).getSession('demo'), null);
+});
+
+test('sessions en mémoire sans stockage', () => {
+  const storage = createStorage(null);
+  assert.equal(storage.saveSession('demo', snapshot), true);
+  assert.deepEqual(storage.getSession('demo'), snapshot);
+  assert.equal(storage.clearSession('demo'), true);
+  assert.equal(storage.getSession('demo'), null);
+});

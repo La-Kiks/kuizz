@@ -289,6 +289,13 @@ main.container {
 }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 
+.btn-hint {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
 .btn-primary {
   background: var(--accent);
   color: var(--on-accent);
@@ -436,6 +443,13 @@ main.container {
   background: var(--ko-bg);
   color: var(--ko-text);
   border: 1px solid var(--ko-border);
+}
+
+.badge-progress {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border: 1px solid var(--accent);
+  margin-right: 0.5rem;
 }
 
 .quiz-card.is-unavailable {

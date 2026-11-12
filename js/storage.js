@@ -68,7 +68,29 @@ export function createStorage(backend = browserStorage()) {
 
     saveProgress(quizId, progress) {
       const data = readAll();
-      data.quizzes[quizId] = progress;
+      const prev = data.quizzes[quizId];
+      data.quizzes[quizId] = { ...(isPlainObject(prev) ? prev : {}), ...progress };
+      return writeAll(data);
+    },
+
+    getSession(quizId) {
+      const stored = readAll().quizzes[quizId];
+      return isPlainObject(stored) && isPlainObject(stored.session) ? stored.session : null;
+    },
+
+    saveSession(quizId, snapshot) {
+      const data = readAll();
+      const prev = data.quizzes[quizId];
+      data.quizzes[quizId] = { ...(isPlainObject(prev) ? prev : {}), session: snapshot };
+      return writeAll(data);
+    },
+
+    clearSession(quizId) {
+      const data = readAll();
+      const prev = data.quizzes[quizId];
+      if (!isPlainObject(prev) || !('session' in prev)) return true;
+      const { session, ...rest } = prev;
+      data.quizzes[quizId] = rest;
       return writeAll(data);
     },
   };

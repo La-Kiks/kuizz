@@ -28,3 +28,7 @@ test('quizPath encode l\'id et s\'inverse avec parseRoute', () => {
   assert.equal(quizPath('frontend-html', 'play'), '#/quiz/frontend-html/play');
   assert.deepEqual(parseRoute(quizPath('a b/c', 'results')), { name: 'results', quizId: 'a b/c' });
 });
+
+test('#/quiz/<id>/resume → resume', () => {
+  assert.deepEqual(parseRoute('#/quiz/frontend-html/resume'), { name: 'resume', quizId: 'frontend-html' });
+});

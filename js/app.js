@@ -1,5 +1,7 @@
 import { parseRoute, quizPath } from './router.js';
-import { createSession, nextProgress, progressAfterAnswer } from './quiz-engine.js';
+import {
+  createSession, nextProgress, progressAfterAnswer, restoreSession, snapshotSession,
+} from './quiz-engine.js';
 import { renderSession } from './render/session.js';
 import { renderResults } from './render/results.js';
 import { LoadError, findQuizEntry, loadIndex, loadQuiz } from './quiz-loader.js';
@@ -21,6 +23,28 @@ function show(title, render) {
   (app.querySelector('[data-autofocus]') ?? app).focus();
 }
 
+function resumeInfo(quiz) {
+  const session = restoreSession(quiz, storage.getSession(quiz.id));
+  return session ? { mode: session.mode, position: session.current + 1, total: session.questions.length } : null;
+}
+
+function showSession(quiz, session) {
+  show(session.mode === 'review' ? `${quiz.title} — révision` : quiz.title, (c) => renderSession(c, {
+    quiz,
+    session,
+    onAnswered: (result) => {
+      storage.saveProgress(quiz.id, progressAfterAnswer(progressOf(quiz), result));
+      storage.saveSession(quiz.id, snapshotSession(session));
+    },
+    onFinish: () => {
+      storage.saveProgress(quiz.id, nextProgress(progressOf(quiz), session));
+      storage.clearSession(quiz.id);
+      lastRun = { quizId: quiz.id, session };
+      location.replace(quizPath(quiz.id, 'results'));
+    },
+  }));
+}
+
 function progressOf(quiz) {
   return storage.getProgress(quiz.id, quiz.questions.map((q) => q.id));
 }
@@ -34,7 +58,9 @@ async function showHome(isCurrent) {
     entry.id,
     settled[i].status === 'fulfilled' ? { quiz: settled[i].value } : { error: settled[i].reason },
   ]));
-  show('Mes révisions', (c) => renderHome(c, { index, quizzes, getProgress: progressOf }));
+  show('Mes révisions', (c) => renderHome(c, { index, quizzes, getProgress: progressOf,
+    isResumable: (quiz) => resumeInfo(quiz) !== null,
+  }));
 }
 
 async function showQuizRoute(route, isCurrent) {
@@ -53,7 +79,7 @@ async function showQuizRoute(route, isCurrent) {
 
   if (route.name === 'start') {
     show(quiz.title, (c) => renderQuizStart(c, {
-      quiz, subject: found.subject, progress, storageAvailable: storage.available,
+      quiz, subject: found.subject, progress, storageAvailable: storage.available, resume: resumeInfo(quiz),
     }));
   } else if (route.name === 'session') {
     const session = createSession(quiz, { mode: route.mode, toReview: progress.toReview });
@@ -61,16 +87,16 @@ async function showQuizRoute(route, isCurrent) {
       location.replace(quizPath(quiz.id));
       return;
     }
-    show(route.mode === 'review' ? `${quiz.title} — révision` : quiz.title, (c) => renderSession(c, {
-      quiz,
-      session,
-      onAnswered: (result) => storage.saveProgress(quiz.id, progressAfterAnswer(progressOf(quiz), result)),
-      onFinish: () => {
-        storage.saveProgress(quiz.id, nextProgress(progressOf(quiz), session));
-        lastRun = { quizId: quiz.id, session };
-        location.replace(quizPath(quiz.id, 'results'));
-      },
-    }));
+    storage.clearSession(quiz.id);
+    showSession(quiz, session);
+  } else if (route.name === 'resume') {
+    const session = restoreSession(quiz, storage.getSession(quiz.id));
+    if (!session) {
+      storage.clearSession(quiz.id);
+      location.replace(quizPath(quiz.id));
+      return;
+    }
+    showSession(quiz, session);
   } else if (route.name === 'results') {
     if (!lastRun || lastRun.quizId !== quiz.id) {
       location.replace(quizPath(quiz.id));

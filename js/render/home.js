@@ -2,7 +2,7 @@ import { el } from './dom.js';
 import { formatPercent } from './text.js';
 import { quizPath } from '../router.js';
 
-function quizCard(entry, loaded, getProgress) {
+function quizCard(entry, loaded, getProgress, isResumable) {
   if (!loaded || loaded.error) {
     return el('li', { class: 'quiz-card is-unavailable' },
       el('h3', { class: 'quiz-card-title' }, entry.id),
@@ -17,18 +17,19 @@ function quizCard(entry, loaded, getProgress) {
       el('a', { class: 'quiz-card-link', href: quizPath(quiz.id) }, quiz.title)),
     quiz.description ? el('p', { class: 'quiz-card-desc' }, quiz.description) : null,
     el('p', { class: 'quiz-card-meta' }, meta.join(' · ')),
+    isResumable(quiz) ? el('p', { class: 'badge badge-progress' }, 'En cours') : null,
     progress.toReview.length
       ? el('p', { class: 'badge badge-review' }, `${progress.toReview.length} à revoir`)
       : null);
 }
 
-export function renderHome(container, { index, quizzes, getProgress }) {
+export function renderHome(container, { index, quizzes, getProgress, isResumable }) {
   container.append(el('h1', { class: 'page-title', tabindex: '-1', 'data-autofocus': true }, 'Mes révisions'));
   for (const subject of index.subjects) {
     const headingId = `subject-${subject.id}`;
     container.append(el('section', { class: 'subject', 'aria-labelledby': headingId },
       el('h2', { id: headingId, class: 'subject-title' }, subject.title),
       el('ul', { class: 'quiz-list' },
-        subject.quizzes.map((entry) => quizCard(entry, quizzes.get(entry.id), getProgress)))));
+        subject.quizzes.map((entry) => quizCard(entry, quizzes.get(entry.id), getProgress, isResumable)))));
   }
 }

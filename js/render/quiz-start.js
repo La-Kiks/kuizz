@@ -2,7 +2,7 @@ import { el } from './dom.js';
 import { formatPercent } from './text.js';
 import { quizPath } from '../router.js';
 
-export function renderQuizStart(container, { quiz, subject, progress, storageAvailable }) {
+export function renderQuizStart(container, { quiz, subject, progress, storageAvailable, resume }) {
   const toReview = progress.toReview.length;
   const stats = [`${quiz.questions.length} questions`];
   if (progress.bestScore !== null) stats.push(`meilleur score ${formatPercent(progress.bestScore)}`);
@@ -15,7 +15,13 @@ export function renderQuizStart(container, { quiz, subject, progress, storageAva
     quiz.description ? el('p', { class: 'lead' }, quiz.description) : null,
     el('p', { class: 'quiz-stats' }, stats.join(' · ')),
     el('div', { class: 'actions' },
-      el('a', { class: 'btn btn-primary', href: quizPath(quiz.id, 'play') }, 'Commencer le quiz'),
+      resume
+        ? el('a', { class: 'btn btn-primary', href: quizPath(quiz.id, 'resume') },
+          resume.mode === 'review' ? 'Reprendre la révision' : 'Reprendre le quiz',
+          el('span', { class: 'btn-hint' }, `question ${resume.position} sur ${resume.total}`))
+        : null,
+      el('a', { class: `btn ${resume ? 'btn-secondary' : 'btn-primary'}`, href: quizPath(quiz.id, 'play') },
+        resume ? 'Recommencer le quiz' : 'Commencer le quiz'),
       toReview
         ? el('a', { class: 'btn btn-secondary', href: quizPath(quiz.id, 'review') }, `Revoir mes erreurs (${toReview})`)
         : el('button', { class: 'btn btn-secondary', type: 'button', disabled: true }, 'Aucune erreur à revoir')),
