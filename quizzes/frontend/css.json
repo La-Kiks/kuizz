@@ -2,7 +2,7 @@
   "id": "frontend-css",
   "title": "CSS responsive & mise en page",
   "subject": "integration",
-  "description": "Cascade, modèle de boîte, flexbox, grid, mobile first, navbar et cards responsives, accessibilité visuelle et nouveautés CSS.",
+  "description": "Cascade, modèle de boîte, unités relatives (rem, em, vh), flexbox et flex-wrap, grid, mobile first, navbar et cards responsives, accessibilité visuelle et nouveautés CSS.",
   "questions": [
     {
       "id": "specificity-classes-vs-types",
@@ -44,6 +44,37 @@
       "back": "`%` : une fraction d'une valeur de référence, par exemple la largeur du bloc conteneur pour `width`. `1vw` : 1 % de la largeur du viewport. `1ch` : la largeur du caractère « 0 » de la police, pratique pour limiter une ligne de texte (`max-width: 65ch`)."
     },
     {
+      "id": "units-use-cases-rem-em-vh",
+      "type": "flashcard",
+      "front": "Quelle unité relative choisir pour la taille des polices, pour le padding d'un bouton, et pour la hauteur d'une bannière plein écran ?",
+      "back": "Polices : `rem`, qui suit la taille de police réglée par l'utilisateur dans son navigateur (accessibilité, RGAA). Padding : `em`, pour qu'il grandisse avec le texte du bouton. Bannière : `vh`, par exemple `min-height: 100vh`."
+    },
+    {
+      "id": "em-padding-scales-with-text",
+      "type": "mcq",
+      "question": "Les gros boutons portent `class=\"btn btn-lg\"`. Tu veux que leur padding grossisse avec leur texte, sans le redéclarer. Quelle valeur de `padding` écrire dans `.btn` ?",
+      "code": { "lang": "css", "content": ".btn {\n  font-size: 1rem;\n  padding: ???;\n}\n.btn-lg { font-size: 1.5rem; }" },
+      "choices": ["`0.5rem 1rem`", "`8px 16px`", "`0.5em 1em`", "`0.5vw 1vw`"],
+      "answer": 2,
+      "explanation": "Sur `padding`, `em` se rapporte à la police de l'élément lui-même : `0.5em` vaut 8 px sur `.btn` et 12 px sur `.btn-lg`. `0.5rem` reste lié à la racine (8 px pour les deux boutons), `vw` dépend de la largeur de l'écran, pas du texte."
+    },
+    {
+      "id": "rem-fonts-px-borders-ok",
+      "type": "truefalse",
+      "question": "La règle « tailles de police en `rem`, jamais en `px` » oblige aussi à convertir les bordures et les ombres : `border: 1px solid` est une faute d'accessibilité.",
+      "answer": false,
+      "explanation": "La règle vise le texte : une police en `rem` suit la taille réglée par l'utilisateur, alors qu'une police en `px` l'ignore. Un filet de `1px` ou une ombre n'a pas besoin de grossir avec le texte, le `px` reste adapté à ces détails."
+    },
+    {
+      "id": "hero-min-height-100vh",
+      "type": "mcq",
+      "question": "Sur un smartphone en paysage, le texte de la bannière dépasse en bas et chevauche la section suivante. Comment la garder au moins plein écran, sans couper ni faire déborder son texte ?",
+      "code": { "lang": "css", "content": ".hero {\n  height: 100vh;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}" },
+      "choices": ["Remplacer `height: 100vh` par `max-height: 100vh`", "Remplacer `height: 100vh` par `min-height: 100vh`", "Ajouter `overflow: hidden` à `.hero` pour couper le surplus", "Remplacer `height: 100vh` par `height: 100%`"],
+      "answer": 1,
+      "explanation": "`min-height: 100vh` donne au moins la hauteur de l'écran, mais laisse la bannière grandir si son contenu est plus haut. Sur mobile, `100vh` correspond à l'écran barre d'adresse repliée : les unités `svh` et `dvh` permettent de viser la zone réellement visible."
+    },
+    {
       "id": "mobile-first-min-width",
       "type": "mcq",
       "question": "Que produit ce code écrit en mobile first ?",
@@ -83,6 +114,23 @@
       "front": "Que fait `flex: 1` sur `.content` ?",
       "code": { "lang": "css", "content": ".layout { display: flex; }\n.sidebar { width: 15rem; }\n.content { flex: 1; }" },
       "back": "C'est le raccourci de `flex: 1 1 0` : l'élément peut grandir et rétrécir à partir d'une base nulle. Ici, `.content` occupe tout l'espace laissé par la barre latérale. Plusieurs éléments en `flex: 1` se partagent l'espace à parts égales."
+    },
+    {
+      "id": "flex-nowrap-default-overflow",
+      "type": "truefalse",
+      "question": "Sur un écran de 320 px, ces quatre cartes passent d'elles-mêmes à la ligne quand elles manquent de place.",
+      "code": { "lang": "css", "content": ".cards {\n  display: flex;\n  gap: 1rem;\n}\n.card { flex: 1; }" },
+      "answer": false,
+      "explanation": "Par défaut, `flex-wrap` vaut `nowrap` : les cartes restent sur une seule ligne, se compriment jusqu'à la largeur minimale de leur contenu, puis débordent. Ajoute `flex-wrap: wrap` au conteneur pour qu'elles « coulent » à la ligne."
+    },
+    {
+      "id": "flex-wrap-basis-last-line",
+      "type": "mcq",
+      "question": "Le conteneur `.cards` fait 800 px de large. Comment s'affichent ses quatre cartes ?",
+      "code": { "lang": "css", "content": ".cards {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 1rem;\n}\n.card { flex: 1 1 15rem; }" },
+      "choices": ["Quatre cartes de 200 px, compressées sur une seule ligne", "Deux lignes de deux cartes, chacune à la moitié de la largeur", "Trois cartes en première ligne, la quatrième de `15rem` calée à gauche", "Trois cartes en première ligne, la quatrième seule sur toute la largeur"],
+      "answer": 3,
+      "explanation": "Chaque carte part de `15rem` (240 px) sans largeur fixe forcée : trois tiennent sur 800 px avec les gouttières, la quatrième passe à la ligne. `flex-grow: 1` étire ensuite chaque carte pour remplir sa ligne, d'où une dernière carte pleine largeur ; une grille `auto-fit` garderait des colonnes alignées."
     },
     {
       "id": "grid-auto-fit-minmax",
@@ -137,15 +185,6 @@
       "question": "`img { max-width: 100%; }` agrandit chaque image pour qu'elle remplisse toute la largeur de son conteneur.",
       "answer": false,
       "explanation": "`max-width` ne fait que limiter : une grande image est réduite à la largeur du conteneur, une petite garde sa taille naturelle. Pour remplir le conteneur, il faut `width: 100%` ; ajoute `height: auto` pour garder les proportions."
-    },
-    {
-      "id": "srcset-sizes",
-      "type": "mcq",
-      "question": "Que fait le navigateur avec `srcset` et `sizes` ?",
-      "code": { "lang": "html", "content": "<img src=\"chat-800.jpg\"\n     srcset=\"chat-400.jpg 400w, chat-800.jpg 800w, chat-1600.jpg 1600w\"\n     sizes=\"(min-width: 48em) 50vw, 100vw\"\n     alt=\"Chat roux endormi\">" },
-      "choices": ["Il télécharge les trois fichiers et affiche le plus net", "Il prend `chat-1600.jpg` seulement sur un écran de 1600 px", "Il demande au serveur de redimensionner `chat-800.jpg`", "Il choisit le fichier adapté à la taille affichée"],
-      "answer": 3,
-      "explanation": "`srcset` liste les fichiers avec leur largeur réelle (`w`), `sizes` indique la largeur d'affichage prévue ; le navigateur en déduit le fichier suffisant pour l'écran et sa densité de pixels, et n'en télécharge qu'un. `src` sert de solution de repli."
     },
     {
       "id": "dark-theme-variables",
