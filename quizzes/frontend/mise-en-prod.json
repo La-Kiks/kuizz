@@ -8,7 +8,7 @@
       "id": "prod-checklist-four",
       "type": "flashcard",
       "front": "Avant de livrer le site de l'agence, quels sont les quatre contrôles de la checklist de mise en production ?",
-      "back": "Le Nu HTML Checker du W3C valide le code à 100 %, sans aucune erreur. Tout le site se parcourt à la touche Tab avec un `:focus` bien visible, et Lighthouse mesure un LCP sous 2,5 s en 3G/4G. Aucun défilement horizontal n'apparaît entre 320 et 1920 px de large."
+      "back": "Le Nu HTML Checker du W3C valide le code à 100 %, sans aucune erreur. Tout le site se parcourt à la touche Tab avec un `:focus` bien visible, et Lighthouse mesure un LCP sous 2,5 s en 3G/4G. Enfin, de 320 à 1920 px de large, la page ne doit jamais défiler horizontalement."
     },
     {
       "id": "prod-nu-error-vs-warning",
@@ -31,18 +31,18 @@
         "Remplacer `<picture>` par une `<div class=\"picture\">` équivalente"
       ],
       "answer": 2,
-      "explanation": "Dans un `<picture>`, les `<source>` viennent d'abord et l'`<img>` ferme la liste. Dans cet ordre-là, le navigateur ignorerait en plus la `<source>` : l'image desktop ne serait jamais chargée."
+      "explanation": "Dans un `<picture>`, les `<source>` viennent d'abord et l'`<img>` ferme la liste. Dans l'ordre fautif du code, la `<source>` placée après l'`<img>` serait en plus ignorée : seules celles qui précèdent l'`<img>` sont évaluées, donc l'image desktop ne serait jamais chargée."
     },
     {
       "id": "prod-source-no-alt",
       "type": "truefalse",
-      "question": "Pour que cette bannière soit accessible, il faut aussi ajouter un `alt` sur la `<source>`.",
+      "question": "Dans cette bannière, l'`alt` de l'`<img>` suffit : il s'applique aussi quand le navigateur affiche `hero-desktop.avif`.",
       "code": {
         "lang": "html",
         "content": "<picture>\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.avif\">\n  <img src=\"hero-mobile.avif\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
       },
-      "answer": false,
-      "explanation": "Le texte alternatif se place uniquement sur l'`<img>` : il vaut quel que soit le fichier retenu. `<source>` n'a pas d'attribut `alt`, et le Nu Checker signalerait une erreur."
+      "answer": true,
+      "explanation": "La `<source>` ne fait que proposer un autre fichier à l'`<img>`, qui reste l'élément affiché : son `alt` vaut quel que soit le fichier retenu. `<source>` n'a d'ailleurs pas d'attribut `alt`, et le Nu Checker en signalerait un."
     },
     {
       "id": "prod-hover-not-focus",
@@ -108,12 +108,12 @@
     {
       "id": "prod-avif-fallback",
       "type": "flashcard",
-      "front": "Ta bannière sert directement des fichiers AVIF. Quel risque, et comment le couvrir ?",
+      "front": "Ce code ajoute un repli JPEG à la bannière AVIF. Pourquoi chaque `media` apparaît-il deux fois, d'abord avec `type=\"image/avif\"` ?",
       "code": {
         "lang": "html",
-        "content": "<picture>\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.avif\">\n  <img src=\"hero-mobile.avif\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
+        "content": "<picture>\n  <source media=\"(min-width: 992px)\" type=\"image/avif\"\n          srcset=\"hero-desktop.avif\">\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.jpg\">\n  <source type=\"image/avif\" srcset=\"hero-mobile.avif\">\n  <img src=\"hero-mobile.jpg\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
       },
-      "back": "Un navigateur qui ne décode pas l'AVIF affiche une image cassée. Ajoute `type=\"image/avif\"` aux `<source>` AVIF et garde un JPEG ou un WebP dans le `src` de l'`<img>` en repli. Les navigateurs récents lisent tous l'AVIF : le risque vise surtout les anciens."
+      "back": "Le navigateur retient la première `<source>` dont le `media` et le `type` lui conviennent. Sur ordinateur sans AVIF, il saute la première et prend `hero-desktop.jpg` : sans cette deuxième `<source>`, il tomberait sur l'`<img>` portrait et perdrait le recadrage paysage. L'AVIF est lu par tous les navigateurs récents : ce repli vise les anciens."
     },
     {
       "id": "prod-rem-font-sizes",
@@ -130,14 +130,14 @@
         "`h1 { font-size: 40px !important; }` et `.hero p` inchangé"
       ],
       "answer": 2,
-      "explanation": "Le `rem` dépend de la taille de police de `<html>`, qui suit le réglage de l'utilisateur : avec 16 px par défaut, `2.5rem` vaut toujours 40 px. Le `pt` reste une unité absolue et le `vw` ignore ce réglage."
+      "explanation": "Le `rem` dépend de la taille de police de `<html>`, qui suit le réglage de l'utilisateur : avec 16 px par défaut, `2.5rem` vaut bien 40 px. Le `pt` reste une unité absolue et le `vw` ignore ce réglage."
     },
     {
       "id": "prod-px-page-zoom",
       "type": "truefalse",
-      "question": "Si tes polices sont en `px`, le zoom de page du navigateur (Ctrl +) ne grossit plus le texte.",
+      "question": "Recette du site de l'agence : ta testeuse zoome la page à 200 % avec Ctrl +, et les titres en `px` grossissent bien. Tu peux en conclure que garder les polices en `px` ne pose aucun problème d'accessibilité.",
       "answer": false,
-      "explanation": "Le zoom de page agrandit tout, `px` compris. Ce que le `px` ignore, c'est le réglage « taille de police par défaut » du navigateur : voilà pourquoi le fil rouge impose le `rem` pour les polices."
+      "explanation": "Le zoom de page agrandit tout, `px` compris : ce test ne prouve rien sur l'autre réglage, la taille de police par défaut du navigateur, que le `px` ignore. D'où la consigne du fil rouge : polices en `rem`."
     },
     {
       "id": "prod-viewport-missing",
@@ -180,7 +180,7 @@
         "Réduire la taille de police des liens pour que chacun tienne sur une ligne"
       ],
       "answer": 2,
-      "explanation": "Le `padding` sur le lien lui-même agrandit la surface qui réagit au doigt, et l'espacement évite les touches voisines. Les WCAG 2.2 exigent au moins 24 × 24 px en AA, et 44 px reste la cible recommandée."
+      "explanation": "Le `padding` sur le lien lui-même agrandit la surface qui réagit au doigt, et l'espacement évite les touches voisines. Le critère 2.5.8 des WCAG 2.2 (AA) demande 24 × 24 px, sauf exceptions comme un espacement suffisant ; 44 × 44 px correspond au critère 2.5.5 (AAA)."
     },
     {
       "id": "prod-expertises-grid-800",
@@ -238,36 +238,36 @@
     {
       "id": "prod-bootstrap-col-lg",
       "type": "mcq",
-      "question": "Version Bootstrap 5 de la section « Expertises » : comment s'affichent ces trois cartes sur un écran de 1024 px, puis de 800 px ?",
+      "question": "Version Bootstrap 5 de la section « Expertises » : comment s'affichent ces trois cartes sur un écran de 1024 px, puis de 900 px ?",
       "code": {
         "lang": "html",
         "content": "<div class=\"row\">\n  <div class=\"col-12 col-lg-4\">Référencement</div>\n  <div class=\"col-12 col-lg-4\">Design</div>\n  <div class=\"col-12 col-lg-4\">Développement</div>\n</div>"
       },
       "choices": [
-        "Trois colonnes à 1024 px comme à 800 px",
-        "Une carte par ligne à 1024 px, trois colonnes à 800 px",
-        "Trois colonnes à 1024 px, une carte par ligne à 800 px",
-        "Trois colonnes à 1024 px, deux colonnes à 800 px"
+        "Trois colonnes à 1024 px comme à 900 px",
+        "Une carte par ligne à 1024 px, trois colonnes à 900 px",
+        "Trois colonnes à 1024 px, une carte par ligne à 900 px",
+        "Trois colonnes à 1024 px, deux colonnes à 900 px"
       ],
       "answer": 2,
-      "explanation": "`lg` démarre à 992 px : à 1024 px, chaque carte prend 4 colonnes sur 12. À 800 px, seule `col-12` s'applique et chaque carte occupe toute la largeur, comme la media query native à 992 px du fil rouge."
+      "explanation": "`lg` démarre à 992 px : à 1024 px, chaque carte prend 4 colonnes sur 12. À 900 px, seule `col-12` s'applique et chaque carte occupe toute la largeur, comme la media query native à 992 px du fil rouge."
     },
     {
       "id": "prod-bootstrap-md-upward",
       "type": "truefalse",
-      "question": "Avec Bootstrap 5, cette carte n'est en demi-largeur qu'entre 768 et 991 px ; au-delà, elle reprend toute la largeur.",
+      "question": "Avec Bootstrap 5, cette carte est encore en demi-largeur sur un écran de 1440 px.",
       "code": {
         "lang": "html",
         "content": "<div class=\"row\">\n  <div class=\"col-12 col-md-6\">Design</div>\n</div>"
       },
-      "answer": false,
+      "answer": true,
       "explanation": "Les paliers Bootstrap sont des `min-width` : `col-md-6` s'applique à partir de 768 px et pour toutes les largeurs supérieures, tant qu'une classe `col-lg-…` ou `col-xl-…` ne la remplace pas."
     },
     {
       "id": "prod-frameworks-compare",
       "type": "flashcard",
       "front": "Bootstrap, Tailwind ou CSS natif : quel principe, quel atout et quelle limite pour chacun ?",
-      "back": "Bootstrap : composants préstylés et grille de 12 colonnes, pour prototyper vite, mais le design reste standardisé. Tailwind : classes utilitaires à usage unique dans le HTML, design 100 % sur mesure mais balisage chargé. CSS natif (variables, Flexbox, Grid) : zéro dépendance et performance optimale, idéal pour un petit projet."
+      "back": "Bootstrap : composants prêts à l'emploi et grille de 12 colonnes, pour prototyper vite, mais les sites finissent par se ressembler. Tailwind : une petite classe par propriété directement dans le HTML, pour un rendu entièrement personnalisé au prix d'attributs `class` très longs. CSS natif (variables, Flexbox, Grid) : aucune bibliothèque à charger et les meilleures performances, parfait pour un petit projet."
     },
     {
       "id": "prod-choose-native-css",
@@ -276,11 +276,11 @@
       "choices": [
         "CSS natif : variables, Flexbox et Grid, écrits sur mesure pour le site",
         "Bootstrap, pour sa grille de 12 colonnes et ses composants prêts à l'emploi",
-        "Tailwind, pour ses classes utilitaires à usage unique dans le HTML",
+        "Tailwind, pour ses petites classes utilitaires appliquées dans le HTML",
         "Bootstrap et Tailwind combinés, pour couvrir tous les cas de figure"
       ],
       "answer": 0,
-      "explanation": "Sur un petit projet sur mesure, le CSS natif ne charge que ce qui sert et n'ajoute aucune dépendance. Bootstrap imposerait un rendu standardisé, et Tailwind un outil de build à maintenir."
+      "explanation": "Sur un petit projet sur mesure, le CSS natif ne charge que ce qui sert et n'ajoute aucune dépendance. Bootstrap pousse vers un rendu standardisé, sauf personnalisation poussée (Sass, variables), et Tailwind ajoute un outil de build à maintenir."
     },
     {
       "id": "prod-recognize-tailwind",
@@ -291,13 +291,13 @@
         "content": "<section class=\"grid gap-6 p-8 md:grid-cols-3\">\n  <article class=\"rounded-lg bg-white p-6 shadow\">\n    <h3 class=\"text-xl font-bold\">Design</h3>\n  </article>\n</section>"
       },
       "choices": [
-        "Tailwind (CSS utilitaire) : sur mesure, mais un HTML plus verbeux",
-        "Bootstrap : composants préstylés, au prix d'un design standardisé",
-        "CSS natif : zéro dépendance, mais aucune media query possible",
-        "Bootstrap utilitaire : grille 12 colonnes, mais sans mobile first"
+        "Tailwind : rendu très personnalisé, mais attributs `class` à rallonge",
+        "Bootstrap : composants tout prêts, au prix de sites qui se ressemblent",
+        "CSS natif : aucune bibliothèque, mais aucune media query possible",
+        "Bootstrap utilitaire : grille de 12 colonnes, mais sans mobile first"
       ],
       "answer": 0,
-      "explanation": "Des classes à rôle unique (`gap-6`, `p-8`) et des préfixes de palier comme `md:` signent Tailwind. Le style vit dans le HTML : rendu sur mesure, mais attributs `class` à rallonge."
+      "explanation": "Bootstrap 5 a lui aussi des utilitaires (`p-3`, `gap-3`). Ce qui signe Tailwind, c'est le préfixe de variante `md:` (Bootstrap place `-md-` au milieu de la classe), `grid-cols-3` et des valeurs d'échelle comme `p-8` ou `gap-6`, absentes de Bootstrap. Le style vit dans le HTML : très personnalisable, mais balisage chargé."
     }
   ]
 }
