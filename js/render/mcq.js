@@ -1,9 +1,9 @@
-import { announce, el } from './dom.js';
+import { announce, el, icon } from './dom.js';
 import { renderCodeBlock, renderInline } from './text.js';
 
-function mark(symbol, text) {
+function mark(name, text) {
   return el('span', { class: 'choice-mark' },
-    el('span', { 'aria-hidden': 'true' }, symbol),
+    icon(name),
     el('span', { class: 'sr-only' }, ` (${text})`));
 }
 
@@ -19,9 +19,9 @@ function diffLine(kind, label, text) {
 }
 
 /** Nœud sur le rail + en-tête du commentaire de revue (statut du check, en monospace). */
-export function reviewHead(status, glyph, text) {
+export function reviewHead(status, mark, text) {
   return [
-    el('span', { class: `review-node review-node-${status}`, 'aria-hidden': 'true' }, glyph),
+    el('span', { class: `review-node review-node-${status}`, 'aria-hidden': 'true' }, icon(mark)),
     el('p', { class: 'feedback-head' },
       el('span', { class: 'feedback-who' }, 'Revue'),
       el('span', { class: 'feedback-status' }, text)),
@@ -55,15 +55,15 @@ export function renderChoiceQuestion(question, onAnswer) {
       if (o === right) {
         buttons[i].classList.add('is-correct');
         gutters[i].textContent = '+';
-        buttons[i].append(mark('✓', 'bonne réponse'));
+        buttons[i].append(mark('check', 'bonne réponse'));
       } else if (o === option) {
         buttons[i].classList.add('is-wrong');
         gutters[i].textContent = '−';
-        buttons[i].append(mark('✗', 'ta réponse'));
+        buttons[i].append(mark('cross', 'ta réponse'));
       }
     });
     feedbackSlot.append(el('div', { class: `feedback ${correct ? 'is-ok' : 'is-ko'}` },
-      reviewHead(correct ? 'ok' : 'ko', correct ? '✓' : '✗', correct ? 'check réussi' : 'check échoué'),
+      reviewHead(correct ? 'ok' : 'ko', correct ? 'check' : 'cross', correct ? 'check réussi' : 'check échoué'),
       el('div', { class: 'feedback-content' },
         el('p', { class: 'feedback-title' }, correct ? 'Bonne réponse !' : 'Raté'),
         correct ? null : el('p', { class: 'feedback-answer' },

@@ -23,7 +23,7 @@ export function renderSession(container, { quiz, session, onFinish, onAnswered }
 
   container.append(el('section', { class: 'session' },
     el('header', { class: 'session-header' },
-      el('a', { class: 'back-link', href: quizPath(quiz.id) }, el('span', { 'aria-hidden': 'true' }, '← '), 'Quitter'),
+      el('a', { class: 'back-link', href: quizPath(quiz.id) }, el('span', { 'aria-hidden': 'true' }, '←'), 'Quitter'),
       el('h1', { class: 'session-title' }, session.mode === 'review' ? `${quiz.title} — erreurs à revoir` : quiz.title),
       label,
       bar,

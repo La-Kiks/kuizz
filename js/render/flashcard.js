@@ -24,7 +24,7 @@ export function renderFlashcard(question, onAnswer) {
     actions.replaceChildren();
     view.classList.add('is-answered');
     feedbackSlot.append(el('div', { class: 'feedback is-neutral' },
-      reviewHead(knewIt ? 'ok' : 'neutral', knewIt ? '✓' : '●', knewIt ? 'auto-évaluation : acquis' : 'auto-évaluation : à revoir'),
+      reviewHead(knewIt ? 'ok' : 'neutral', knewIt ? 'check' : 'dot', knewIt ? 'auto-évaluation : acquis' : 'auto-évaluation : à revoir'),
       el('div', { class: 'feedback-content' },
         el('p', { class: 'feedback-title' }, knewIt ? 'Noté : tu savais.' : 'Noté : à revoir.'),
         nextButton)));
