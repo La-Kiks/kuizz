@@ -130,7 +130,7 @@
         "content": "// style.css : .notice { color: crimson; }\nconst notice = document.querySelector('.notice');\nconsole.log(notice.style.color);"
       },
       "answer": false,
-      "explanation": "La propriété `style` ne reflète que l'attribut `style` inline de l'élément : ici elle renvoie une chaîne vide. Pour lire le style réellement appliqué, utilise `getComputedStyle(notice).color` ; pour écrire, `style` attend des noms en camelCase (`style.backgroundColor`)."
+      "explanation": "La propriété `style` ne reflète que l'attribut `style` inline de l'élément : ici elle renvoie une chaîne vide. Pour lire le style réellement appliqué, utilise `getComputedStyle(notice).color`, qui renvoie `rgb(220, 20, 60)` (et non le mot-clé `crimson`) ; pour écrire, `style` attend des noms en camelCase (`style.backgroundColor`)."
     },
     {
       "id": "prevent-default-submit",
@@ -164,7 +164,7 @@
         "`submit`"
       ],
       "answer": 2,
-      "explanation": "`input` se déclenche à chaque changement de la valeur, quelle qu'en soit l'origine (clavier, collage, dictée). `change` n'arrive qu'à la perte du focus et `keyup` rate le collage à la souris. Pour le survol, on écoute plutôt `mouseenter` et `mouseleave`."
+      "explanation": "`input` se déclenche à chaque changement de la valeur, quelle qu'en soit l'origine (clavier, collage, dictée). `change` n'arrive qu'une fois la saisie validée (perte du focus, ou Entrée) et `keyup` rate le collage à la souris. Pour le survol, on écoute plutôt `mouseenter` et `mouseleave`."
     },
     {
       "id": "event-delegation",

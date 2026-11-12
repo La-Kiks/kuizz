@@ -8,7 +8,7 @@
       "id": "prod-checklist-four",
       "type": "flashcard",
       "front": "Avant de livrer le site de l'agence, quels sont les quatre contrôles de la checklist de mise en production ?",
-      "back": "Le Nu HTML Checker du W3C valide le code à 100 %, sans aucune erreur. Tout le site se parcourt à la touche Tab avec un `:focus` bien visible, et Lighthouse mesure un LCP sous 2,5 s en 3G/4G. Enfin, de 320 à 1920 px de large, la page ne doit jamais défiler horizontalement."
+      "back": "1) Code : zéro erreur au validateur W3C (100 %). 2) Clavier : la navigation à la touche Tab atteint tout, avec un focus toujours visible. 3) Performance : un LCP inférieur à 2,5 s. 4) Responsive : aucun défilement horizontal, de 320 à 1920 px."
     },
     {
       "id": "prod-nu-error-vs-warning",
@@ -108,7 +108,7 @@
     {
       "id": "prod-avif-fallback",
       "type": "flashcard",
-      "front": "Ce code ajoute un repli JPEG à la bannière AVIF. Pourquoi chaque `media` apparaît-il deux fois, d'abord avec `type=\"image/avif\"` ?",
+      "front": "Ce code ajoute un repli JPEG à la bannière AVIF. Pourquoi la `media` desktop est-elle répétée sur une deuxième `<source>` ?",
       "code": {
         "lang": "html",
         "content": "<picture>\n  <source media=\"(min-width: 992px)\" type=\"image/avif\"\n          srcset=\"hero-desktop.avif\">\n  <source media=\"(min-width: 992px)\" srcset=\"hero-desktop.jpg\">\n  <source type=\"image/avif\" srcset=\"hero-mobile.avif\">\n  <img src=\"hero-mobile.jpg\" alt=\"L'équipe de l'agence en atelier\">\n</picture>"
