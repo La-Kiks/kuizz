@@ -8,7 +8,7 @@
       "id": "wcag-vs-rgaa",
       "type": "flashcard",
       "front": "WCAG et RGAA : qui les publie, et quel lien entre les deux ?",
-      "back": "Les WCAG sont les règles internationales publiées par le W3C (version actuelle : 2.2). Le RGAA (version 4.1) est le référentiel français : il reprend les critères WCAG de niveaux A et AA et fournit une méthode de test pour vérifier chacun."
+      "back": "Les WCAG sont les règles internationales publiées par le W3C (version actuelle : 2.2). Le RGAA (version 4.1) est le référentiel français : il reprend les critères des WCAG 2.1 de niveaux A et AA et fournit une méthode de test pour vérifier chacun."
     },
     {
       "id": "rgaa-who",
@@ -16,7 +16,7 @@
       "question": "En France, quels sites ont l'obligation légale d'être accessibles, avec le RGAA comme référentiel ?",
       "choices": ["Tous les sites, y compris les blogs personnels", "Les sites publics et certaines grandes entreprises", "Uniquement les sites des ministères et services de l'État", "Uniquement les sites qui vendent en ligne"],
       "answer": 1,
-      "explanation": "La loi du 11 février 2005 (article 47) vise les services publics (État, collectivités, organismes chargés d'une mission de service public) et les entreprises au-delà d'un seuil de chiffre d'affaires. Un site personnel n'y est pas soumis, même s'il gagne à être accessible."
+      "explanation": "La loi du 11 février 2005 (article 47) vise les services publics (État, collectivités, organismes chargés d'une mission de service public) et les entreprises au-delà d'un seuil de chiffre d'affaires. Un site personnel n'y est pas soumis, même s'il gagne à être accessible. Depuis 2025, l'European Accessibility Act étend aussi des obligations à d'autres services privés (e-commerce, banque…)."
     },
     {
       "id": "principle-operable",
@@ -54,7 +54,7 @@
       "question": "Signaler un champ en erreur uniquement avec ce style est conforme, du moment que le rouge est assez contrasté.",
       "code": { "lang": "css", "content": ".champ-invalide {\n  border-color: #d00;\n}" },
       "answer": false,
-      "explanation": "Une information ne doit jamais passer uniquement par la couleur : une personne daltonienne ne la perçoit pas et un lecteur d'écran ne l'annonce pas. Ajoute un message texte (et éventuellement une icône)."
+      "explanation": "Une information ne doit jamais passer uniquement par la couleur : une personne daltonienne peut ne pas la percevoir et un lecteur d'écran ne l'annonce pas. Ajoute un message texte (et éventuellement une icône)."
     },
     {
       "id": "informative-vs-decorative",
@@ -78,7 +78,7 @@
       "code": { "lang": "html", "content": "<a href=\"/\" tabindex=\"2\">Accueil</a>\n<a href=\"/blog\">Blog</a>\n<a href=\"/contact\" tabindex=\"1\">Contact</a>" },
       "choices": ["Accueil, Blog, Contact", "Contact, Blog, Accueil", "Blog, Contact, Accueil", "Contact, Accueil, Blog"],
       "answer": 3,
-      "explanation": "Les `tabindex` positifs passent en premier, par valeur croissante, puis viennent les autres éléments dans l'ordre du DOM : l'ordre ne suit plus la lecture. On évite donc les valeurs positives ; `0` ajoute un élément à l'ordre naturel et `-1` le rend focusable seulement en JS."
+      "explanation": "Les `tabindex` positifs passent en premier, par valeur croissante, puis viennent les autres éléments dans l'ordre du DOM : l'ordre ne suit plus la lecture. On évite donc les valeurs positives ; `0` ajoute un élément à l'ordre naturel et `-1` le rend focusable par script (ou au clic) tout en le retirant de l'ordre de tabulation."
     },
     {
       "id": "outline-none",
@@ -145,7 +145,7 @@
       "question": "Quel `<title>` est le plus pertinent pour la page de contact du site Kuizz ?",
       "choices": ["« Kuizz »", "« Page 3 »", "« Contact – Kuizz »", "« Bienvenue sur notre site ! »"],
       "answer": 2,
-      "explanation": "Le titre est souvent la première chose annoncée par un lecteur d'écran et sert à identifier l'onglet : il doit décrire la page et être différent sur chaque page, l'information spécifique en premier."
+      "explanation": "Le titre est souvent la première chose annoncée par un lecteur d'écran et sert à identifier l'onglet : il doit décrire la page et être idéalement différent sur chaque page, l'information spécifique en premier."
     },
     {
       "id": "first-rule-aria",
@@ -166,7 +166,7 @@
       "id": "aria-live-polite",
       "type": "mcq",
       "question": "Que perçoit un utilisateur de lecteur d'écran quand ce script met à jour le paragraphe ?",
-      "code": { "lang": "html", "content": "<p id=\"statut\" aria-live=\"polite\"></p>\n\n<script type=\"module\">\n  const statut = document.querySelector('#statut');\n  statut.textContent = '12 produits chargés';\n</script>" },
+      "code": { "lang": "html", "content": "<p id=\"statut\" aria-live=\"polite\"></p>\n<button id=\"charger\">Charger</button>\n\n<script type=\"module\">\n  const statut = document.querySelector('#statut');\n  charger.addEventListener('click', async () => {\n    await fetch('/api/produits');\n    statut.textContent = '12 produits chargés';\n  });\n</script>" },
       "choices": ["Le message coupe immédiatement la lecture en cours", "Le message est lu une fois la lecture en cours terminée", "Le focus passe sur le paragraphe, qui est alors lu", "Rien, tant qu'il ne place pas le focus sur le paragraphe"],
       "answer": 1,
       "explanation": "Une région `aria-live=\"polite\"` est annoncée sans déplacer le focus, dès que le lecteur est disponible ; `assertive` interromprait la lecture. La région doit exister dans le DOM avant que son contenu change."
@@ -196,7 +196,7 @@
       "id": "accessibility-statement",
       "type": "flashcard",
       "front": "Que contient la déclaration d'accessibilité d'un site soumis au RGAA ?",
-      "back": "L'état de conformité issu d'un audit (totalement, partiellement ou non conforme), la liste des contenus non accessibles et un moyen de contact pour signaler un problème. Elle indique aussi les voies de recours, comme le Défenseur des droits."
+      "back": "L'état de conformité (totalement, partiellement ou non conforme — non conforme par défaut en l'absence d'audit), la liste des contenus non accessibles et un moyen de contact pour signaler un problème. Elle indique aussi les voies de recours, comme le Défenseur des droits."
     }
   ]
 }
