@@ -47,6 +47,7 @@
   --code-rule: oklch(0.34 0.02 268);
   --code-text: oklch(0.93 0.008 268);
   --code-gutter: oklch(0.7 0.02 268);
+  --code-fade: oklch(0.7 0.05 277 / 0.45);
   --inline-code-bg: oklch(0.925 0.014 272);
   --inline-code-text: oklch(0.34 0.11 277);
 
@@ -97,6 +98,7 @@
     --code-rule: oklch(0.3 0.012 265);
     --code-text: oklch(0.93 0.006 265);
     --code-gutter: oklch(0.66 0.014 265);
+    --code-fade: oklch(0.7 0.06 277 / 0.4);
     --inline-code-bg: oklch(0.29 0.018 270);
     --inline-code-text: oklch(0.88 0.06 280);
 
@@ -141,6 +143,7 @@
   --code-rule: oklch(0.3 0.012 265);
   --code-text: oklch(0.93 0.006 265);
   --code-gutter: oklch(0.66 0.014 265);
+  --code-fade: oklch(0.7 0.06 277 / 0.4);
   --inline-code-bg: oklch(0.29 0.018 270);
   --inline-code-text: oklch(0.88 0.06 280);
 
@@ -409,6 +412,11 @@ main.container {
   overflow-wrap: anywhere;
 }
 .subject-name { color: var(--text-muted); font-weight: 500; }
+@media (max-width: 39.99rem) {
+  .subject-head { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .subject-title { flex: none; }
+  .subject-count { justify-content: flex-start; }
+}
 .rollup-review {
   display: inline-flex;
   align-items: center;
@@ -451,15 +459,24 @@ main.container {
 .quiz-card-gutter {
   display: flex;
   justify-content: center;
-  padding-top: 1.1875rem;
+  padding-top: 0.9375rem;
   border-right: 1px solid var(--rule);
   background: var(--surface-2);
   color: var(--text-muted);
   font-size: 1rem;
 }
-.quiz-card-gutter.is-review { border-right-color: var(--del-rule); background: var(--del-gutter); color: var(--del-text); }
-.quiz-card-gutter.is-ok { border-right-color: var(--add-rule); background: var(--add-gutter); color: var(--add-text); }
-.quiz-card-gutter.is-progress { background: var(--accent-soft); color: var(--accent-text); }
+.quiz-card-gutter .icon {
+  box-sizing: content-box;
+  padding: 0.25rem;
+  border-radius: var(--radius-s);
+}
+.quiz-card-gutter.is-review { color: var(--del-text); }
+.quiz-card-gutter.is-review .icon { background: var(--del-gutter); }
+.quiz-card-gutter.is-ok { color: var(--add-text); }
+.quiz-card-gutter.is-ok .icon { background: var(--add-gutter); }
+.quiz-card-gutter.is-progress { color: var(--accent-text); }
+.quiz-card-gutter.is-progress .status-dot { margin-top: 0.4375rem; }
+.quiz-card-gutter.is-idle .status-ring { margin-top: 0.4375rem; }
 .quiz-card-gutter.is-unavailable { color: var(--del-text); }
 .quiz-card-main { min-width: 0; padding: 1rem 1rem 1.125rem; }
 .quiz-card-title {
@@ -715,12 +732,18 @@ code.inline {
   margin: 1.25rem 0 0;
   border: 1px solid var(--code-rule);
   border-radius: var(--radius);
-  background: var(--code-bg);
   color: var(--code-text);
   font-size: 0.875rem;
   line-height: 1.65;
   overflow: auto;
   tab-size: 2;
+  /* Indice de défilement : un liseré clair sur le bord droit (couche « scroll »),
+     masqué par une couche « local » qui arrive avec la fin du contenu.
+     Sans débordement, le masque recouvre le liseré. Peint sous le texte. */
+  background:
+    linear-gradient(to left, var(--code-bg) 1.5rem, transparent 2.25rem) right / 2.25rem 100% no-repeat local,
+    linear-gradient(to left, var(--code-fade), transparent) right / 1.5rem 100% no-repeat scroll,
+    var(--code-bg);
   scrollbar-color: var(--code-gutter) var(--code-bg);
 }
 .code-block::before {

@@ -19,7 +19,7 @@ function mergeHead(progress, resume) {
   let text = 'prêt à lancer';
   if (resume) {
     mark = 'dot';
-    text = `reprise possible · question ${resume.position} sur ${resume.total}`;
+    text = 'reprise possible';
   } else if (progress.toReview.length) {
     mark = 'cross';
     text = `${progress.toReview.length} check${progress.toReview.length > 1 ? 's' : ''} à relancer`;
