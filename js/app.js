@@ -37,6 +37,10 @@ function showSession(quiz, session) {
     onAnswered: (result) => {
       storage.saveProgress(quiz.id, progressAfterAnswer(progressOf(quiz), result));
       storage.saveSession(quiz.id, snapshotSession(session));
+      // Un rechargement doit reprendre la session : on bascule l'adresse sur /resume
+      // sans déclencher de navigation (replaceState n'émet pas hashchange).
+      const resumeHash = quizPath(quiz.id, 'resume');
+      if (location.hash !== resumeHash) history.replaceState(null, '', resumeHash);
     },
     onFinish: () => {
       storage.saveProgress(quiz.id, nextProgress(progressOf(quiz), session));

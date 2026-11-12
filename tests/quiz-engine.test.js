@@ -239,19 +239,23 @@ test('restoreSession renvoie null pour les snapshots invalides', () => {
 });
 
 test('restoreSession refuse une réponse de type invalide', () => {
-  const s = answeredSession(2);
-  const d = JSON.parse(JSON.stringify(snapshotSession(s)));
-  const i = d.order.indexOf('q1');
-  const mk = (qid, response) => {
-    const x = JSON.parse(JSON.stringify(d));
-    const idx = x.order.indexOf(qid);
-    if (idx >= 2) return null;
-    x.results[idx].response = response;
-    return restoreSession(quiz, x);
+  const build = (order, results) => ({
+    mode: 'all',
+    order,
+    choiceOrder: { q1: [0, 1, 2] },
+    results,
+  });
+  const r = (id, response) => ({ id, response });
+  const cases = {
+    'mcq non entier': build(['q1', 'q2', 'q3'], [r('q1', 1.5)]),
+    'mcq chaîne': build(['q1', 'q2', 'q3'], [r('q1', 'x')]),
+    'mcq négatif': build(['q1', 'q2', 'q3'], [r('q1', -1)]),
+    'mcq hors bornes': build(['q1', 'q2', 'q3'], [r('q1', 3)]),
+    'vrai/faux non booléen': build(['q2', 'q1', 'q3'], [r('q2', 1)]),
+    'flashcard non booléen': build(['q3', 'q1', 'q2'], [r('q3', 'oui')]),
   };
-  for (const [qid, bad] of [['q1', 9], ['q1', 1.5], ['q1', true], ['q2', 1], ['q3', 'x']]) {
-    const r = mk(qid, bad);
-    if (d.order.indexOf(qid) < 2) assert.equal(r, null, `${qid}/${bad}`);
+  for (const [label, data] of Object.entries(cases)) {
+    assert.equal(restoreSession(quiz, data), null, label);
   }
-  assert.ok(i >= 0);
+  assert.notEqual(restoreSession(quiz, build(['q1', 'q2', 'q3'], [r('q1', 2)])), null);
 });
