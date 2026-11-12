@@ -77,6 +77,14 @@ export function nextProgress(prev, session, now = new Date()) {
   };
 }
 
+export function progressAfterAnswer(prev, result, now = new Date()) {
+  return {
+    bestScore: prev.bestScore ?? null,
+    lastPlayed: now.toISOString(),
+    toReview: updateToReview(prev.toReview, [result]),
+  };
+}
+
 export function correctAnswerText(question) {
   if (question.type === 'mcq') return question.choices[question.answer];
   if (question.type === 'truefalse') return question.answer ? 'Vrai' : 'Faux';

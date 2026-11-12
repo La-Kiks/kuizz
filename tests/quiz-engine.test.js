@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   shuffle, createSession, currentQuestion, answerCurrent, next, isFinished,
-  score, missedQuestions, updateToReview, nextProgress, correctAnswerText,
+  score, missedQuestions, updateToReview, nextProgress, progressAfterAnswer, correctAnswerText,
 } from '../js/quiz-engine.js';
 
 const quiz = {
@@ -125,6 +125,36 @@ test('nextProgress : premier score enregistré même s\'il est bas', () => {
   answerCurrent(s, true); next(s);
   answerCurrent(s, false); next(s);
   assert.equal(nextProgress({ bestScore: null, lastPlayed: null, toReview: [] }, s).bestScore, 0);
+});
+
+test('progressAfterAnswer : une erreur est ajoutée, le meilleur score est conservé', () => {
+  const now = new Date('2026-11-12T10:00:00Z');
+  const prev = { bestScore: 0.5, lastPlayed: null, toReview: ['q2'] };
+  assert.deepEqual(progressAfterAnswer(prev, { id: 'q1', response: 0, correct: false }, now), {
+    bestScore: 0.5, lastPlayed: '2026-11-12T10:00:00.000Z', toReview: ['q2', 'q1'],
+  });
+});
+
+test('progressAfterAnswer : une bonne réponse retire la question à revoir', () => {
+  const prev = { bestScore: null, lastPlayed: null, toReview: ['q1', 'q2'] };
+  const out = progressAfterAnswer(prev, { id: 'q1', response: 2, correct: true });
+  assert.deepEqual(out.toReview, ['q2']);
+  assert.equal(out.bestScore, null);
+  assert.equal(typeof out.lastPlayed, 'string');
+});
+
+test('sauvegardes intermédiaires puis finale : même résultat que la sauvegarde finale seule', () => {
+  const s = sessionInOrder();
+  let progress = { bestScore: null, lastPlayed: null, toReview: [] };
+  for (const response of [0, false, false]) {
+    answerCurrent(s, response);
+    progress = progressAfterAnswer(progress, s.results.at(-1));
+    next(s);
+  }
+  assert.deepEqual(progress.toReview, ['q1', 'q3']);
+  const fromScratch = nextProgress({ bestScore: null, lastPlayed: null, toReview: [] }, s);
+  assert.deepEqual(nextProgress(progress, s).toReview, fromScratch.toReview);
+  assert.equal(nextProgress(progress, s).bestScore, fromScratch.bestScore);
 });
 
 test('correctAnswerText selon le type', () => {

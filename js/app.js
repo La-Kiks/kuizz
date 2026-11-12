@@ -1,5 +1,5 @@
 import { parseRoute, quizPath } from './router.js';
-import { createSession, nextProgress } from './quiz-engine.js';
+import { createSession, nextProgress, progressAfterAnswer } from './quiz-engine.js';
 import { renderSession } from './render/session.js';
 import { renderResults } from './render/results.js';
 import { LoadError, findQuizEntry, loadIndex, loadQuiz } from './quiz-loader.js';
@@ -64,6 +64,7 @@ async function showQuizRoute(route, isCurrent) {
     show(route.mode === 'review' ? `${quiz.title} — révision` : quiz.title, (c) => renderSession(c, {
       quiz,
       session,
+      onAnswered: (result) => storage.saveProgress(quiz.id, progressAfterAnswer(progressOf(quiz), result)),
       onFinish: () => {
         storage.saveProgress(quiz.id, nextProgress(progressOf(quiz), session));
         lastRun = { quizId: quiz.id, session };

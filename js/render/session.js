@@ -4,7 +4,7 @@ import { quizPath } from '../router.js';
 import { renderChoiceQuestion } from './mcq.js';
 import { renderFlashcard } from './flashcard.js';
 
-export function renderSession(container, { quiz, session, onFinish }) {
+export function renderSession(container, { quiz, session, onFinish, onAnswered }) {
   const total = session.questions.length;
   const label = el('p', { class: 'progress-label' });
   const bar = el('progress', { class: 'progress', max: total, value: 0, 'aria-hidden': 'true' });
@@ -27,6 +27,7 @@ export function renderSession(container, { quiz, session, onFinish }) {
 
     const onAnswer = (response) => {
       const correct = answerCurrent(session, response);
+      onAnswered?.(session.results[session.results.length - 1]);
       bar.value = position;
       const nextButton = el('button', {
         type: 'button',
