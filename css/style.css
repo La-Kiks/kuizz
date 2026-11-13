@@ -62,6 +62,19 @@
   --inline-code-bg: oklch(0.925 0.014 272);
   --inline-code-text: oklch(0.34 0.11 277);
 
+  /* Coloration syntaxique (famille Palenight). L'éditeur est sombre dans les
+     trois modes : une seule déclaration, ≥ 6.5:1 sur les deux fonds d'éditeur.
+     Pas de rouge ni de vert de diff : les balises sont roses, les chaînes citron. */
+  --syn-comment: oklch(0.7 0.045 275);
+  --syn-keyword: oklch(0.77 0.14 305);
+  --syn-string: oklch(0.87 0.14 110);
+  --syn-number: oklch(0.78 0.13 45);
+  --syn-function: oklch(0.77 0.12 262);
+  --syn-type: oklch(0.85 0.12 78);
+  --syn-tag: oklch(0.78 0.12 345);
+  --syn-property: oklch(0.85 0.05 220);
+  --syn-punct: oklch(0.84 0.1 210);
+
   --focus: oklch(0.5 0.235 277);
 
   --radius-s: 4px;
@@ -215,7 +228,8 @@ a:hover { text-decoration-thickness: 2px; }
 /* Titres et zones rendus focusables par script (gestion du focus SPA) : pas d'anneau. */
 [tabindex="-1"]:focus { outline: none; }
 
-code, pre { font-family: var(--font-mono); }
+/* Sans ligatures : « => » ou « !== » doivent s'afficher tels qu'on les tape. */
+code, pre { font-family: var(--font-mono); font-variant-ligatures: none; }
 
 /* ---------- Utilitaires fonctionnels ---------- */
 .sr-only {
@@ -797,6 +811,16 @@ code.inline {
 .code-block.is-long .line::before { width: calc(3ch + 1.25rem); }
 .code-block:focus-visible { outline-offset: 2px; }
 .code-block ::selection { background: var(--accent); color: var(--on-accent); }
+.tk-comment { color: var(--syn-comment); font-style: italic; }
+.tk-keyword { color: var(--syn-keyword); }
+.tk-string { color: var(--syn-string); }
+.tk-number { color: var(--syn-number); }
+.tk-function { color: var(--syn-function); }
+.tk-type { color: var(--syn-type); }
+.tk-tag { color: var(--syn-tag); }
+.tk-attr { color: var(--syn-keyword); font-style: italic; }
+.tk-property { color: var(--syn-property); }
+.tk-punct { color: var(--syn-punct); }
 
 /* ---------- Choix : lignes d'un fichier ---------- */
 .choices {

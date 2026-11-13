@@ -1,3 +1,5 @@
+import { highlight, toLines } from './highlight.js';
+
 const INLINE_CODE = /`([^`]+)`/g;
 
 export function tokenizeInline(text) {
@@ -34,18 +36,28 @@ export function renderCodeBlock(code, doc = document) {
   pre.setAttribute('role', 'region');
   pre.setAttribute('aria-label', code.lang ? `Extrait de code ${code.lang.toUpperCase()}` : 'Extrait de code');
   if (code.lang) pre.dataset.lang = code.lang;
-  // Une ligne = un <span class="line"> (numéro en CSS, hors du texte copié et lu) ;
+  // Une ligne = un <span class="line"> (numéro en CSS, hors du texte copié et lu),
+  // découpée en jetons colorés <span class="tk-…"> ;
   // le textContent de <code> reste strictement égal au contenu source.
   const inner = doc.createElement('code');
-  const lines = code.content.split('\n');
-  const trailing = lines.length > 1 && lines[lines.length - 1] === '';
+  const lines = toLines(highlight(code.content, code.lang));
+  const trailing = lines.length > 1 && lines[lines.length - 1].length === 0;
   if (trailing) lines.pop();
-  lines.forEach((line, i) => {
+  lines.forEach((tokens, i) => {
     if (i > 0) inner.append(doc.createTextNode('\n'));
-    const span = doc.createElement('span');
-    span.className = 'line';
-    span.textContent = line;
-    inner.append(span);
+    const line = doc.createElement('span');
+    line.className = 'line';
+    for (const { type, value } of tokens) {
+      if (!type) {
+        line.append(doc.createTextNode(value));
+        continue;
+      }
+      const token = doc.createElement('span');
+      token.className = `tk-${type}`;
+      token.textContent = value;
+      line.append(token);
+    }
+    inner.append(line);
   });
   if (trailing) inner.append(doc.createTextNode('\n'));
   if (lines.length >= 100) pre.classList.add('is-long');
