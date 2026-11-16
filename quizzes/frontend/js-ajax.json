@@ -1,0 +1,186 @@
+{
+  "id": "frontend-js-ajax",
+  "title": "JavaScript : AJAX, fetch & gestion des erreurs",
+  "subject": "applications-dynamiques",
+  "description": "AJAX et API web, fetch avec async/await, JSON, envoi en POST, Promise.all, CORS, états de chargement, try...catch et débogage avec les DevTools.",
+  "questions": [
+    {
+      "id": "ajax-xhr-vs-fetch",
+      "type": "flashcard",
+      "front": "Qu'est-ce qu'AJAX, et quel lien entre `XMLHttpRequest` et `fetch` ?",
+      "code": {
+        "lang": "js",
+        "content": "// Historique : XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', '/api/products');\nxhr.onload = () => render(JSON.parse(xhr.responseText));\nxhr.send();\n\n// Moderne : fetch\nconst response = await fetch('/api/products');\nrender(await response.json());"
+      },
+      "back": "AJAX consiste à échanger des données avec le serveur en arrière-plan, sans recharger la page, puis à mettre à jour une partie du DOM. `XMLHttpRequest` est l'API historique, pilotée par des événements et des callbacks. `fetch` est l'API moderne, fondée sur les promesses et utilisable avec `async`/`await`."
+    },
+    {
+      "id": "api-rest-json",
+      "type": "flashcard",
+      "front": "Qu'est-ce qu'une API web, et sous quelle forme renvoie-t-elle ses données ?",
+      "back": "Une API web est un service qu'on interroge par des URL (les endpoints, par exemple `/api/films/15`). Le verbe HTTP indique l'action : `GET` pour lire, `POST` pour créer, `PUT` ou `PATCH` pour modifier, `DELETE` pour supprimer. La réponse est le plus souvent du JSON, un texte qui reprend la syntaxe des objets et tableaux JavaScript : `await response.json()` le convertit en vraies données (comme `JSON.parse`), et `JSON.stringify` fait l'inverse pour l'envoi."
+    },
+    {
+      "id": "json-missing-await",
+      "type": "mcq",
+      "question": "L'API renvoie un tableau de 12 produits. Qu'affiche ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const response = await fetch('/api/products');\nconst products = response.json();\nconsole.log(products.length);"
+      },
+      "choices": [
+        "`undefined`",
+        "`12`",
+        "`0`",
+        "Une `SyntaxError`"
+      ],
+      "answer": 0,
+      "explanation": "`response.json()` renvoie une promesse : sans `await`, `products` est un objet `Promise`, qui n'a pas de propriété `length`. Il faut écrire `const products = await response.json();`."
+    },
+    {
+      "id": "fetch-404-no-reject",
+      "type": "truefalse",
+      "question": "Si le serveur répond `404 Not Found`, la promesse renvoyée par `fetch()` est rejetée et le code passe dans le `catch`.",
+      "answer": false,
+      "explanation": "Piège classique : `fetch` résout la promesse dès qu'une réponse HTTP arrive, quel que soit son statut. Il faut tester `response.ok` (vrai pour un statut 200 à 299) et lever une erreur soi-même."
+    },
+    {
+      "id": "fetch-reject-cases",
+      "type": "mcq",
+      "question": "Dans lequel de ces cas la promesse renvoyée par `fetch()` est-elle rejetée ?",
+      "choices": [
+        "Le serveur répond `500 Internal Server Error`",
+        "Le serveur répond `401 Unauthorized`",
+        "La réponse contient un JSON mal formé",
+        "Le serveur est injoignable (pas de réseau)"
+      ],
+      "answer": 3,
+      "explanation": "`fetch` ne rejette qu'en cas d'échec de la requête elle-même : erreur réseau, DNS, requête bloquée par CORS… Un 401 ou un 500 restent des réponses. Un JSON invalide fait rejeter `response.json()`, pas `fetch()`."
+    },
+    {
+      "id": "async-try-catch-ok",
+      "type": "mcq",
+      "question": "Avec ce code, que se passe-t-il si l'API répond `404` ?",
+      "code": {
+        "lang": "js",
+        "content": "async function loadCards() {\n  try {\n    const response = await fetch(API_URL);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    const cards = await response.json();\n    renderCards(cards);\n  } catch (error) {\n    showError(error.message);\n  }\n}"
+      },
+      "choices": [
+        "`renderCards` reçoit un tableau vide",
+        "Le `throw` déclenche `showError('HTTP 404')`",
+        "Rien : `catch` ne capte que les erreurs réseau",
+        "La page affiche une erreur non capturée"
+      ],
+      "answer": 1,
+      "explanation": "Le test de `response.ok` transforme le 404 en erreur levée dans le `try`, que le `catch` récupère, exactement comme une erreur réseau. Le même `catch` gère donc les deux cas."
+    },
+    {
+      "id": "promise-all-parallel",
+      "type": "flashcard",
+      "front": "Pourquoi utiliser `Promise.all` plutôt que deux `await fetch()` successifs ?",
+      "code": {
+        "lang": "js",
+        "content": "const [users, posts] = await Promise.all([\n  fetch('/api/users').then((r) => r.json()),\n  fetch('/api/posts').then((r) => r.json()),\n]);"
+      },
+      "back": "Deux `await` successifs attendent la fin de la première requête avant de lancer la seconde. Ici, les deux `fetch()` sont lancés avant d'attendre, et `Promise.all` attend les deux résultats : le temps total est celui de la plus lente."
+    },
+    {
+      "id": "post-json-stringify",
+      "type": "mcq",
+      "question": "Le serveur reçoit `[object Object]` au lieu des données. Quelle correction faut-il apporter ?",
+      "code": {
+        "lang": "js",
+        "content": "await fetch('/api/messages', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: { name: 'Ada', text: 'Bonjour' },\n});"
+      },
+      "choices": [
+        "Écrire `method: 'post'` en minuscules",
+        "Retirer l'en-tête `Content-Type`",
+        "Remplacer `body` par `data`",
+        "Passer `body: JSON.stringify({ … })`"
+      ],
+      "answer": 3,
+      "explanation": "`fetch` n'encode pas un objet en JSON : il le convertit en chaîne avec `toString()`, d'où `[object Object]`. `JSON.stringify` produit la chaîne JSON attendue par le serveur."
+    },
+    {
+      "id": "post-content-type-auto",
+      "type": "truefalse",
+      "question": "Quand `body` est une chaîne produite par `JSON.stringify`, `fetch` ajoute automatiquement l'en-tête `Content-Type: application/json`.",
+      "answer": false,
+      "explanation": "Pour un `body` de type chaîne, `fetch` envoie `Content-Type: text/plain;charset=UTF-8`. Il faut déclarer `application/json` toi-même dans `headers`, sinon beaucoup d'API ne lisent pas le corps."
+    },
+    {
+      "id": "loading-error-states",
+      "type": "flashcard",
+      "front": "Quels états d'interface prévoir autour d'un `fetch` qui charge des cards ?",
+      "back": "Chargement (indicateur, bouton désactivé), succès (les cards, ou un message si la liste est vide) et erreur (message compréhensible, éventuellement un bouton « Réessayer »). Un bloc `finally` sert à retirer l'indicateur de chargement dans tous les cas."
+    },
+    {
+      "id": "cors-server-side",
+      "type": "truefalse",
+      "question": "Une erreur CORS se corrige côté client, en ajoutant l'en-tête `Access-Control-Allow-Origin` dans les options de `fetch`.",
+      "answer": false,
+      "explanation": "CORS est une règle appliquée par le navigateur : c'est le serveur qui autorise ton origine en renvoyant `Access-Control-Allow-Origin` dans sa réponse. Ajouter cet en-tête à ta requête ne sert à rien (et peut même déclencher une requête préliminaire `OPTIONS`)."
+    },
+    {
+      "id": "try-catch-purpose",
+      "type": "flashcard",
+      "front": "À quoi sert `try...catch`, et quelles erreurs ne rattrape-t-il pas ?",
+      "code": {
+        "lang": "js",
+        "content": "try {\n  const film = JSON.parse(texte);\n  afficher(film);\n} catch (erreur) {\n  message.textContent = 'Données illisibles';\n  console.error(erreur);\n}"
+      },
+      "back": "Le code du `try` s'exécute ; si une instruction lève une erreur, la suite du `try` est sautée et le `catch` reçoit l'erreur, au lieu d'arrêter tout le script. On s'en sert autour de ce qui peut échouer : `JSON.parse`, un `await fetch`, la lecture du `localStorage`. Il ne rattrape pas une erreur de syntaxe du fichier (le script entier refuse de se charger), ni une erreur levée plus tard dans un callback (`setTimeout`, gestionnaire d'événement) : le `try` est déjà terminé à ce moment-là."
+    },
+    {
+      "id": "try-catch-finally-order",
+      "type": "mcq",
+      "question": "Qu'affiche l'appel `parse('{oups}')` ?",
+      "code": {
+        "lang": "js",
+        "content": "function parse(text) {\n  try {\n    console.log('A');\n    JSON.parse(text);\n    console.log('B');\n  } catch (error) {\n    console.log('C');\n  } finally {\n    console.log('D');\n  }\n}"
+      },
+      "choices": [
+        "`A C D`",
+        "`A B C D`",
+        "`A D`",
+        "`A C`"
+      ],
+      "answer": 0,
+      "explanation": "`JSON.parse` lève une `SyntaxError` : la suite du `try` est sautée (pas de `B`) et le `catch` s'exécute. Le bloc `finally` s'exécute dans tous les cas, erreur ou non : c'est là qu'on place le nettoyage."
+    },
+    {
+      "id": "try-catch-settimeout",
+      "type": "mcq",
+      "question": "Que se passe-t-il avec ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "try {\n  setTimeout(() => {\n    JSON.parse('{oups}');\n  }, 1000);\n} catch (erreur) {\n  console.log('Erreur attrapée');\n}"
+      },
+      "choices": [
+        "Une seconde plus tard, une `SyntaxError` non rattrapée apparaît dans la console",
+        "Une seconde plus tard, la console affiche `Erreur attrapée`",
+        "La console affiche `Erreur attrapée` immédiatement",
+        "Rien : `JSON.parse` renvoie `undefined` sur un texte invalide"
+      ],
+      "answer": 0,
+      "explanation": "Le `try` ne fait que programmer le minuteur, puis se termine sans erreur. Quand le callback s'exécute une seconde plus tard, plus aucun `try` ne l'entoure : l'erreur n'est pas rattrapée. Place le `try...catch` à l'intérieur du callback. Avec `async`/`await`, en revanche, un `try` autour d'un `await` rattrape bien l'erreur, car la fonction attend le résultat."
+    },
+    {
+      "id": "devtools-debug-tools",
+      "type": "flashcard",
+      "front": "Quels outils des DevTools utiliser pour déboguer un script ?",
+      "back": "La Console affiche les erreurs avec leur fichier et leur ligne, ainsi que tes `console.log`, `console.table` ou `console.error`. Dans l'onglet Sources (Débogueur sous Firefox), un point d'arrêt met le code en pause : tu lis alors les variables et la pile d'appels, puis tu avances pas à pas."
+    },
+    {
+      "id": "debugger-needs-devtools",
+      "type": "truefalse",
+      "question": "Une fois le site en ligne avec ce code, le script se met en pause chez tous les visiteurs, même si leurs DevTools sont fermés.",
+      "code": {
+        "lang": "js",
+        "content": "function addToCart(product) {\n  debugger;\n  cart.push(product);\n}"
+      },
+      "answer": false,
+      "explanation": "L'instruction `debugger` agit comme un point d'arrêt seulement si un outil de débogage est ouvert ; sinon elle est ignorée. Retire-la quand même avant la mise en ligne, comme tes `console.log` de test."
+    }
+  ]
+}

@@ -285,6 +285,40 @@
       "type": "flashcard",
       "front": "Comment migrer un petit projet JavaScript vers TypeScript ?",
       "back": "1. Installer TypeScript et créer un `tsconfig.json` (`npx tsc --init`), avec `strict: true`. 2. Renommer les fichiers `.js` en `.ts`, un par un. 3. Corriger les erreurs signalées : annoter les paramètres, créer des interfaces pour les données (films, produits), gérer les `null` du DOM. 4. Compiler avec `tsc` (ou laisser Vite le faire) et charger le `.js` produit dans la page."
+    },
+    {
+      "id": "ts-class-implements",
+      "type": "mcq",
+      "question": "Pourquoi TypeScript refuse-t-il cette classe ?",
+      "code": {
+        "lang": "ts",
+        "content": "interface Composant {\n  ouvrir(): void;\n  fermer(): void;\n}\n\nclass Modale implements Composant {\n  constructor(private element: HTMLDialogElement) {}\n\n  ouvrir(): void {\n    this.element.showModal();\n  }\n}"
+      },
+      "choices": [
+        "Elle ne définit pas la méthode `fermer` exigée par l'interface",
+        "Une classe ne peut pas implémenter une interface, seulement l'étendre",
+        "`showModal` n'existe pas sur `HTMLDialogElement`",
+        "Le constructeur doit déclarer `element` avant de l'utiliser"
+      ],
+      "answer": 0,
+      "explanation": "`implements` est un contrat : la classe doit fournir tout ce que l'interface décrit. Il manque `fermer(): void { this.element.close(); }`. L'intérêt : plusieurs composants (modale, menu, panneau) peuvent partager la même interface et être pilotés de la même façon."
+    },
+    {
+      "id": "ts-constructor-parameter-properties",
+      "type": "mcq",
+      "question": "Que déclare ce constructeur ?",
+      "code": {
+        "lang": "ts",
+        "content": "class Carrousel {\n  constructor(private slides: HTMLElement[], public index: number = 0) {}\n\n  suivant(): void {\n    this.index = (this.index + 1) % this.slides.length;\n  }\n}\n\nconst carrousel = new Carrousel([...document.querySelectorAll<HTMLElement>('.slide')]);"
+      },
+      "choices": [
+        "Deux propriétés, `slides` (privée) et `index` (publique, 0 par défaut), créées et remplies automatiquement",
+        "Rien : un constructeur au corps vide n'enregistre pas ses paramètres",
+        "Deux variables locales au constructeur, inaccessibles dans `suivant()`",
+        "Une erreur : il manque `this.slides = slides;` dans le constructeur"
+      ],
+      "answer": 0,
+      "explanation": "Un modificateur (`private`, `public`, `readonly`) devant un paramètre du constructeur déclare la propriété et l'affecte : c'est un raccourci pour `private slides: HTMLElement[];` suivi de `this.slides = slides;`. `carrousel.index` est lisible de l'extérieur, `carrousel.slides` non."
     }
   ]
 }

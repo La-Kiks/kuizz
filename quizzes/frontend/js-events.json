@@ -1,0 +1,260 @@
+{
+  "id": "frontend-js-events",
+  "title": "JavaScript : événements, formulaires & composants",
+  "subject": "applications-dynamiques",
+  "description": "addEventListener (click, change, input, submit), délégation, survol, debounce, validation de formulaires, et composants interactifs accessibles : modale, menu, carrousel.",
+  "questions": [
+    {
+      "id": "click-handler-called-immediately",
+      "type": "mcq",
+      "question": "Le message s'affiche une fois au chargement de la page, puis plus jamais quand on clique. Pourquoi ?",
+      "code": {
+        "lang": "js",
+        "content": "function afficherMessage() {\n  console.log('Bouton cliqué');\n}\nbouton.addEventListener('click', afficherMessage());"
+      },
+      "choices": [
+        "Les parenthèses appellent la fonction tout de suite : c'est son résultat (`undefined`) qui est passé à `addEventListener`",
+        "`click` ne fonctionne que sur les liens `<a>`",
+        "Il faut écrire `'onclick'` au lieu de `'click'`",
+        "`addEventListener` ne fonctionne qu'une fois par élément"
+      ],
+      "answer": 0,
+      "explanation": "On passe la fonction sans l'appeler : `addEventListener('click', afficherMessage)`. Si elle a besoin d'arguments, enveloppe l'appel dans une fonction fléchée : `addEventListener('click', () => afficherMessage('ok'))`."
+    },
+    {
+      "id": "change-event-select",
+      "type": "mcq",
+      "question": "Quand ce code affiche-t-il quelque chose dans la console ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <select id=\"genre\">…</select>\nconst genre = document.querySelector('#genre');\ngenre.addEventListener('change', (event) => {\n  console.log(event.target.value);\n});"
+      },
+      "choices": [
+        "Dès que l'utilisateur choisit une autre option, avec la valeur choisie",
+        "Uniquement au chargement de la page",
+        "À chaque survol du menu déroulant",
+        "Uniquement à l'envoi du formulaire"
+      ],
+      "answer": 0,
+      "explanation": "Sur un `<select>`, une case à cocher ou un bouton radio, `change` se déclenche dès que la valeur change. `event.target` est l'élément à l'origine de l'événement, et `.value` la valeur de l'option choisie. Sur un champ texte, en revanche, `change` attend la perte du focus : utilise `input` pour réagir à chaque frappe."
+    },
+    {
+      "id": "input-event-live-search",
+      "type": "mcq",
+      "question": "Tu filtres les cards à chaque modification du champ de recherche, y compris un collage à la souris. Quel événement mettre à la place de `???` ?",
+      "code": {
+        "lang": "js",
+        "content": "search.addEventListener('???', () => {\n  filterCards(search.value);\n});"
+      },
+      "choices": [
+        "`change`",
+        "`keyup`",
+        "`input`",
+        "`submit`"
+      ],
+      "answer": 2,
+      "explanation": "`input` se déclenche à chaque changement de la valeur, quelle qu'en soit l'origine (clavier, collage, dictée). `change` n'arrive qu'une fois la saisie validée (perte du focus, ou Entrée) et `keyup` rate le collage à la souris. Pour le survol, on écoute plutôt `mouseenter` et `mouseleave`."
+    },
+    {
+      "id": "prevent-default-submit",
+      "type": "mcq",
+      "question": "Sans la ligne manquante, la page se recharge à chaque envoi et le `fetch` n'a pas le temps d'aboutir. Quelle ligne manque ?",
+      "code": {
+        "lang": "js",
+        "content": "form.addEventListener('submit', async (event) => {\n  // ligne manquante\n  const data = new FormData(form);\n  await sendMessage(data);\n});"
+      },
+      "choices": [
+        "`event.stopPropagation();`",
+        "`form.reset();`",
+        "`event.preventDefault();`",
+        "`return false;`"
+      ],
+      "answer": 2,
+      "explanation": "`preventDefault()` annule l'action par défaut de l'événement, ici l'envoi du formulaire et la navigation. `stopPropagation()` empêche seulement la remontée de l'événement, et `return false` n'a aucun effet dans un écouteur `addEventListener`."
+    },
+    {
+      "id": "event-delegation",
+      "type": "flashcard",
+      "front": "Qu'est-ce que la délégation d'événements, et pourquoi l'utiliser pour une liste de cards ?",
+      "code": {
+        "lang": "js",
+        "content": "list.addEventListener('click', (event) => {\n  const card = event.target.closest('.card');\n  if (card) openCard(card.dataset.id);\n});"
+      },
+      "back": "Un seul écouteur sur le parent capte les clics qui remontent depuis ses enfants ; `event.target.closest()` retrouve la card cliquée. Ça marche aussi pour les cards ajoutées plus tard, sans un écouteur par card."
+    },
+    {
+      "id": "mouseenter-vs-mouseover",
+      "type": "mcq",
+      "question": "L'aperçu se relance chaque fois que la souris passe sur le titre ou l'image à l'intérieur de la card. Quel événement utiliser à la place ?",
+      "code": {
+        "lang": "js",
+        "content": "card.addEventListener('mouseover', () => {\n  afficherApercu(card);\n});"
+      },
+      "choices": [
+        "`mouseenter`",
+        "`click`",
+        "`mousemove`",
+        "`focus`"
+      ],
+      "answer": 0,
+      "explanation": "`mouseover` remonte depuis les enfants : il se redéclenche à chaque passage d'un élément enfant à l'autre. `mouseenter` ne se déclenche qu'une fois, à l'entrée dans la card, et `mouseleave` à la sortie. Pense aussi au clavier et au tactile, qui n'ont pas de survol : prévois l'équivalent au focus (`focusin`) ou au clic."
+    },
+    {
+      "id": "hover-css-not-js",
+      "type": "truefalse",
+      "question": "Pour changer la couleur d'un bouton au survol, il faut écouter `mouseenter` et `mouseleave` en JavaScript.",
+      "answer": false,
+      "explanation": "Un simple changement d'apparence se fait en CSS avec `:hover`, à doubler de `:focus-visible` pour le clavier : pas de JavaScript, pas d'état à gérer. Les événements de survol servent quand le survol déclenche une logique : charger un aperçu, afficher une info-bulle construite en JavaScript."
+    },
+    {
+      "id": "debounce-purpose",
+      "type": "flashcard",
+      "front": "Qu'est-ce que le debounce, et pourquoi l'utiliser sur un champ de recherche relié à une API ?",
+      "code": {
+        "lang": "js",
+        "content": "function debounce(fn, delai) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delai);\n  };\n}"
+      },
+      "back": "Le debounce retarde l'appel d'une fonction jusqu'à ce que les événements cessent pendant un délai donné. Chaque frappe annule le minuteur précédent (`clearTimeout`) et en relance un nouveau (`setTimeout`) : seule la dernière frappe, suivie d'une pause, déclenche l'appel. Sur une recherche reliée à une API, on n'envoie ainsi qu'une requête quand l'utilisateur a fini de taper, au lieu d'une par lettre : moins de charge serveur, et pas de résultats qui arrivent dans le désordre. Pour un filtre local sur quelques cards, l'événement `input` seul suffit."
+    },
+    {
+      "id": "debounce-request-count",
+      "type": "mcq",
+      "question": "L'utilisateur tape « dune » rapidement (une lettre toutes les 100 ms), puis s'arrête. Combien de requêtes partent ?",
+      "code": {
+        "lang": "js",
+        "content": "function debounce(fn, delai) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delai);\n  };\n}\n\nconst rechercher = debounce((texte) => {\n  fetch(`/api/films?q=${texte}`);\n}, 300);\n\nchamp.addEventListener('input', () => rechercher(champ.value));"
+      },
+      "choices": [
+        "Une seule, avec `dune`, 300 ms après la dernière lettre",
+        "Quatre : `d`, `du`, `dun` puis `dune`",
+        "Une seule, avec `d`, la première lettre",
+        "Aucune : `clearTimeout` annule tous les appels"
+      ],
+      "answer": 0,
+      "explanation": "Chaque frappe arrive moins de 300 ms après la précédente : `clearTimeout` annule le minuteur en attente avant qu'il ne se déclenche. Seul le dernier minuteur, lancé après le « e », va au bout et envoie `dune`. Si l'utilisateur fait une pause de plus de 300 ms au milieu du mot, une requête part pour ce qu'il a tapé jusque-là."
+    },
+    {
+      "id": "debounce-missing-cleartimeout",
+      "type": "truefalse",
+      "question": "Avec ce code, taper « dune » rapidement n'envoie qu'une seule requête.",
+      "code": {
+        "lang": "js",
+        "content": "let timer;\nchamp.addEventListener('input', () => {\n  const texte = champ.value;\n  timer = setTimeout(() => rechercher(texte), 300);\n});"
+      },
+      "answer": false,
+      "explanation": "Sans `clearTimeout(timer)` au début du gestionnaire, aucun minuteur n'est annulé : les quatre se déclenchent, et partent quatre requêtes (`d`, `du`, `dun`, `dune`), simplement décalées de 300 ms. C'est l'annulation du minuteur précédent qui fait le debounce, pas le délai seul."
+    },
+    {
+      "id": "form-novalidate-checkvalidity",
+      "type": "mcq",
+      "question": "Pourquoi ajouter `novalidate` à ce formulaire validé en JavaScript ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <form id=\"inscription\" novalidate>\n//   <input id=\"email\" type=\"email\" required> …\nconst form = document.querySelector('#inscription');\nform.addEventListener('submit', (event) => {\n  if (!form.checkValidity()) {\n    event.preventDefault();\n    afficherErreurs(form);\n  }\n});"
+      },
+      "choices": [
+        "Pour remplacer les bulles d'erreur du navigateur par tes propres messages, tout en gardant les contraintes `required` et `type=\"email\"`",
+        "Pour supprimer les contraintes HTML : `checkValidity()` renverra toujours `true`",
+        "Pour empêcher l'envoi du formulaire dans tous les cas",
+        "Pour que l'événement `submit` ne se déclenche plus"
+      ],
+      "answer": 0,
+      "explanation": "`novalidate` coupe seulement la validation interactive du navigateur (ses bulles, et le blocage de l'envoi avant même l'événement `submit`). Les contraintes restent actives : `checkValidity()` les vérifie et renvoie `false` si un champ est invalide. Tu gardes ainsi la logique HTML, avec des messages intégrés à ta page."
+    },
+    {
+      "id": "validity-type-mismatch",
+      "type": "mcq",
+      "question": "Le champ contient « jean@ ». Quelle propriété de `email.validity` vaut `true` ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <input id=\"email\" type=\"email\" required>\nconst email = document.querySelector('#email');\nconsole.log(email.validity);"
+      },
+      "choices": [
+        "`typeMismatch`",
+        "`valueMissing`",
+        "`tooShort`",
+        "`valid`"
+      ],
+      "answer": 0,
+      "explanation": "`validity` détaille la raison de l'erreur : `valueMissing` pour un champ `required` vide, `typeMismatch` pour une valeur qui ne respecte pas le `type` (ici, un e-mail sans domaine), `patternMismatch` pour un `pattern` non respecté, `tooShort` pour `minlength`. `valid` vaut `true` seulement si aucune contrainte n'échoue. De quoi afficher un message précis par cas."
+    },
+    {
+      "id": "setcustomvalidity-reset",
+      "type": "truefalse",
+      "question": "Une fois les deux mots de passe identiques, le champ `confirmation` redevient valide automatiquement.",
+      "code": {
+        "lang": "js",
+        "content": "confirmation.addEventListener('input', () => {\n  if (confirmation.value !== motDePasse.value) {\n    confirmation.setCustomValidity('Les mots de passe ne correspondent pas');\n  }\n});"
+      },
+      "answer": false,
+      "explanation": "Un message passé à `setCustomValidity` rend le champ invalide jusqu'à ce qu'on l'efface explicitement. Il manque la branche inverse : `else { confirmation.setCustomValidity(''); }`. Sans elle, le champ reste bloqué en erreur et le formulaire ne s'envoie plus."
+    },
+    {
+      "id": "form-errors-accessible",
+      "type": "flashcard",
+      "front": "Comment afficher une erreur de validation en JavaScript de façon accessible ?",
+      "code": {
+        "lang": "js",
+        "content": "email.setAttribute('aria-invalid', 'true');\nerreurEmail.textContent = 'Saisis une adresse du type nom@domaine.fr';\n// HTML : <input id=\"email\" aria-describedby=\"erreur-email\">\n//        <p id=\"erreur-email\"></p>\nform.querySelector('[aria-invalid=\"true\"]').focus();"
+      },
+      "back": "Le message s'écrit en texte, à côté du champ, et dit comment corriger (pas seulement « invalide »). Le champ porte `aria-invalid=\"true\"` et pointe vers son message avec `aria-describedby` : le lecteur d'écran lit les deux ensemble. À l'envoi, place le focus sur le premier champ en erreur. Valide à l'envoi ou à la sortie du champ (`blur`, `change`) plutôt qu'à chaque frappe, pour ne pas crier à l'erreur pendant la saisie."
+    },
+    {
+      "id": "dialog-showmodal",
+      "type": "mcq",
+      "question": "Quelle méthode ouvre cette modale en rendant le reste de la page inactif, avec fermeture par la touche Échap ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <dialog id=\"confirmation\" aria-labelledby=\"titre-confirmation\">…</dialog>\nconst modale = document.querySelector('#confirmation');\nouvrir.addEventListener('click', () => modale.???);"
+      },
+      "choices": [
+        "`showModal()`",
+        "`show()`",
+        "`open = true`",
+        "`style.display = 'block'`"
+      ],
+      "answer": 0,
+      "explanation": "`showModal()` ouvre le `<dialog>` au-dessus de la page avec un fond (`::backdrop`), rend le reste de la page inerte, place le focus dans la modale et la ferme avec Échap. `show()` ou l'attribut `open` l'affichent sans rien bloquer, comme une simple boîte. On la ferme avec `modale.close()`."
+    },
+    {
+      "id": "aria-expanded-toggle",
+      "type": "mcq",
+      "question": "Ce bouton ouvre et ferme le menu. Que manque-t-il pour un lecteur d'écran ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <button id=\"btn-menu\" aria-controls=\"menu\" aria-expanded=\"false\">Menu</button>\nbtnMenu.addEventListener('click', () => {\n  menu.hidden = !menu.hidden;\n});"
+      },
+      "choices": [
+        "Mettre à jour l'état : `btnMenu.setAttribute('aria-expanded', String(!menu.hidden));`",
+        "Ajouter `role=\"button\"` au `<button>`",
+        "Remplacer `hidden` par `display: none`",
+        "Rien : `aria-controls` suffit à annoncer l'état"
+      ],
+      "answer": 0,
+      "explanation": "`aria-expanded` annonce « développé » ou « réduit » : s'il reste à `false`, le lecteur d'écran affirme que le menu est fermé alors qu'il est ouvert. Mets-le à jour à chaque clic, en même temps que l'affichage. Un `<button>` a déjà le rôle bouton ; `aria-controls` indique seulement quel élément il pilote."
+    },
+    {
+      "id": "carousel-index-modulo",
+      "type": "mcq",
+      "question": "Le carrousel a 3 diapositives et affiche la dernière (`index` vaut 2). Que vaut `index` après un clic sur « Suivant » ?",
+      "code": {
+        "lang": "js",
+        "content": "let index = 2;\nconst slides = document.querySelectorAll('.slide');\n\nsuivant.addEventListener('click', () => {\n  index = (index + 1) % slides.length;\n  afficher(index);\n});"
+      },
+      "choices": [
+        "`0`",
+        "`3`",
+        "`2`",
+        "`undefined`"
+      ],
+      "answer": 0,
+      "explanation": "`%` donne le reste de la division : `(2 + 1) % 3` vaut 0, le carrousel revient donc à la première diapositive. L'état du composant tient dans une seule variable (`index`), et une fonction (`afficher`) met la page en accord avec cet état. Pour « Précédent » : `(index - 1 + slides.length) % slides.length`."
+    },
+    {
+      "id": "modal-accessible-checklist",
+      "type": "flashcard",
+      "front": "Qu'attend-on d'une fenêtre modale accessible ?",
+      "back": "1. Un titre relié par `aria-labelledby`. 2. À l'ouverture, le focus va dans la modale. 3. Tant qu'elle est ouverte, le clavier reste dedans : le reste de la page est inerte. 4. Échap la ferme, comme un bouton « Fermer » visible. 5. À la fermeture, le focus revient sur le bouton qui l'a ouverte. Un `<dialog>` ouvert avec `showModal()` couvre l'essentiel ; vérifie le retour du focus au clavier dans tes navigateurs cibles."
+    }
+  ]
+}

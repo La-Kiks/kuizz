@@ -22,6 +22,9 @@
       "title": "Applications web dynamiques",
       "quizzes": [
         { "id": "frontend-javascript", "file": "frontend/javascript.json" },
+        { "id": "frontend-js-dom", "file": "frontend/js-dom.json" },
+        { "id": "frontend-js-events", "file": "frontend/js-events.json" },
+        { "id": "frontend-js-ajax", "file": "frontend/js-ajax.json" },
         { "id": "frontend-typescript", "file": "frontend/typescript.json" },
         { "id": "frontend-react", "file": "frontend/react.json" }
       ]

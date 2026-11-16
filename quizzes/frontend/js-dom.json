@@ -1,0 +1,221 @@
+{
+  "id": "frontend-js-dom",
+  "title": "JavaScript : manipuler le DOM",
+  "subject": "applications-dynamiques",
+  "description": "Sélectionner des éléments, créer, modifier et supprimer, textContent ou innerHTML, classes, attributs et styles, afficher un tableau dans la page, animations pilotées par des classes CSS.",
+  "questions": [
+    {
+      "id": "script-head-null",
+      "type": "mcq",
+      "question": "Ce script, placé dans le `<head>`, lève `TypeError: Cannot read properties of null`. Pourquoi ?",
+      "code": {
+        "lang": "html",
+        "content": "<head>\n  <script src=\"app.js\"></script>\n</head>\n<body>\n  <button id=\"load\">Charger</button>\n</body>\n\n<!-- app.js -->\ndocument.querySelector('#load').addEventListener('click', load);"
+      },
+      "choices": [
+        "`querySelector` exige `getElementById` pour un identifiant",
+        "Le script s'exécute avant que le bouton n'existe dans le DOM",
+        "Un script externe chargé dans le `<head>` n'a pas accès à `document`",
+        "L'événement `click` n'existe pas sur un `<button>`"
+      ],
+      "answer": 1,
+      "explanation": "Un script classique sans attribut bloque le parseur et s'exécute aussitôt : le `<button>` n'est pas encore créé, donc `querySelector` renvoie `null`. Ajoute `defer` (ou `type=\"module\"`), ou attends l'événement `DOMContentLoaded`."
+    },
+    {
+      "id": "nodelist-no-map",
+      "type": "mcq",
+      "question": "Ce code lève `TypeError: cards.map is not a function`. Pourquoi ?",
+      "code": {
+        "lang": "js",
+        "content": "const cards = document.querySelectorAll('.card');\nconst titles = cards.map((card) => card.dataset.title);"
+      },
+      "choices": [
+        "`querySelectorAll` renvoie une `NodeList`, pas un tableau",
+        "`querySelectorAll` renvoie `null` si aucune carte n'existe",
+        "`querySelectorAll` n'accepte que des identifiants `#id`",
+        "`map` n'existe que sur les chaînes de caractères"
+      ],
+      "answer": 0,
+      "explanation": "Une `NodeList` possède `forEach` mais pas `map` ni `filter`. Convertis-la avec `Array.from(cards)` ou `[...cards]`. Sans résultat, `querySelectorAll` renvoie une `NodeList` vide (c'est `querySelector` qui renvoie `null`)."
+    },
+    {
+      "id": "create-element-card",
+      "type": "flashcard",
+      "front": "Comment créer une card en toute sécurité sans `innerHTML` ?",
+      "code": {
+        "lang": "js",
+        "content": "const article = document.createElement('article');\nconst h3 = document.createElement('h3');\nh3.textContent = product.name;\narticle.append(h3);\ncontainer.append(article);"
+      },
+      "back": "On crée chaque élément avec `createElement`, on remplit le texte avec `textContent`, puis on l'insère avec `append`. Les données ne sont jamais interprétées comme du HTML."
+    },
+    {
+      "id": "innerhtml-xss",
+      "type": "mcq",
+      "question": "`comment` vient d'un formulaire rempli par un utilisateur. Quel est le risque de ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const p = document.createElement('p');\np.innerHTML = comment;\nlist.append(p);"
+      },
+      "choices": [
+        "Le texte perd tous ses retours à la ligne et ses espaces",
+        "Le commentaire peut injecter du HTML et du script (XSS)",
+        "`append` n'accepte pas un élément créé dynamiquement",
+        "Le paragraphe est ajouté avant les autres enfants"
+      ],
+      "answer": 1,
+      "explanation": "`innerHTML` interprète la chaîne comme du HTML : un `<img src=x onerror=\"…\">` exécuterait du JavaScript. Pour afficher une donnée utilisateur, utilise `textContent`, qui l'insère comme simple texte."
+    },
+    {
+      "id": "textcontent-shows-tags",
+      "type": "truefalse",
+      "question": "Après cette ligne, le mot « Promo » s'affiche en gras dans la page.",
+      "code": {
+        "lang": "js",
+        "content": "badge.textContent = '<strong>Promo</strong>';"
+      },
+      "answer": false,
+      "explanation": "`textContent` insère du texte brut : la page affiche littéralement `<strong>Promo</strong>`, balises comprises. `innerHTML` interpréterait les balises, mais il ne faut jamais l'utiliser avec des données venant d'un utilisateur ou d'une API (risque XSS). Pour du gras, crée un élément `strong` avec `createElement`."
+    },
+    {
+      "id": "display-array-overwrite",
+      "type": "mcq",
+      "question": "La liste `<ul id=\"films\">` est vide au départ. Que montre la page après ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const films = [\n  { id: 3, titre: 'Alien', annee: 1979 },\n  { id: 15, titre: 'Dune', annee: 2021 },\n  { id: 27, titre: 'Arrival', annee: 2016 },\n];\nconst liste = document.querySelector('#films');\nfilms.forEach((film) => {\n  liste.textContent = film.titre;\n});"
+      },
+      "choices": [
+        "Trois `<li>` : Alien, Dune et Arrival",
+        "Uniquement le texte « Arrival »",
+        "Le texte « AlienDuneArrival »",
+        "Rien : `textContent` ne fonctionne pas sur une `<ul>`"
+      ],
+      "answer": 1,
+      "explanation": "À chaque tour, `textContent` remplace tout le contenu de la liste : seul le dernier titre reste, et aucun `<li>` n'est créé. Pour afficher le tableau, crée un `<li>` par film : `const li = document.createElement('li'); li.textContent = film.titre; liste.append(li);`."
+    },
+    {
+      "id": "element-remove",
+      "type": "mcq",
+      "question": "Quelle ligne retire complètement la card de la page ?",
+      "code": {
+        "lang": "js",
+        "content": "const card = document.querySelector('.card');"
+      },
+      "choices": [
+        "`card.remove();`",
+        "`card.innerHTML = '';`",
+        "`card.delete();`",
+        "`card.style.display = 'none';`"
+      ],
+      "answer": 0,
+      "explanation": "`remove()` retire l'élément du DOM. `innerHTML = ''` ne fait que vider son contenu (la card reste, vide), `display: none` la masque sans la retirer du DOM, et `delete()` n'existe pas. L'ancienne écriture équivalente est `card.parentElement.removeChild(card)`."
+    },
+    {
+      "id": "classname-overwrites-classes",
+      "type": "mcq",
+      "question": "Quelles classes porte la card après la dernière ligne ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <article class=\"card card--promo\">…</article>\nconst card = document.querySelector('.card');\ncard.className = 'is-selected';"
+      },
+      "choices": [
+        "`card card--promo is-selected`",
+        "`is-selected` uniquement",
+        "`card is-selected`",
+        "Aucune : `className` est en lecture seule"
+      ],
+      "answer": 1,
+      "explanation": "Affecter `className` remplace tout l'attribut `class` : la card perd `card` et `card--promo`, donc ses styles. Pour agir sur une seule classe, utilise `classList.add()`, `classList.remove()` ou `classList.toggle()`."
+    },
+    {
+      "id": "setattribute-disabled-false",
+      "type": "truefalse",
+      "question": "Après cette ligne, le bouton redevient cliquable.",
+      "code": {
+        "lang": "js",
+        "content": "button.setAttribute('disabled', 'false');"
+      },
+      "answer": false,
+      "explanation": "Piège : `disabled` est un attribut booléen, sa seule présence désactive le bouton, quelle que soit sa valeur. Pour le réactiver, retire-le avec `button.removeAttribute('disabled')` ou écris `button.disabled = false`."
+    },
+    {
+      "id": "style-property-inline-only",
+      "type": "truefalse",
+      "question": "Ce code affiche `crimson` dans la console.",
+      "code": {
+        "lang": "js",
+        "content": "// style.css : .notice { color: crimson; }\nconst notice = document.querySelector('.notice');\nconsole.log(notice.style.color);"
+      },
+      "answer": false,
+      "explanation": "La propriété `style` ne reflète que l'attribut `style` inline de l'élément : ici elle renvoie une chaîne vide. Pour lire le style réellement appliqué, utilise `getComputedStyle(notice).color`, qui renvoie `rgb(220, 20, 60)` (et non le mot-clé `crimson`) ; pour écrire, `style` attend des noms en camelCase (`style.backgroundColor`)."
+    },
+    {
+      "id": "style-camelcase-write",
+      "type": "mcq",
+      "question": "Quelle ligne passe le fond de la card en jaune ?",
+      "code": {
+        "lang": "js",
+        "content": "const card = document.querySelector('.card');"
+      },
+      "choices": [
+        "`card.style.backgroundColor = 'yellow';`",
+        "`card.style.background-color = 'yellow';`",
+        "`card.style = { backgroundColor: 'yellow' };`",
+        "`card.backgroundColor = 'yellow';`"
+      ],
+      "answer": 0,
+      "explanation": "Dans `style`, les propriétés CSS s'écrivent en camelCase : `background-color` devient `backgroundColor`. Avec le tiret, JavaScript lit une soustraction et lève une `SyntaxError`. Le style inline l'emporte sur la feuille CSS ; pour un changement d'apparence réutilisable, préfère `card.classList.add('is-highlighted')`."
+    },
+    {
+      "id": "animate-with-class",
+      "type": "mcq",
+      "question": "Quelle ligne fait apparaître le panneau en fondu ?",
+      "code": {
+        "lang": "css",
+        "content": ".panneau {\n  opacity: 0;\n  transition: opacity 300ms ease-out;\n}\n.panneau.is-visible {\n  opacity: 1;\n}"
+      },
+      "choices": [
+        "`panneau.classList.add('is-visible');`",
+        "`panneau.style.transition = 'is-visible';`",
+        "`panneau.classList.add('opacity: 1');`",
+        "`panneau.animate = true;`"
+      ],
+      "answer": 0,
+      "explanation": "Le JavaScript change l'état (une classe), le CSS décrit l'animation (la `transition`). Ajouter `is-visible` fait passer `opacity` de 0 à 1, et la transition anime ce changement sur 300 ms. `classList.toggle('is-visible')` permet d'alterner. Garder l'animation dans le CSS la rend facile à couper sous `prefers-reduced-motion`."
+    },
+    {
+      "id": "transition-display-none",
+      "type": "truefalse",
+      "question": "Cette transition anime l'apparition du menu quand on retire la classe `is-hidden`.",
+      "code": {
+        "lang": "css",
+        "content": ".menu {\n  transition: all 300ms;\n}\n.menu.is-hidden {\n  display: none;\n}"
+      },
+      "answer": false,
+      "explanation": "`display` passe d'une valeur à l'autre d'un coup : il n'y a pas d'étapes intermédiaires à animer, le menu apparaît sèchement. Anime plutôt `opacity` et `transform`, en masquant avec `visibility: hidden` pour que le menu reste hors de portée du clavier. Les navigateurs récents savent animer `display` avec `transition-behavior: allow-discrete` et `@starting-style`, mais ce n'est pas le comportement par défaut."
+    },
+    {
+      "id": "animate-transform-performance",
+      "type": "mcq",
+      "question": "Pour faire glisser un menu latéral depuis la gauche, quelle propriété animer pour que l'animation reste fluide sur téléphone ?",
+      "choices": [
+        "`transform: translateX(…)`",
+        "`left`",
+        "`width`",
+        "`margin-left`"
+      ],
+      "answer": 0,
+      "explanation": "`transform` et `opacity` s'animent sans recalculer la mise en page : le navigateur déplace simplement le calque, souvent avec le processeur graphique. Animer `left`, `width` ou `margin` relance la mise en page à chaque image, ce qui saccade sur un téléphone modeste."
+    },
+    {
+      "id": "transition-vs-keyframes",
+      "type": "flashcard",
+      "front": "Transition ou `@keyframes` : quand utiliser l'une ou l'autre, et comment respecter « réduire les animations » en JavaScript ?",
+      "code": {
+        "lang": "js",
+        "content": "const reduire = window.matchMedia('(prefers-reduced-motion: reduce)').matches;\nif (!reduire) {\n  carte.classList.add('anime-entree');\n}"
+      },
+      "back": "Une `transition` anime le passage entre deux états, quand une propriété change (survol, ajout d'une classe). `@keyframes` décrit une animation complète en plusieurs étapes, qui peut se lancer seule, se répéter ou boucler (chargement, attention). Côté CSS, on coupe les animations dans `@media (prefers-reduced-motion: reduce)` ; côté JavaScript, `matchMedia(…).matches` indique la préférence avant de lancer une animation."
+    }
+  ]
+}

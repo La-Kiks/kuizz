@@ -1,8 +1,8 @@
 {
   "id": "frontend-javascript",
-  "title": "JavaScript : DOM, événements & AJAX",
+  "title": "JavaScript : les bases du langage",
   "subject": "applications-dynamiques",
-  "description": "Variables et objets, fonctions fléchées et ternaire, tableaux (forEach, find, filter, map) et affichage dans la page, manipulation du DOM (créer, modifier, supprimer), événements et debounce, débogage et try...catch, AJAX avec fetch et async/await, modules ES.",
+  "description": "Variables (const, let, var), égalité stricte, types et objets, fonctions fléchées, ternaire, déstructuration et spread, tableaux (forEach, find, filter, map), modules ES.",
   "questions": [
     {
       "id": "const-reassign-error",
@@ -50,310 +50,38 @@
       "explanation": "`==` convertit les opérandes vers un type commun avant de comparer (`'5'` devient `5`), alors que `===` exige aussi le même type. Utilise `===` pour éviter ces conversions implicites."
     },
     {
-      "id": "nodelist-no-map",
+      "id": "typeof-array-object",
       "type": "mcq",
-      "question": "Ce code lève `TypeError: cards.map is not a function`. Pourquoi ?",
+      "question": "Tu veux vérifier que l'API a bien renvoyé un tableau. Quel test est fiable ?",
       "code": {
         "lang": "js",
-        "content": "const cards = document.querySelectorAll('.card');\nconst titles = cards.map((card) => card.dataset.title);"
+        "content": "const data = await response.json();"
       },
       "choices": [
-        "`querySelectorAll` renvoie une `NodeList`, pas un tableau",
-        "`querySelectorAll` renvoie `null` si aucune carte n'existe",
-        "`querySelectorAll` n'accepte que des identifiants `#id`",
-        "`map` n'existe que sur les chaînes de caractères"
+        "`Array.isArray(data)`",
+        "`typeof data === 'array'`",
+        "`typeof data === 'object'`",
+        "`data.length > 0`"
       ],
       "answer": 0,
-      "explanation": "Une `NodeList` possède `forEach` mais pas `map` ni `filter`. Convertis-la avec `Array.from(cards)` ou `[...cards]`. Sans résultat, `querySelectorAll` renvoie une `NodeList` vide (c'est `querySelector` qui renvoie `null`)."
+      "explanation": "`typeof` renvoie `'object'` pour un tableau comme pour un objet (et même pour `null`) : il ne distingue pas les deux, et `'array'` n'existe pas. `Array.isArray` est fait pour ça. `data.length` existe aussi sur une chaîne, et un tableau vide est un tableau valide."
     },
     {
-      "id": "innerhtml-xss",
+      "id": "object-bracket-access",
       "type": "mcq",
-      "question": "`comment` vient d'un formulaire rempli par un utilisateur. Quel est le risque de ce code ?",
+      "question": "Qu'affiche la dernière ligne ?",
       "code": {
         "lang": "js",
-        "content": "const p = document.createElement('p');\np.innerHTML = comment;\nlist.append(p);"
+        "content": "const film = { titre: 'Dune', annee: 2021 };\nconst cle = 'titre';\nconsole.log(film.cle, film[cle]);"
       },
       "choices": [
-        "Le texte perd tous ses retours à la ligne et ses espaces",
-        "Le commentaire peut injecter du HTML et du script (XSS)",
-        "`append` n'accepte pas un élément créé dynamiquement",
-        "Le paragraphe est ajouté avant les autres enfants"
-      ],
-      "answer": 1,
-      "explanation": "`innerHTML` interprète la chaîne comme du HTML : un `<img src=x onerror=\"…\">` exécuterait du JavaScript. Pour afficher une donnée utilisateur, utilise `textContent`, qui l'insère comme simple texte."
-    },
-    {
-      "id": "create-element-card",
-      "type": "flashcard",
-      "front": "Comment créer une card en toute sécurité sans `innerHTML` ?",
-      "code": {
-        "lang": "js",
-        "content": "const article = document.createElement('article');\nconst h3 = document.createElement('h3');\nh3.textContent = product.name;\narticle.append(h3);\ncontainer.append(article);"
-      },
-      "back": "On crée chaque élément avec `createElement`, on remplit le texte avec `textContent`, puis on l'insère avec `append`. Les données ne sont jamais interprétées comme du HTML."
-    },
-    {
-      "id": "classname-overwrites-classes",
-      "type": "mcq",
-      "question": "Quelles classes porte la card après la dernière ligne ?",
-      "code": {
-        "lang": "js",
-        "content": "// HTML : <article class=\"card card--promo\">…</article>\nconst card = document.querySelector('.card');\ncard.className = 'is-selected';"
-      },
-      "choices": [
-        "`card card--promo is-selected`",
-        "`is-selected` uniquement",
-        "`card is-selected`",
-        "Aucune : `className` est en lecture seule"
-      ],
-      "answer": 1,
-      "explanation": "Affecter `className` remplace tout l'attribut `class` : la card perd `card` et `card--promo`, donc ses styles. Pour agir sur une seule classe, utilise `classList.add()`, `classList.remove()` ou `classList.toggle()`."
-    },
-    {
-      "id": "setattribute-disabled-false",
-      "type": "truefalse",
-      "question": "Après cette ligne, le bouton redevient cliquable.",
-      "code": {
-        "lang": "js",
-        "content": "button.setAttribute('disabled', 'false');"
-      },
-      "answer": false,
-      "explanation": "Piège : `disabled` est un attribut booléen, sa seule présence désactive le bouton, quelle que soit sa valeur. Pour le réactiver, retire-le avec `button.removeAttribute('disabled')` ou écris `button.disabled = false`."
-    },
-    {
-      "id": "style-property-inline-only",
-      "type": "truefalse",
-      "question": "Ce code affiche `crimson` dans la console.",
-      "code": {
-        "lang": "js",
-        "content": "// style.css : .notice { color: crimson; }\nconst notice = document.querySelector('.notice');\nconsole.log(notice.style.color);"
-      },
-      "answer": false,
-      "explanation": "La propriété `style` ne reflète que l'attribut `style` inline de l'élément : ici elle renvoie une chaîne vide. Pour lire le style réellement appliqué, utilise `getComputedStyle(notice).color`, qui renvoie `rgb(220, 20, 60)` (et non le mot-clé `crimson`) ; pour écrire, `style` attend des noms en camelCase (`style.backgroundColor`)."
-    },
-    {
-      "id": "prevent-default-submit",
-      "type": "mcq",
-      "question": "Sans la ligne manquante, la page se recharge à chaque envoi et le `fetch` n'a pas le temps d'aboutir. Quelle ligne manque ?",
-      "code": {
-        "lang": "js",
-        "content": "form.addEventListener('submit', async (event) => {\n  // ligne manquante\n  const data = new FormData(form);\n  await sendMessage(data);\n});"
-      },
-      "choices": [
-        "`event.stopPropagation();`",
-        "`form.reset();`",
-        "`event.preventDefault();`",
-        "`return false;`"
-      ],
-      "answer": 2,
-      "explanation": "`preventDefault()` annule l'action par défaut de l'événement, ici l'envoi du formulaire et la navigation. `stopPropagation()` empêche seulement la remontée de l'événement, et `return false` n'a aucun effet dans un écouteur `addEventListener`."
-    },
-    {
-      "id": "input-event-live-search",
-      "type": "mcq",
-      "question": "Tu filtres les cards à chaque modification du champ de recherche, y compris un collage à la souris. Quel événement mettre à la place de `???` ?",
-      "code": {
-        "lang": "js",
-        "content": "search.addEventListener('???', () => {\n  filterCards(search.value);\n});"
-      },
-      "choices": [
-        "`change`",
-        "`keyup`",
-        "`input`",
-        "`submit`"
-      ],
-      "answer": 2,
-      "explanation": "`input` se déclenche à chaque changement de la valeur, quelle qu'en soit l'origine (clavier, collage, dictée). `change` n'arrive qu'une fois la saisie validée (perte du focus, ou Entrée) et `keyup` rate le collage à la souris. Pour le survol, on écoute plutôt `mouseenter` et `mouseleave`."
-    },
-    {
-      "id": "event-delegation",
-      "type": "flashcard",
-      "front": "Qu'est-ce que la délégation d'événements, et pourquoi l'utiliser pour une liste de cards ?",
-      "code": {
-        "lang": "js",
-        "content": "list.addEventListener('click', (event) => {\n  const card = event.target.closest('.card');\n  if (card) openCard(card.dataset.id);\n});"
-      },
-      "back": "Un seul écouteur sur le parent capte les clics qui remontent depuis ses enfants ; `event.target.closest()` retrouve la card cliquée. Ça marche aussi pour les cards ajoutées plus tard, sans un écouteur par card."
-    },
-    {
-      "id": "script-head-null",
-      "type": "mcq",
-      "question": "Ce script, placé dans le `<head>`, lève `TypeError: Cannot read properties of null`. Pourquoi ?",
-      "code": {
-        "lang": "html",
-        "content": "<head>\n  <script src=\"app.js\"></script>\n</head>\n<body>\n  <button id=\"load\">Charger</button>\n</body>\n\n<!-- app.js -->\ndocument.querySelector('#load').addEventListener('click', load);"
-      },
-      "choices": [
-        "`querySelector` exige `getElementById` pour un identifiant",
-        "Le script s'exécute avant que le bouton n'existe dans le DOM",
-        "Un script externe chargé dans le `<head>` n'a pas accès à `document`",
-        "L'événement `click` n'existe pas sur un `<button>`"
-      ],
-      "answer": 1,
-      "explanation": "Un script classique sans attribut bloque le parseur et s'exécute aussitôt : le `<button>` n'est pas encore créé, donc `querySelector` renvoie `null`. Ajoute `defer` (ou `type=\"module\"`), ou attends l'événement `DOMContentLoaded`."
-    },
-    {
-      "id": "devtools-debug-tools",
-      "type": "flashcard",
-      "front": "Quels outils des DevTools utiliser pour déboguer un script ?",
-      "back": "La Console affiche les erreurs avec leur fichier et leur ligne, ainsi que tes `console.log`, `console.table` ou `console.error`. Dans l'onglet Sources (Débogueur sous Firefox), un point d'arrêt met le code en pause : tu lis alors les variables et la pile d'appels, puis tu avances pas à pas."
-    },
-    {
-      "id": "debugger-needs-devtools",
-      "type": "truefalse",
-      "question": "Une fois le site en ligne avec ce code, le script se met en pause chez tous les visiteurs, même si leurs DevTools sont fermés.",
-      "code": {
-        "lang": "js",
-        "content": "function addToCart(product) {\n  debugger;\n  cart.push(product);\n}"
-      },
-      "answer": false,
-      "explanation": "L'instruction `debugger` agit comme un point d'arrêt seulement si un outil de débogage est ouvert ; sinon elle est ignorée. Retire-la quand même avant la mise en ligne, comme tes `console.log` de test."
-    },
-    {
-      "id": "try-catch-finally-order",
-      "type": "mcq",
-      "question": "Qu'affiche l'appel `parse('{oups}')` ?",
-      "code": {
-        "lang": "js",
-        "content": "function parse(text) {\n  try {\n    console.log('A');\n    JSON.parse(text);\n    console.log('B');\n  } catch (error) {\n    console.log('C');\n  } finally {\n    console.log('D');\n  }\n}"
-      },
-      "choices": [
-        "`A C D`",
-        "`A B C D`",
-        "`A D`",
-        "`A C`"
+        "`undefined Dune`",
+        "`Dune Dune`",
+        "`Dune undefined`",
+        "Une `ReferenceError`"
       ],
       "answer": 0,
-      "explanation": "`JSON.parse` lève une `SyntaxError` : la suite du `try` est sautée (pas de `B`) et le `catch` s'exécute. Le bloc `finally` s'exécute dans tous les cas, erreur ou non : c'est là qu'on place le nettoyage."
-    },
-    {
-      "id": "ajax-xhr-vs-fetch",
-      "type": "flashcard",
-      "front": "Qu'est-ce qu'AJAX, et quel lien entre `XMLHttpRequest` et `fetch` ?",
-      "code": {
-        "lang": "js",
-        "content": "// Historique : XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', '/api/products');\nxhr.onload = () => render(JSON.parse(xhr.responseText));\nxhr.send();\n\n// Moderne : fetch\nconst response = await fetch('/api/products');\nrender(await response.json());"
-      },
-      "back": "AJAX consiste à échanger des données avec le serveur en arrière-plan, sans recharger la page, puis à mettre à jour une partie du DOM. `XMLHttpRequest` est l'API historique, pilotée par des événements et des callbacks. `fetch` est l'API moderne, fondée sur les promesses et utilisable avec `async`/`await`."
-    },
-    {
-      "id": "fetch-404-no-reject",
-      "type": "truefalse",
-      "question": "Si le serveur répond `404 Not Found`, la promesse renvoyée par `fetch()` est rejetée et le code passe dans le `catch`.",
-      "answer": false,
-      "explanation": "Piège classique : `fetch` résout la promesse dès qu'une réponse HTTP arrive, quel que soit son statut. Il faut tester `response.ok` (vrai pour un statut 200 à 299) et lever une erreur soi-même."
-    },
-    {
-      "id": "fetch-reject-cases",
-      "type": "mcq",
-      "question": "Dans lequel de ces cas la promesse renvoyée par `fetch()` est-elle rejetée ?",
-      "choices": [
-        "Le serveur répond `500 Internal Server Error`",
-        "Le serveur répond `401 Unauthorized`",
-        "La réponse contient un JSON mal formé",
-        "Le serveur est injoignable (pas de réseau)"
-      ],
-      "answer": 3,
-      "explanation": "`fetch` ne rejette qu'en cas d'échec de la requête elle-même : erreur réseau, DNS, requête bloquée par CORS… Un 401 ou un 500 restent des réponses. Un JSON invalide fait rejeter `response.json()`, pas `fetch()`."
-    },
-    {
-      "id": "json-missing-await",
-      "type": "mcq",
-      "question": "L'API renvoie un tableau de 12 produits. Qu'affiche ce code ?",
-      "code": {
-        "lang": "js",
-        "content": "const response = await fetch('/api/products');\nconst products = response.json();\nconsole.log(products.length);"
-      },
-      "choices": [
-        "`undefined`",
-        "`12`",
-        "`0`",
-        "Une `SyntaxError`"
-      ],
-      "answer": 0,
-      "explanation": "`response.json()` renvoie une promesse : sans `await`, `products` est un objet `Promise`, qui n'a pas de propriété `length`. Il faut écrire `const products = await response.json();`."
-    },
-    {
-      "id": "async-try-catch-ok",
-      "type": "mcq",
-      "question": "Avec ce code, que se passe-t-il si l'API répond `404` ?",
-      "code": {
-        "lang": "js",
-        "content": "async function loadCards() {\n  try {\n    const response = await fetch(API_URL);\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    const cards = await response.json();\n    renderCards(cards);\n  } catch (error) {\n    showError(error.message);\n  }\n}"
-      },
-      "choices": [
-        "`renderCards` reçoit un tableau vide",
-        "Le `throw` déclenche `showError('HTTP 404')`",
-        "Rien : `catch` ne capte que les erreurs réseau",
-        "La page affiche une erreur non capturée"
-      ],
-      "answer": 1,
-      "explanation": "Le test de `response.ok` transforme le 404 en erreur levée dans le `try`, que le `catch` récupère, exactement comme une erreur réseau. Le même `catch` gère donc les deux cas."
-    },
-    {
-      "id": "promise-all-parallel",
-      "type": "flashcard",
-      "front": "Pourquoi utiliser `Promise.all` plutôt que deux `await fetch()` successifs ?",
-      "code": {
-        "lang": "js",
-        "content": "const [users, posts] = await Promise.all([\n  fetch('/api/users').then((r) => r.json()),\n  fetch('/api/posts').then((r) => r.json()),\n]);"
-      },
-      "back": "Deux `await` successifs attendent la fin de la première requête avant de lancer la seconde. Ici, les deux `fetch()` sont lancés avant d'attendre, et `Promise.all` attend les deux résultats : le temps total est celui de la plus lente."
-    },
-    {
-      "id": "post-json-stringify",
-      "type": "mcq",
-      "question": "Le serveur reçoit `[object Object]` au lieu des données. Quelle correction faut-il apporter ?",
-      "code": {
-        "lang": "js",
-        "content": "await fetch('/api/messages', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: { name: 'Ada', text: 'Bonjour' },\n});"
-      },
-      "choices": [
-        "Écrire `method: 'post'` en minuscules",
-        "Retirer l'en-tête `Content-Type`",
-        "Remplacer `body` par `data`",
-        "Passer `body: JSON.stringify({ … })`"
-      ],
-      "answer": 3,
-      "explanation": "`fetch` n'encode pas un objet en JSON : il le convertit en chaîne avec `toString()`, d'où `[object Object]`. `JSON.stringify` produit la chaîne JSON attendue par le serveur."
-    },
-    {
-      "id": "post-content-type-auto",
-      "type": "truefalse",
-      "question": "Quand `body` est une chaîne produite par `JSON.stringify`, `fetch` ajoute automatiquement l'en-tête `Content-Type: application/json`.",
-      "answer": false,
-      "explanation": "Pour un `body` de type chaîne, `fetch` envoie `Content-Type: text/plain;charset=UTF-8`. Il faut déclarer `application/json` toi-même dans `headers`, sinon beaucoup d'API ne lisent pas le corps."
-    },
-    {
-      "id": "loading-error-states",
-      "type": "flashcard",
-      "front": "Quels états d'interface prévoir autour d'un `fetch` qui charge des cards ?",
-      "back": "Chargement (indicateur, bouton désactivé), succès (les cards, ou un message si la liste est vide) et erreur (message compréhensible, éventuellement un bouton « Réessayer »). Un bloc `finally` sert à retirer l'indicateur de chargement dans tous les cas."
-    },
-    {
-      "id": "cors-server-side",
-      "type": "truefalse",
-      "question": "Une erreur CORS se corrige côté client, en ajoutant l'en-tête `Access-Control-Allow-Origin` dans les options de `fetch`.",
-      "answer": false,
-      "explanation": "CORS est une règle appliquée par le navigateur : c'est le serveur qui autorise ton origine en renvoyant `Access-Control-Allow-Origin` dans sa réponse. Ajouter cet en-tête à ta requête ne sert à rien (et peut même déclencher une requête préliminaire `OPTIONS`)."
-    },
-    {
-      "id": "es-module-import",
-      "type": "mcq",
-      "question": "Le fichier `cards.js` contient le code ci-dessous. Quel import est correct dans `app.js` ?",
-      "code": {
-        "lang": "js",
-        "content": "export const API_URL = 'https://api.example.com';\nexport default function renderCards(cards) { /* … */ }"
-      },
-      "choices": [
-        "`import { renderCards, API_URL } from './cards.js';`",
-        "`import renderCards, { API_URL } from './cards.js';`",
-        "`import renderCards, API_URL from './cards.js';`",
-        "`import { default, API_URL } from './cards';`"
-      ],
-      "answer": 1,
-      "explanation": "L'export par défaut s'importe sans accolades (avec le nom de ton choix), les exports nommés entre accolades. Dans le navigateur sans outil de build, le chemin doit être complet, extension `.js` comprise."
+      "explanation": "Avec le point, le nom est pris tel quel : `film.cle` cherche une propriété nommée « cle », qui n'existe pas (`undefined`, sans erreur). Avec les crochets, l'expression est évaluée : `film[cle]` lit `film['titre']`. Les crochets servent dès que le nom de la propriété est dans une variable, ou contient un tiret ou une espace."
     },
     {
       "id": "destructuring-rename-default",
@@ -383,23 +111,6 @@
       "explanation": "Le spread fait une copie superficielle : `b.title` est une nouvelle valeur, mais `b.tags` référence le même tableau que `a.tags`. Le `push` modifie donc aussi `a.tags`."
     },
     {
-      "id": "filter-map-cards",
-      "type": "mcq",
-      "question": "Que contient `html` après ce code ?",
-      "code": {
-        "lang": "js",
-        "content": "const products = [\n  { name: 'Lampe', stock: 3 },\n  { name: 'Chaise', stock: 0 },\n  { name: 'Table', stock: 1 },\n];\nconst html = products\n  .filter((p) => p.stock > 0)\n  .map((p) => `${p.name} (${p.stock})`);"
-      },
-      "choices": [
-        "`['Lampe (3)', 'Chaise (0)', 'Table (1)']`",
-        "`['Chaise (0)']`",
-        "`['Lampe (3)', 'Table (1)']`",
-        "`'Lampe (3)Table (1)'`"
-      ],
-      "answer": 2,
-      "explanation": "`filter` garde les produits en stock, puis `map` transforme chacun en chaîne grâce au template literal, où `${…}` insère la valeur de l'expression. Le résultat reste un tableau : pour une chaîne, il faudrait ajouter `join('')`."
-    },
-    {
       "id": "arrow-function-syntax",
       "type": "flashcard",
       "front": "Comment se lit cette fonction fléchée, et à quelle fonction classique correspond-elle ?",
@@ -425,6 +136,33 @@
       ],
       "answer": 1,
       "explanation": "Avec des accolades, la fonction fléchée a un corps classique : sans `return`, elle renvoie `undefined`. Écris `films.map((film) => film.titre)` (retour implicite) ou ajoute `return film.titre;` entre les accolades."
+    },
+    {
+      "id": "ternary-vs-if",
+      "type": "flashcard",
+      "front": "Comment se lit l'opérateur ternaire, et à quel `if` correspond-il ?",
+      "code": {
+        "lang": "js",
+        "content": "const message = stock > 0 ? 'En stock' : 'Rupture';\n\n// équivaut à :\nlet message;\nif (stock > 0) {\n  message = 'En stock';\n} else {\n  message = 'Rupture';\n}"
+      },
+      "back": "`condition ? valeurSiVrai : valeurSiFaux` : le `?` pose la question, le `:` sépare les deux réponses. Contrairement au `if`, le ternaire est une expression qui produit une valeur : on peut l'affecter à une variable, la passer à `console.log` ou la placer dans un template literal. Réserve-le aux choix simples ; pour plusieurs instructions, garde un `if`."
+    },
+    {
+      "id": "ternary-in-template",
+      "type": "mcq",
+      "question": "Que contient `badge` ?",
+      "code": {
+        "lang": "js",
+        "content": "const produit = { nom: 'Chaise', stock: 0 };\nconst badge = `${produit.nom} : ${produit.stock > 0 ? 'en stock' : 'rupture'}`;"
+      },
+      "choices": [
+        "`'Chaise : en stock'`",
+        "`'Chaise : rupture'`",
+        "`'Chaise : false'`",
+        "`'Chaise : 0'`"
+      ],
+      "answer": 1,
+      "explanation": "Dans `${…}`, on peut placer n'importe quelle expression, y compris un ternaire. `0 > 0` est faux : c'est la valeur placée après les `:` qui est insérée."
     },
     {
       "id": "find-first-match",
@@ -461,33 +199,6 @@
       "explanation": "Aucun film n'a l'id 15 : `find` renvoie `undefined`. Le ternaire `condition ? siVrai : siFaux` évalue donc une condition vraie et affiche le message. Sans ce test, `recherche.titre` lèverait une `TypeError`, car on ne peut pas lire une propriété de `undefined`."
     },
     {
-      "id": "ternary-vs-if",
-      "type": "flashcard",
-      "front": "Comment se lit l'opérateur ternaire, et à quel `if` correspond-il ?",
-      "code": {
-        "lang": "js",
-        "content": "const message = stock > 0 ? 'En stock' : 'Rupture';\n\n// équivaut à :\nlet message;\nif (stock > 0) {\n  message = 'En stock';\n} else {\n  message = 'Rupture';\n}"
-      },
-      "back": "`condition ? valeurSiVrai : valeurSiFaux` : le `?` pose la question, le `:` sépare les deux réponses. Contrairement au `if`, le ternaire est une expression qui produit une valeur : on peut l'affecter à une variable, la passer à `console.log` ou la placer dans un template literal. Réserve-le aux choix simples ; pour plusieurs instructions, garde un `if`."
-    },
-    {
-      "id": "ternary-in-template",
-      "type": "mcq",
-      "question": "Que contient `badge` ?",
-      "code": {
-        "lang": "js",
-        "content": "const produit = { nom: 'Chaise', stock: 0 };\nconst badge = `${produit.nom} : ${produit.stock > 0 ? 'en stock' : 'rupture'}`;"
-      },
-      "choices": [
-        "`'Chaise : en stock'`",
-        "`'Chaise : rupture'`",
-        "`'Chaise : false'`",
-        "`'Chaise : 0'`"
-      ],
-      "answer": 1,
-      "explanation": "Dans `${…}`, on peut placer n'importe quelle expression, y compris un ternaire. `0 > 0` est faux : c'est la valeur placée après les `:` qui est insérée."
-    },
-    {
       "id": "foreach-returns-undefined",
       "type": "truefalse",
       "question": "Après ce code, `titres` contient la liste des titres.",
@@ -499,171 +210,38 @@
       "explanation": "`forEach` exécute la fonction pour chaque élément mais renvoie toujours `undefined`. On s'en sert pour agir (afficher, insérer dans le DOM) ; pour construire un nouveau tableau, c'est `map` : `films.map((film) => film.titre)`."
     },
     {
-      "id": "display-array-overwrite",
+      "id": "filter-map-cards",
       "type": "mcq",
-      "question": "La liste `<ul id=\"films\">` est vide au départ. Que montre la page après ce code ?",
+      "question": "Que contient `html` après ce code ?",
       "code": {
         "lang": "js",
-        "content": "const films = [\n  { id: 3, titre: 'Alien', annee: 1979 },\n  { id: 15, titre: 'Dune', annee: 2021 },\n  { id: 27, titre: 'Arrival', annee: 2016 },\n];\nconst liste = document.querySelector('#films');\nfilms.forEach((film) => {\n  liste.textContent = film.titre;\n});"
+        "content": "const products = [\n  { name: 'Lampe', stock: 3 },\n  { name: 'Chaise', stock: 0 },\n  { name: 'Table', stock: 1 },\n];\nconst html = products\n  .filter((p) => p.stock > 0)\n  .map((p) => `${p.name} (${p.stock})`);"
       },
       "choices": [
-        "Trois `<li>` : Alien, Dune et Arrival",
-        "Uniquement le texte « Arrival »",
-        "Le texte « AlienDuneArrival »",
-        "Rien : `textContent` ne fonctionne pas sur une `<ul>`"
+        "`['Lampe (3)', 'Chaise (0)', 'Table (1)']`",
+        "`['Chaise (0)']`",
+        "`['Lampe (3)', 'Table (1)']`",
+        "`'Lampe (3)Table (1)'`"
+      ],
+      "answer": 2,
+      "explanation": "`filter` garde les produits en stock, puis `map` transforme chacun en chaîne grâce au template literal, où `${…}` insère la valeur de l'expression. Le résultat reste un tableau : pour une chaîne, il faudrait ajouter `join('')`."
+    },
+    {
+      "id": "es-module-import",
+      "type": "mcq",
+      "question": "Le fichier `cards.js` contient le code ci-dessous. Quel import est correct dans `app.js` ?",
+      "code": {
+        "lang": "js",
+        "content": "export const API_URL = 'https://api.example.com';\nexport default function renderCards(cards) { /* … */ }"
+      },
+      "choices": [
+        "`import { renderCards, API_URL } from './cards.js';`",
+        "`import renderCards, { API_URL } from './cards.js';`",
+        "`import renderCards, API_URL from './cards.js';`",
+        "`import { default, API_URL } from './cards';`"
       ],
       "answer": 1,
-      "explanation": "À chaque tour, `textContent` remplace tout le contenu de la liste : seul le dernier titre reste, et aucun `<li>` n'est créé. Pour afficher le tableau, crée un `<li>` par film : `const li = document.createElement('li'); li.textContent = film.titre; liste.append(li);`."
-    },
-    {
-      "id": "textcontent-shows-tags",
-      "type": "truefalse",
-      "question": "Après cette ligne, le mot « Promo » s'affiche en gras dans la page.",
-      "code": {
-        "lang": "js",
-        "content": "badge.textContent = '<strong>Promo</strong>';"
-      },
-      "answer": false,
-      "explanation": "`textContent` insère du texte brut : la page affiche littéralement `<strong>Promo</strong>`, balises comprises. `innerHTML` interpréterait les balises, mais il ne faut jamais l'utiliser avec des données venant d'un utilisateur ou d'une API (risque XSS). Pour du gras, crée un élément `strong` avec `createElement`."
-    },
-    {
-      "id": "element-remove",
-      "type": "mcq",
-      "question": "Quelle ligne retire complètement la card de la page ?",
-      "code": {
-        "lang": "js",
-        "content": "const card = document.querySelector('.card');"
-      },
-      "choices": [
-        "`card.remove();`",
-        "`card.innerHTML = '';`",
-        "`card.delete();`",
-        "`card.style.display = 'none';`"
-      ],
-      "answer": 0,
-      "explanation": "`remove()` retire l'élément du DOM. `innerHTML = ''` ne fait que vider son contenu (la card reste, vide), `display: none` la masque sans la retirer du DOM, et `delete()` n'existe pas. L'ancienne écriture équivalente est `card.parentElement.removeChild(card)`."
-    },
-    {
-      "id": "style-camelcase-write",
-      "type": "mcq",
-      "question": "Quelle ligne passe le fond de la card en jaune ?",
-      "code": {
-        "lang": "js",
-        "content": "const card = document.querySelector('.card');"
-      },
-      "choices": [
-        "`card.style.backgroundColor = 'yellow';`",
-        "`card.style.background-color = 'yellow';`",
-        "`card.style = { backgroundColor: 'yellow' };`",
-        "`card.backgroundColor = 'yellow';`"
-      ],
-      "answer": 0,
-      "explanation": "Dans `style`, les propriétés CSS s'écrivent en camelCase : `background-color` devient `backgroundColor`. Avec le tiret, JavaScript lit une soustraction et lève une `SyntaxError`. Le style inline l'emporte sur la feuille CSS ; pour un changement d'apparence réutilisable, préfère `card.classList.add('is-highlighted')`."
-    },
-    {
-      "id": "click-handler-called-immediately",
-      "type": "mcq",
-      "question": "Le message s'affiche une fois au chargement de la page, puis plus jamais quand on clique. Pourquoi ?",
-      "code": {
-        "lang": "js",
-        "content": "function afficherMessage() {\n  console.log('Bouton cliqué');\n}\nbouton.addEventListener('click', afficherMessage());"
-      },
-      "choices": [
-        "Les parenthèses appellent la fonction tout de suite : c'est son résultat (`undefined`) qui est passé à `addEventListener`",
-        "`click` ne fonctionne que sur les liens `<a>`",
-        "Il faut écrire `'onclick'` au lieu de `'click'`",
-        "`addEventListener` ne fonctionne qu'une fois par élément"
-      ],
-      "answer": 0,
-      "explanation": "On passe la fonction sans l'appeler : `addEventListener('click', afficherMessage)`. Si elle a besoin d'arguments, enveloppe l'appel dans une fonction fléchée : `addEventListener('click', () => afficherMessage('ok'))`."
-    },
-    {
-      "id": "change-event-select",
-      "type": "mcq",
-      "question": "Quand ce code affiche-t-il quelque chose dans la console ?",
-      "code": {
-        "lang": "js",
-        "content": "// HTML : <select id=\"genre\">…</select>\nconst genre = document.querySelector('#genre');\ngenre.addEventListener('change', (event) => {\n  console.log(event.target.value);\n});"
-      },
-      "choices": [
-        "Dès que l'utilisateur choisit une autre option, avec la valeur choisie",
-        "Uniquement au chargement de la page",
-        "À chaque survol du menu déroulant",
-        "Uniquement à l'envoi du formulaire"
-      ],
-      "answer": 0,
-      "explanation": "Sur un `<select>`, une case à cocher ou un bouton radio, `change` se déclenche dès que la valeur change. `event.target` est l'élément à l'origine de l'événement, et `.value` la valeur de l'option choisie. Sur un champ texte, en revanche, `change` attend la perte du focus : utilise `input` pour réagir à chaque frappe."
-    },
-    {
-      "id": "api-rest-json",
-      "type": "flashcard",
-      "front": "Qu'est-ce qu'une API web, et sous quelle forme renvoie-t-elle ses données ?",
-      "back": "Une API web est un service qu'on interroge par des URL (les endpoints, par exemple `/api/films/15`). Le verbe HTTP indique l'action : `GET` pour lire, `POST` pour créer, `PUT` ou `PATCH` pour modifier, `DELETE` pour supprimer. La réponse est le plus souvent du JSON, un texte qui reprend la syntaxe des objets et tableaux JavaScript : `await response.json()` le convertit en vraies données (comme `JSON.parse`), et `JSON.stringify` fait l'inverse pour l'envoi."
-    },
-    {
-      "id": "try-catch-purpose",
-      "type": "flashcard",
-      "front": "À quoi sert `try...catch`, et quelles erreurs ne rattrape-t-il pas ?",
-      "code": {
-        "lang": "js",
-        "content": "try {\n  const film = JSON.parse(texte);\n  afficher(film);\n} catch (erreur) {\n  message.textContent = 'Données illisibles';\n  console.error(erreur);\n}"
-      },
-      "back": "Le code du `try` s'exécute ; si une instruction lève une erreur, la suite du `try` est sautée et le `catch` reçoit l'erreur, au lieu d'arrêter tout le script. On s'en sert autour de ce qui peut échouer : `JSON.parse`, un `await fetch`, la lecture du `localStorage`. Il ne rattrape pas une erreur de syntaxe du fichier (le script entier refuse de se charger), ni une erreur levée plus tard dans un callback (`setTimeout`, gestionnaire d'événement) : le `try` est déjà terminé à ce moment-là."
-    },
-    {
-      "id": "try-catch-settimeout",
-      "type": "mcq",
-      "question": "Que se passe-t-il avec ce code ?",
-      "code": {
-        "lang": "js",
-        "content": "try {\n  setTimeout(() => {\n    JSON.parse('{oups}');\n  }, 1000);\n} catch (erreur) {\n  console.log('Erreur attrapée');\n}"
-      },
-      "choices": [
-        "Une seconde plus tard, une `SyntaxError` non rattrapée apparaît dans la console",
-        "Une seconde plus tard, la console affiche `Erreur attrapée`",
-        "La console affiche `Erreur attrapée` immédiatement",
-        "Rien : `JSON.parse` renvoie `undefined` sur un texte invalide"
-      ],
-      "answer": 0,
-      "explanation": "Le `try` ne fait que programmer le minuteur, puis se termine sans erreur. Quand le callback s'exécute une seconde plus tard, plus aucun `try` ne l'entoure : l'erreur n'est pas rattrapée. Place le `try...catch` à l'intérieur du callback. Avec `async`/`await`, en revanche, un `try` autour d'un `await` rattrape bien l'erreur, car la fonction attend le résultat."
-    },
-    {
-      "id": "debounce-purpose",
-      "type": "flashcard",
-      "front": "Qu'est-ce que le debounce, et pourquoi l'utiliser sur un champ de recherche relié à une API ?",
-      "code": {
-        "lang": "js",
-        "content": "function debounce(fn, delai) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delai);\n  };\n}"
-      },
-      "back": "Le debounce retarde l'appel d'une fonction jusqu'à ce que les événements cessent pendant un délai donné. Chaque frappe annule le minuteur précédent (`clearTimeout`) et en relance un nouveau (`setTimeout`) : seule la dernière frappe, suivie d'une pause, déclenche l'appel. Sur une recherche reliée à une API, on n'envoie ainsi qu'une requête quand l'utilisateur a fini de taper, au lieu d'une par lettre : moins de charge serveur, et pas de résultats qui arrivent dans le désordre. Pour un filtre local sur quelques cards, l'événement `input` seul suffit."
-    },
-    {
-      "id": "debounce-request-count",
-      "type": "mcq",
-      "question": "L'utilisateur tape « dune » rapidement (une lettre toutes les 100 ms), puis s'arrête. Combien de requêtes partent ?",
-      "code": {
-        "lang": "js",
-        "content": "function debounce(fn, delai) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delai);\n  };\n}\n\nconst rechercher = debounce((texte) => {\n  fetch(`/api/films?q=${texte}`);\n}, 300);\n\nchamp.addEventListener('input', () => rechercher(champ.value));"
-      },
-      "choices": [
-        "Une seule, avec `dune`, 300 ms après la dernière lettre",
-        "Quatre : `d`, `du`, `dun` puis `dune`",
-        "Une seule, avec `d`, la première lettre",
-        "Aucune : `clearTimeout` annule tous les appels"
-      ],
-      "answer": 0,
-      "explanation": "Chaque frappe arrive moins de 300 ms après la précédente : `clearTimeout` annule le minuteur en attente avant qu'il ne se déclenche. Seul le dernier minuteur, lancé après le « e », va au bout et envoie `dune`. Si l'utilisateur fait une pause de plus de 300 ms au milieu du mot, une requête part pour ce qu'il a tapé jusque-là."
-    },
-    {
-      "id": "debounce-missing-cleartimeout",
-      "type": "truefalse",
-      "question": "Avec ce code, taper « dune » rapidement n'envoie qu'une seule requête.",
-      "code": {
-        "lang": "js",
-        "content": "let timer;\nchamp.addEventListener('input', () => {\n  const texte = champ.value;\n  timer = setTimeout(() => rechercher(texte), 300);\n});"
-      },
-      "answer": false,
-      "explanation": "Sans `clearTimeout(timer)` au début du gestionnaire, aucun minuteur n'est annulé : les quatre se déclenchent, et partent quatre requêtes (`d`, `du`, `dun`, `dune`), simplement décalées de 300 ms. C'est l'annulation du minuteur précédent qui fait le debounce, pas le délai seul."
+      "explanation": "L'export par défaut s'importe sans accolades (avec le nom de ton choix), les exports nommés entre accolades. Dans le navigateur sans outil de build, le chemin doit être complet, extension `.js` comprise."
     }
   ]
 }
