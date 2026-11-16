@@ -2,7 +2,7 @@
   "id": "frontend-javascript",
   "title": "JavaScript : DOM, événements & AJAX",
   "subject": "applications-dynamiques",
-  "description": "Variables et objets, manipulation du DOM (classes, attributs, styles), événements, débogage et gestion des erreurs, AJAX avec fetch et async/await, modules ES.",
+  "description": "Variables et objets, fonctions fléchées et ternaire, tableaux (forEach, find, filter, map) et affichage dans la page, manipulation du DOM (créer, modifier, supprimer), événements, débogage, AJAX avec fetch et async/await, modules ES.",
   "questions": [
     {
       "id": "const-reassign-error",
@@ -398,6 +398,207 @@
       ],
       "answer": 2,
       "explanation": "`filter` garde les produits en stock, puis `map` transforme chacun en chaîne grâce au template literal, où `${…}` insère la valeur de l'expression. Le résultat reste un tableau : pour une chaîne, il faudrait ajouter `join('')`."
+    },
+    {
+      "id": "arrow-function-syntax",
+      "type": "flashcard",
+      "front": "Comment se lit cette fonction fléchée, et à quelle fonction classique correspond-elle ?",
+      "code": {
+        "lang": "js",
+        "content": "const estDune = (film) => film.id === 15;\n\n// équivaut à :\nfunction estDune(film) {\n  return film.id === 15;\n}"
+      },
+      "back": "À gauche de `=>`, les paramètres (`film`) ; à droite, ce que la fonction renvoie. Sans accolades, le `return` est implicite : l'expression est renvoyée directement. Avec un seul paramètre, les parenthèses sont facultatives (`film => …`) ; sans paramètre, on écrit `() => …`."
+    },
+    {
+      "id": "arrow-braces-no-return",
+      "type": "mcq",
+      "question": "Que contient `titres` après ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const films = [\n  { id: 3, titre: 'Alien', annee: 1979 },\n  { id: 15, titre: 'Dune', annee: 2021 },\n  { id: 27, titre: 'Arrival', annee: 2016 },\n];\nconst titres = films.map((film) => {\n  film.titre;\n});"
+      },
+      "choices": [
+        "`['Alien', 'Dune', 'Arrival']`",
+        "`[undefined, undefined, undefined]`",
+        "`[]`",
+        "Une `SyntaxError`"
+      ],
+      "answer": 1,
+      "explanation": "Avec des accolades, la fonction fléchée a un corps classique : sans `return`, elle renvoie `undefined`. Écris `films.map((film) => film.titre)` (retour implicite) ou ajoute `return film.titre;` entre les accolades."
+    },
+    {
+      "id": "find-first-match",
+      "type": "mcq",
+      "question": "Que contient `recherche` après ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const films = [\n  { id: 3, titre: 'Alien', annee: 1979 },\n  { id: 15, titre: 'Dune', annee: 2021 },\n  { id: 27, titre: 'Arrival', annee: 2016 },\n];\nconst recherche = films.find((film) => film.annee > 2000);"
+      },
+      "choices": [
+        "L'objet `{ id: 15, titre: 'Dune', annee: 2021 }`",
+        "Le tableau `[{ id: 15, … }, { id: 27, … }]`",
+        "L'indice `1`",
+        "`true`"
+      ],
+      "answer": 0,
+      "explanation": "`find` renvoie le premier élément pour lequel la fonction renvoie `true`, puis s'arrête. Pour obtenir tous les éléments correspondants, utilise `filter` (qui renvoie toujours un tableau) ; pour la position, `findIndex`."
+    },
+    {
+      "id": "find-undefined-ternary",
+      "type": "mcq",
+      "question": "Qu'affiche ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const films = [\n  { id: 3, titre: 'Alien' },\n  { id: 27, titre: 'Arrival' },\n];\nconst recherche = films.find((film) => film.id === 15);\n\nconsole.log(recherche === undefined ? 'Aucun film trouvé avec cet identifiant' : recherche.titre);"
+      },
+      "choices": [
+        "`Aucun film trouvé avec cet identifiant`",
+        "`undefined`",
+        "`[]`",
+        "Une `TypeError` : impossible de lire `titre`"
+      ],
+      "answer": 0,
+      "explanation": "Aucun film n'a l'id 15 : `find` renvoie `undefined`. Le ternaire `condition ? siVrai : siFaux` évalue donc une condition vraie et affiche le message. Sans ce test, `recherche.titre` lèverait une `TypeError`, car on ne peut pas lire une propriété de `undefined`."
+    },
+    {
+      "id": "ternary-vs-if",
+      "type": "flashcard",
+      "front": "Comment se lit l'opérateur ternaire, et à quel `if` correspond-il ?",
+      "code": {
+        "lang": "js",
+        "content": "const message = stock > 0 ? 'En stock' : 'Rupture';\n\n// équivaut à :\nlet message;\nif (stock > 0) {\n  message = 'En stock';\n} else {\n  message = 'Rupture';\n}"
+      },
+      "back": "`condition ? valeurSiVrai : valeurSiFaux` : le `?` pose la question, le `:` sépare les deux réponses. Contrairement au `if`, le ternaire est une expression qui produit une valeur : on peut l'affecter à une variable, la passer à `console.log` ou la placer dans un template literal. Réserve-le aux choix simples ; pour plusieurs instructions, garde un `if`."
+    },
+    {
+      "id": "ternary-in-template",
+      "type": "mcq",
+      "question": "Que contient `badge` ?",
+      "code": {
+        "lang": "js",
+        "content": "const produit = { nom: 'Chaise', stock: 0 };\nconst badge = `${produit.nom} : ${produit.stock > 0 ? 'en stock' : 'rupture'}`;"
+      },
+      "choices": [
+        "`'Chaise : en stock'`",
+        "`'Chaise : rupture'`",
+        "`'Chaise : false'`",
+        "`'Chaise : 0'`"
+      ],
+      "answer": 1,
+      "explanation": "Dans `${…}`, on peut placer n'importe quelle expression, y compris un ternaire. `0 > 0` est faux : c'est la valeur placée après les `:` qui est insérée."
+    },
+    {
+      "id": "foreach-returns-undefined",
+      "type": "truefalse",
+      "question": "Après ce code, `titres` contient la liste des titres.",
+      "code": {
+        "lang": "js",
+        "content": "const films = [\n  { id: 3, titre: 'Alien', annee: 1979 },\n  { id: 15, titre: 'Dune', annee: 2021 },\n  { id: 27, titre: 'Arrival', annee: 2016 },\n];\nconst titres = films.forEach((film) => film.titre);"
+      },
+      "answer": false,
+      "explanation": "`forEach` exécute la fonction pour chaque élément mais renvoie toujours `undefined`. On s'en sert pour agir (afficher, insérer dans le DOM) ; pour construire un nouveau tableau, c'est `map` : `films.map((film) => film.titre)`."
+    },
+    {
+      "id": "display-array-overwrite",
+      "type": "mcq",
+      "question": "La liste `<ul id=\"films\">` est vide au départ. Que montre la page après ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "const films = [\n  { id: 3, titre: 'Alien', annee: 1979 },\n  { id: 15, titre: 'Dune', annee: 2021 },\n  { id: 27, titre: 'Arrival', annee: 2016 },\n];\nconst liste = document.querySelector('#films');\nfilms.forEach((film) => {\n  liste.textContent = film.titre;\n});"
+      },
+      "choices": [
+        "Trois `<li>` : Alien, Dune et Arrival",
+        "Uniquement le texte « Arrival »",
+        "Le texte « AlienDuneArrival »",
+        "Rien : `textContent` ne fonctionne pas sur une `<ul>`"
+      ],
+      "answer": 1,
+      "explanation": "À chaque tour, `textContent` remplace tout le contenu de la liste : seul le dernier titre reste, et aucun `<li>` n'est créé. Pour afficher le tableau, crée un `<li>` par film : `const li = document.createElement('li'); li.textContent = film.titre; liste.append(li);`."
+    },
+    {
+      "id": "textcontent-shows-tags",
+      "type": "truefalse",
+      "question": "Après cette ligne, le mot « Promo » s'affiche en gras dans la page.",
+      "code": {
+        "lang": "js",
+        "content": "badge.textContent = '<strong>Promo</strong>';"
+      },
+      "answer": false,
+      "explanation": "`textContent` insère du texte brut : la page affiche littéralement `<strong>Promo</strong>`, balises comprises. `innerHTML` interpréterait les balises, mais il ne faut jamais l'utiliser avec des données venant d'un utilisateur ou d'une API (risque XSS). Pour du gras, crée un élément `strong` avec `createElement`."
+    },
+    {
+      "id": "element-remove",
+      "type": "mcq",
+      "question": "Quelle ligne retire complètement la card de la page ?",
+      "code": {
+        "lang": "js",
+        "content": "const card = document.querySelector('.card');"
+      },
+      "choices": [
+        "`card.remove();`",
+        "`card.innerHTML = '';`",
+        "`card.delete();`",
+        "`card.style.display = 'none';`"
+      ],
+      "answer": 0,
+      "explanation": "`remove()` retire l'élément du DOM. `innerHTML = ''` ne fait que vider son contenu (la card reste, vide), `display: none` la masque sans la retirer du DOM, et `delete()` n'existe pas. L'ancienne écriture équivalente est `card.parentElement.removeChild(card)`."
+    },
+    {
+      "id": "style-camelcase-write",
+      "type": "mcq",
+      "question": "Quelle ligne passe le fond de la card en jaune ?",
+      "code": {
+        "lang": "js",
+        "content": "const card = document.querySelector('.card');"
+      },
+      "choices": [
+        "`card.style.backgroundColor = 'yellow';`",
+        "`card.style.background-color = 'yellow';`",
+        "`card.style = { backgroundColor: 'yellow' };`",
+        "`card.backgroundColor = 'yellow';`"
+      ],
+      "answer": 0,
+      "explanation": "Dans `style`, les propriétés CSS s'écrivent en camelCase : `background-color` devient `backgroundColor`. Avec le tiret, JavaScript lit une soustraction et lève une `SyntaxError`. Le style inline l'emporte sur la feuille CSS ; pour un changement d'apparence réutilisable, préfère `card.classList.add('is-highlighted')`."
+    },
+    {
+      "id": "click-handler-called-immediately",
+      "type": "mcq",
+      "question": "Le message s'affiche une fois au chargement de la page, puis plus jamais quand on clique. Pourquoi ?",
+      "code": {
+        "lang": "js",
+        "content": "function afficherMessage() {\n  console.log('Bouton cliqué');\n}\nbouton.addEventListener('click', afficherMessage());"
+      },
+      "choices": [
+        "Les parenthèses appellent la fonction tout de suite : c'est son résultat (`undefined`) qui est passé à `addEventListener`",
+        "`click` ne fonctionne que sur les liens `<a>`",
+        "Il faut écrire `'onclick'` au lieu de `'click'`",
+        "`addEventListener` ne fonctionne qu'une fois par élément"
+      ],
+      "answer": 0,
+      "explanation": "On passe la fonction sans l'appeler : `addEventListener('click', afficherMessage)`. Si elle a besoin d'arguments, enveloppe l'appel dans une fonction fléchée : `addEventListener('click', () => afficherMessage('ok'))`."
+    },
+    {
+      "id": "change-event-select",
+      "type": "mcq",
+      "question": "Quand ce code affiche-t-il quelque chose dans la console ?",
+      "code": {
+        "lang": "js",
+        "content": "// HTML : <select id=\"genre\">…</select>\nconst genre = document.querySelector('#genre');\ngenre.addEventListener('change', (event) => {\n  console.log(event.target.value);\n});"
+      },
+      "choices": [
+        "Dès que l'utilisateur choisit une autre option, avec la valeur choisie",
+        "Uniquement au chargement de la page",
+        "À chaque survol du menu déroulant",
+        "Uniquement à l'envoi du formulaire"
+      ],
+      "answer": 0,
+      "explanation": "Sur un `<select>`, une case à cocher ou un bouton radio, `change` se déclenche dès que la valeur change. `event.target` est l'élément à l'origine de l'événement, et `.value` la valeur de l'option choisie. Sur un champ texte, en revanche, `change` attend la perte du focus : utilise `input` pour réagir à chaque frappe."
+    },
+    {
+      "id": "api-rest-json",
+      "type": "flashcard",
+      "front": "Qu'est-ce qu'une API web, et sous quelle forme renvoie-t-elle ses données ?",
+      "back": "Une API web est un service qu'on interroge par des URL (les endpoints, par exemple `/api/films/15`). Le verbe HTTP indique l'action : `GET` pour lire, `POST` pour créer, `PUT` ou `PATCH` pour modifier, `DELETE` pour supprimer. La réponse est le plus souvent du JSON, un texte qui reprend la syntaxe des objets et tableaux JavaScript : `await response.json()` le convertit en vraies données (comme `JSON.parse`), et `JSON.stringify` fait l'inverse pour l'envoi."
     }
   ]
 }

@@ -10,7 +10,8 @@ const LANGS = {
   css: lexCss,
   js: (lx) => lexJs(lx, false), javascript: (lx) => lexJs(lx, false), mjs: (lx) => lexJs(lx, false),
   json: (lx) => lexJs(lx, false),
-  jsx: (lx) => lexJs(lx, true), tsx: (lx) => lexJs(lx, true),
+  ts: (lx) => lexTs(lx, false), typescript: (lx) => lexTs(lx, false),
+  jsx: (lx) => lexJs(lx, true), tsx: (lx) => lexTs(lx, true),
   bash: lexBash, sh: lexBash, shell: lexBash, console: lexBash,
 };
 
@@ -84,6 +85,10 @@ const QUOTED = /'(?:[^'\\\n]|\\.)*'?|"(?:[^"\\\n]|\\.)*"?/y;
 const JS_KEYWORDS = new Set(('as async await break case catch class const continue debugger default delete do else '
   + 'export extends finally for from function if import in instanceof let new of return static super switch this '
   + 'throw try typeof var void while with yield').split(' '));
+// TypeScript : mots-clés et types primitifs en plus de ceux de JavaScript.
+const TS_KEYWORDS = new Set(('abstract declare enum implements interface is keyof namespace private protected '
+  + 'public readonly satisfies type').split(' '));
+const TS_TYPES = new Set(['any', 'boolean', 'never', 'number', 'string', 'unknown', 'void']);
 const JS_CONSTANTS = new Set(['true', 'false', 'null', 'undefined', 'NaN', 'Infinity']);
 const JS = {
   lineComment: /\/\/[^\n]*/y,
@@ -98,6 +103,11 @@ const VALUE_END = new Set(['id', 'num', 'str', ')', ']']);
 
 // stopAtBrace : s'arrête (sans le consommer) sur le « } » qui ferme une
 // interpolation ${…} ou une expression JSX {…}.
+function lexTs(lx, jsx) {
+  lx.ts = true;
+  lexJs(lx, jsx);
+}
+
 function lexJs(lx, jsx, stopAtBrace = false) {
   let depth = 0;
   let prev = null;
@@ -130,7 +140,8 @@ function lexJs(lx, jsx, stopAtBrace = false) {
 }
 
 function classifyJsIdent(lx, word, member) {
-  if (!member && JS_KEYWORDS.has(word)) return 'keyword';
+  if (!member && lx.ts && TS_TYPES.has(word)) return 'type';
+  if (!member && (JS_KEYWORDS.has(word) || (lx.ts && TS_KEYWORDS.has(word)))) return 'keyword';
   if (!member && JS_CONSTANTS.has(word)) return 'number';
   if (/^[A-Z][A-Z\d]*_[A-Z\d_]*$/.test(word)) return 'number'; // API_URL ; JSON, URL restent des types
   if (/^\p{Lu}/u.test(word)) return 'type';

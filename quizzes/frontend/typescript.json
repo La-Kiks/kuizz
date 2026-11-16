@@ -1,0 +1,290 @@
+{
+  "id": "frontend-typescript",
+  "title": "TypeScript : typer le JS et le DOM",
+  "subject": "applications-dynamiques",
+  "description": "Pourquoi TypeScript, annotations et inférence, types de base et unions, fonctions, interfaces et classes, null et undefined, DOM et événements typés, fetch typé, migration depuis JavaScript.",
+  "questions": [
+    {
+      "id": "ts-why",
+      "type": "flashcard",
+      "front": "Qu'apporte TypeScript par rapport à JavaScript ?",
+      "back": "TypeScript, c'est JavaScript plus des types. On décrit la forme des données (`titre: string`), et le compilateur signale les incohérences avant l'exécution : propriété mal orthographiée, mauvais argument, valeur possiblement `null`. L'éditeur s'en sert aussi pour l'autocomplétion et le renommage. Les types disparaissent à la compilation : le navigateur n'exécute que le JavaScript produit."
+    },
+    {
+      "id": "ts-browser-runs-ts",
+      "type": "truefalse",
+      "question": "Le navigateur exécute directement ce fichier `app.ts` via `<script src=\"app.ts\">`.",
+      "code": {
+        "lang": "ts",
+        "content": "const titre: string = 'Dune';\nconsole.log(titre);"
+      },
+      "answer": false,
+      "explanation": "Le navigateur ne comprend que JavaScript : l'annotation `: string` y serait une erreur de syntaxe. On compile d'abord le `.ts` en `.js` (avec `tsc`, ou un outil comme Vite), puis la page charge le fichier `.js` produit."
+    },
+    {
+      "id": "ts-annotation-mismatch",
+      "type": "mcq",
+      "question": "Que se passe-t-il avec cette ligne ?",
+      "code": {
+        "lang": "ts",
+        "content": "let age: number = '25';"
+      },
+      "choices": [
+        "TypeScript signale une erreur : une chaîne n'est pas assignable au type `number`",
+        "TypeScript convertit automatiquement `'25'` en `25`",
+        "Aucune erreur : `'25'` contient un nombre",
+        "L'erreur n'apparaît qu'au moment où le navigateur exécute la ligne"
+      ],
+      "answer": 0,
+      "explanation": "L'annotation `: number` est un contrat : TypeScript refuse la chaîne dès l'écriture du code, dans l'éditeur et à la compilation. Il ne convertit jamais rien : si la donnée arrive en texte (champ de formulaire, URL), convertis-la toi-même avec `Number('25')`."
+    },
+    {
+      "id": "ts-inference",
+      "type": "truefalse",
+      "question": "Sans annotation, TypeScript accepte la deuxième ligne.",
+      "code": {
+        "lang": "ts",
+        "content": "let titre = 'Dune';\ntitre = 42;"
+      },
+      "answer": false,
+      "explanation": "TypeScript infère le type à partir de la valeur initiale : `titre` est un `string`, et `42` n'y est pas assignable. Inutile d'annoter ce qui se déduit tout seul ; annote surtout les paramètres de fonction et les données venues de l'extérieur."
+    },
+    {
+      "id": "ts-array-type",
+      "type": "mcq",
+      "question": "Quelle annotation décrit un tableau de titres de films ?",
+      "code": {
+        "lang": "ts",
+        "content": "const titres = ['Alien', 'Dune', 'Arrival'];"
+      },
+      "choices": [
+        "`string[]`",
+        "`[string]`",
+        "`Array`",
+        "`string`"
+      ],
+      "answer": 0,
+      "explanation": "`string[]` (ou `Array<string>`) est un tableau de chaînes, de longueur quelconque. `[string]` est un tuple : un tableau d'exactement un élément. `Array` seul ne dit rien du contenu."
+    },
+    {
+      "id": "ts-union-type",
+      "type": "mcq",
+      "question": "Quelle ligne provoque une erreur ?",
+      "code": {
+        "lang": "ts",
+        "content": "let identifiant: number | string;\nidentifiant = 15;          // ligne A\nidentifiant = 'film-15';   // ligne B\nidentifiant = true;        // ligne C"
+      },
+      "choices": [
+        "Ligne A",
+        "Ligne B",
+        "Ligne C",
+        "Aucune"
+      ],
+      "answer": 2,
+      "explanation": "`number | string` est un type union : la variable accepte l'un ou l'autre, mais rien d'autre. `true` est un `boolean`, d'où l'erreur sur la ligne C."
+    },
+    {
+      "id": "ts-literal-union-status",
+      "type": "mcq",
+      "question": "Quelle ligne provoque une erreur ?",
+      "code": {
+        "lang": "ts",
+        "content": "type Statut = 'chargement' | 'succes' | 'erreur';\n\nlet statut: Statut = 'chargement';   // ligne A\nstatut = 'succes';                    // ligne B\nstatut = 'erreurs';                   // ligne C"
+      },
+      "choices": [
+        "Ligne A",
+        "Ligne B",
+        "Ligne C",
+        "Aucune : ce sont toutes des chaînes"
+      ],
+      "answer": 2,
+      "explanation": "Une union de valeurs littérales n'accepte que ces chaînes exactes. La faute de frappe `'erreurs'` est détectée tout de suite, alors qu'en JavaScript l'interface resterait bloquée sans message. Pratique pour les états d'un chargement."
+    },
+    {
+      "id": "ts-function-params",
+      "type": "mcq",
+      "question": "Quel appel TypeScript refuse-t-il ?",
+      "code": {
+        "lang": "ts",
+        "content": "function prixTTC(prixHT: number, taux: number = 0.2): number {\n  return prixHT * (1 + taux);\n}"
+      },
+      "choices": [
+        "`prixTTC('10')`",
+        "`prixTTC(10)`",
+        "`prixTTC(10, 0.055)`",
+        "`prixTTC(10) + 5`"
+      ],
+      "answer": 0,
+      "explanation": "`prixHT` attend un `number` : une chaîne est refusée (en JavaScript, `'10' * 1.2` passerait par une conversion implicite). `taux` a une valeur par défaut, il est donc facultatif. Le `: number` après les parenthèses annonce le type de retour."
+    },
+    {
+      "id": "ts-arrow-typed",
+      "type": "flashcard",
+      "front": "Comment typer les paramètres d'une fonction fléchée ?",
+      "code": {
+        "lang": "ts",
+        "content": "const estRecent = (film: Film, annee: number): boolean => film.annee >= annee;\n\nconst recents = films.filter((film) => film.annee >= 2010);"
+      },
+      "back": "On annote chaque paramètre entre les parenthèses (`film: Film`), et éventuellement le retour après elles (`): boolean =>`). Dans un callback comme `filter`, inutile d'annoter : TypeScript sait déjà que `films` est un `Film[]`, donc que `film` est un `Film`."
+    },
+    {
+      "id": "ts-interface-missing-prop",
+      "type": "mcq",
+      "question": "Pourquoi TypeScript refuse-t-il cet objet ?",
+      "code": {
+        "lang": "ts",
+        "content": "interface Film {\n  id: number;\n  titre: string;\n  annee: number;\n}\n\nconst film: Film = { id: 15, titre: 'Dune' };"
+      },
+      "choices": [
+        "La propriété `annee` est obligatoire et manque",
+        "Une interface ne peut pas typer une constante",
+        "Il faut écrire `new Film(...)`",
+        "Les propriétés doivent être dans l'ordre alphabétique"
+      ],
+      "answer": 0,
+      "explanation": "Une interface décrit la forme attendue d'un objet : toutes ses propriétés sont obligatoires, sauf celles marquées `?` (`annee?: number`). Une interface n'existe qu'à la compilation : on ne peut pas faire `new` dessus."
+    },
+    {
+      "id": "ts-optional-readonly",
+      "type": "flashcard",
+      "front": "Que signifient `?` et `readonly` dans cette interface ?",
+      "code": {
+        "lang": "ts",
+        "content": "interface Film {\n  readonly id: number;\n  titre: string;\n  affiche?: string;\n}"
+      },
+      "back": "`affiche?` est facultative : l'objet peut ne pas l'avoir, et son type devient `string | undefined`, à vérifier avant usage. `readonly id` peut être lu mais pas réaffecté après la création de l'objet : `film.id = 16` est une erreur."
+    },
+    {
+      "id": "ts-type-vs-interface",
+      "type": "flashcard",
+      "front": "Quelle différence entre `type` et `interface` ?",
+      "code": {
+        "lang": "ts",
+        "content": "interface Film { id: number; titre: string }\ntype FilmBis = { id: number; titre: string };\ntype Statut = 'chargement' | 'succes' | 'erreur';"
+      },
+      "back": "Pour décrire un objet, les deux se valent. `interface` est réservée aux formes d'objets et peut être étendue (`extends`). `type` peut nommer n'importe quel type : union, valeurs littérales, tuple. Règle simple : `interface` pour les objets, `type` pour le reste."
+    },
+    {
+      "id": "ts-class-private",
+      "type": "mcq",
+      "question": "Quelle ligne provoque une erreur ?",
+      "code": {
+        "lang": "ts",
+        "content": "class Compteur {\n  private valeur = 0;\n\n  incrementer(): void {\n    this.valeur++;\n  }\n}\n\nconst c = new Compteur();\nc.incrementer();      // ligne A\nconsole.log(c.valeur); // ligne B"
+      },
+      "choices": [
+        "Ligne B",
+        "Ligne A",
+        "Les deux",
+        "Aucune"
+      ],
+      "answer": 0,
+      "explanation": "`private` réserve la propriété à l'intérieur de la classe : la méthode `incrementer` peut la modifier, mais pas le code extérieur. Expose plutôt une méthode publique (`getValeur()`) si tu dois la lire. `public` est le comportement par défaut."
+    },
+    {
+      "id": "ts-any-vs-unknown",
+      "type": "flashcard",
+      "front": "Quelle différence entre `any` et `unknown` ?",
+      "code": {
+        "lang": "ts",
+        "content": "let a: any = JSON.parse(texte);\na.titre.toUpperCase(); // accepté, même si c'est faux\n\nlet u: unknown = JSON.parse(texte);\nu.titre; // erreur : il faut d'abord vérifier le type"
+      },
+      "back": "`any` désactive toute vérification : on retombe dans JavaScript, avec ses erreurs à l'exécution. `unknown` dit « je ne sais pas encore » : TypeScript oblige à vérifier (`typeof`, test de propriété) avant d'utiliser la valeur. Évite `any`, préfère `unknown` ou un vrai type."
+    },
+    {
+      "id": "ts-find-possibly-undefined",
+      "type": "mcq",
+      "question": "TypeScript signale une erreur sur la dernière ligne. Laquelle ?",
+      "code": {
+        "lang": "ts",
+        "content": "interface Film {\n  id: number;\n  titre: string;\n  annee: number;\n}\n\nconst films: Film[] = [];\nconst recherche = films.find((film) => film.id === 15);\nconsole.log(recherche.titre);"
+      },
+      "choices": [
+        "`recherche` est peut-être `undefined`",
+        "`find` n'existe pas sur un `Film[]`",
+        "`titre` n'existe pas dans `Film`",
+        "`films` est vide, donc `find` est interdit"
+      ],
+      "answer": 0,
+      "explanation": "`find` renvoie `Film | undefined`. TypeScript t'oblige à traiter le cas « pas trouvé » : `recherche === undefined ? 'Aucun film trouvé' : recherche.titre`, ou `recherche?.titre`. En JavaScript, ce même code planterait seulement à l'exécution."
+    },
+    {
+      "id": "ts-dom-possibly-null",
+      "type": "mcq",
+      "question": "TypeScript signale `'bouton' is possibly 'null'`. Quelle est la bonne correction ?",
+      "code": {
+        "lang": "ts",
+        "content": "const bouton = document.querySelector('#envoyer');\nbouton.addEventListener('click', envoyer);"
+      },
+      "choices": [
+        "Vérifier l'élément avant de l'utiliser : `if (bouton) { bouton.addEventListener('click', envoyer); }`",
+        "Remplacer `const` par `let`",
+        "Remplacer `querySelector` par `querySelectorAll`",
+        "Ajouter `: any` après `bouton`"
+      ],
+      "answer": 0,
+      "explanation": "`querySelector` renvoie `null` si aucun élément ne correspond : TypeScript t'oblige à gérer ce cas. Après le `if`, il sait que `bouton` existe. `any` ferait taire l'erreur sans rien corriger. Le `!` (`querySelector('#envoyer')!`) affirme que l'élément existe : à réserver aux cas où tu en es certain."
+    },
+    {
+      "id": "ts-dom-input-value",
+      "type": "mcq",
+      "question": "TypeScript signale `Property 'value' does not exist on type 'Element'`. Comment lire la saisie ?",
+      "code": {
+        "lang": "ts",
+        "content": "const champ = document.querySelector('#email');\nif (champ) {\n  console.log(champ.value);\n}"
+      },
+      "choices": [
+        "Préciser le type d'élément : `document.querySelector<HTMLInputElement>('#email')`",
+        "Écrire `champ.textContent` à la place",
+        "Écrire `champ.innerHTML` à la place",
+        "Impossible : TypeScript ne permet pas de lire un champ"
+      ],
+      "answer": 0,
+      "explanation": "Avec un sélecteur `#id`, TypeScript ne sait pas quel élément sera trouvé : il renvoie un `Element` générique, sans `value`. `querySelector<HTMLInputElement>(…)` (ou `as HTMLInputElement`) précise que c'est un champ. Avec un nom de balise (`querySelector('input')`), il le déduit seul. `getElementById` renvoie un `HTMLElement`, lui non plus sans `value`."
+    },
+    {
+      "id": "ts-event-target",
+      "type": "mcq",
+      "question": "Dans ce gestionnaire, `event.target.value` est refusé par TypeScript. Pourquoi ?",
+      "code": {
+        "lang": "ts",
+        "content": "const genre = document.querySelector<HTMLSelectElement>('#genre');\ngenre?.addEventListener('change', (event) => {\n  console.log(event.target.value);\n});"
+      },
+      "choices": [
+        "`event.target` est typé `EventTarget | null` : n'importe quel élément pourrait avoir déclenché l'événement",
+        "Un `<select>` n'a pas de propriété `value`",
+        "Il faut typer le paramètre `event: string`",
+        "`change` n'existe pas en TypeScript"
+      ],
+      "answer": 0,
+      "explanation": "Avec la délégation, la cible peut être un enfant de l'élément : TypeScript ne promet donc rien sur `event.target`. Précise la cible quand tu sais ce que c'est : `(event.target as HTMLSelectElement).value`. Le `?.` de `genre?.addEventListener` gère, lui, le cas où le `<select>` est absent."
+    },
+    {
+      "id": "ts-event-types",
+      "type": "flashcard",
+      "front": "Comment typer un gestionnaire de `submit` en TypeScript ?",
+      "code": {
+        "lang": "ts",
+        "content": "const form = document.querySelector<HTMLFormElement>('#contact');\n\nif (form) {\n  form.addEventListener('submit', (event: SubmitEvent) => {\n    event.preventDefault();\n    const donnees = new FormData(form);\n    console.log(donnees.get('email'));\n  });\n}"
+      },
+      "back": "Chaque événement a son type : `MouseEvent` pour `click`, `KeyboardEvent` pour les touches, `SubmitEvent` pour `submit`, `Event` pour `change` et `input`. Avec `addEventListener('submit', …)`, TypeScript le déduit seul : l'annotation sert surtout quand la fonction est déclarée à part. Le `if (form)` garantit à TypeScript que le formulaire existe, y compris dans le gestionnaire : `new FormData(form)` est accepté."
+    },
+    {
+      "id": "ts-fetch-not-checked",
+      "type": "truefalse",
+      "question": "Avec ce code, TypeScript vérifie à l'exécution que l'API renvoie bien des objets `Film`.",
+      "code": {
+        "lang": "ts",
+        "content": "const response = await fetch('/api/films');\nconst films: Film[] = await response.json();"
+      },
+      "answer": false,
+      "explanation": "Les types n'existent qu'à la compilation : `response.json()` renvoie `any`, et l'annotation `Film[]` est une promesse que tu fais à TypeScript, pas une vérification. Si l'API change de format, l'erreur arrivera à l'exécution. Vérifie `response.ok` et, pour une API peu fiable, valide les données reçues."
+    },
+    {
+      "id": "ts-migration",
+      "type": "flashcard",
+      "front": "Comment migrer un petit projet JavaScript vers TypeScript ?",
+      "back": "1. Installer TypeScript et créer un `tsconfig.json` (`npx tsc --init`), avec `strict: true`. 2. Renommer les fichiers `.js` en `.ts`, un par un. 3. Corriger les erreurs signalées : annoter les paramètres, créer des interfaces pour les données (films, produits), gérer les `null` du DOM. 4. Compiler avec `tsc` (ou laisser Vite le faire) et charger le `.js` produit dans la page."
+    }
+  ]
+}

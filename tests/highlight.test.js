@@ -142,3 +142,14 @@ test('toLines coupe les jetons multilignes', () => {
     [],
   ]);
 });
+
+test('ts : mots-clés et types primitifs TypeScript', () => {
+  const t = highlight('interface Film {\n  readonly id: number;\n}\nlet titre: string = film.type;', 'ts');
+  assert.equal(typeOf(t, 'interface'), 'keyword');
+  assert.equal(typeOf(t, 'readonly'), 'keyword');
+  assert.equal(typeOf(t, 'Film'), 'type');
+  assert.equal(typeOf(t, 'number'), 'type');
+  assert.equal(typeOf(t, 'string'), 'type');
+  assert.ok(isPlain(t, 'type'), 'type en position de membre reste neutre');
+  assert.ok(isPlain(highlight('const interface1 = string;', 'js'), 'string'), 'en js, string reste neutre');
+});
