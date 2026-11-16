@@ -2,7 +2,7 @@
   "id": "frontend-javascript",
   "title": "JavaScript : DOM, événements & AJAX",
   "subject": "applications-dynamiques",
-  "description": "Variables et objets, fonctions fléchées et ternaire, tableaux (forEach, find, filter, map) et affichage dans la page, manipulation du DOM (créer, modifier, supprimer), événements, débogage, AJAX avec fetch et async/await, modules ES.",
+  "description": "Variables et objets, fonctions fléchées et ternaire, tableaux (forEach, find, filter, map) et affichage dans la page, manipulation du DOM (créer, modifier, supprimer), événements et debounce, débogage et try...catch, AJAX avec fetch et async/await, modules ES.",
   "questions": [
     {
       "id": "const-reassign-error",
@@ -599,6 +599,71 @@
       "type": "flashcard",
       "front": "Qu'est-ce qu'une API web, et sous quelle forme renvoie-t-elle ses données ?",
       "back": "Une API web est un service qu'on interroge par des URL (les endpoints, par exemple `/api/films/15`). Le verbe HTTP indique l'action : `GET` pour lire, `POST` pour créer, `PUT` ou `PATCH` pour modifier, `DELETE` pour supprimer. La réponse est le plus souvent du JSON, un texte qui reprend la syntaxe des objets et tableaux JavaScript : `await response.json()` le convertit en vraies données (comme `JSON.parse`), et `JSON.stringify` fait l'inverse pour l'envoi."
+    },
+    {
+      "id": "try-catch-purpose",
+      "type": "flashcard",
+      "front": "À quoi sert `try...catch`, et quelles erreurs ne rattrape-t-il pas ?",
+      "code": {
+        "lang": "js",
+        "content": "try {\n  const film = JSON.parse(texte);\n  afficher(film);\n} catch (erreur) {\n  message.textContent = 'Données illisibles';\n  console.error(erreur);\n}"
+      },
+      "back": "Le code du `try` s'exécute ; si une instruction lève une erreur, la suite du `try` est sautée et le `catch` reçoit l'erreur, au lieu d'arrêter tout le script. On s'en sert autour de ce qui peut échouer : `JSON.parse`, un `await fetch`, la lecture du `localStorage`. Il ne rattrape pas une erreur de syntaxe du fichier (le script entier refuse de se charger), ni une erreur levée plus tard dans un callback (`setTimeout`, gestionnaire d'événement) : le `try` est déjà terminé à ce moment-là."
+    },
+    {
+      "id": "try-catch-settimeout",
+      "type": "mcq",
+      "question": "Que se passe-t-il avec ce code ?",
+      "code": {
+        "lang": "js",
+        "content": "try {\n  setTimeout(() => {\n    JSON.parse('{oups}');\n  }, 1000);\n} catch (erreur) {\n  console.log('Erreur attrapée');\n}"
+      },
+      "choices": [
+        "Une seconde plus tard, une `SyntaxError` non rattrapée apparaît dans la console",
+        "Une seconde plus tard, la console affiche `Erreur attrapée`",
+        "La console affiche `Erreur attrapée` immédiatement",
+        "Rien : `JSON.parse` renvoie `undefined` sur un texte invalide"
+      ],
+      "answer": 0,
+      "explanation": "Le `try` ne fait que programmer le minuteur, puis se termine sans erreur. Quand le callback s'exécute une seconde plus tard, plus aucun `try` ne l'entoure : l'erreur n'est pas rattrapée. Place le `try...catch` à l'intérieur du callback. Avec `async`/`await`, en revanche, un `try` autour d'un `await` rattrape bien l'erreur, car la fonction attend le résultat."
+    },
+    {
+      "id": "debounce-purpose",
+      "type": "flashcard",
+      "front": "Qu'est-ce que le debounce, et pourquoi l'utiliser sur un champ de recherche relié à une API ?",
+      "code": {
+        "lang": "js",
+        "content": "function debounce(fn, delai) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delai);\n  };\n}"
+      },
+      "back": "Le debounce retarde l'appel d'une fonction jusqu'à ce que les événements cessent pendant un délai donné. Chaque frappe annule le minuteur précédent (`clearTimeout`) et en relance un nouveau (`setTimeout`) : seule la dernière frappe, suivie d'une pause, déclenche l'appel. Sur une recherche reliée à une API, on n'envoie ainsi qu'une requête quand l'utilisateur a fini de taper, au lieu d'une par lettre : moins de charge serveur, et pas de résultats qui arrivent dans le désordre. Pour un filtre local sur quelques cards, l'événement `input` seul suffit."
+    },
+    {
+      "id": "debounce-request-count",
+      "type": "mcq",
+      "question": "L'utilisateur tape « dune » rapidement (une lettre toutes les 100 ms), puis s'arrête. Combien de requêtes partent ?",
+      "code": {
+        "lang": "js",
+        "content": "function debounce(fn, delai) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delai);\n  };\n}\n\nconst rechercher = debounce((texte) => {\n  fetch(`/api/films?q=${texte}`);\n}, 300);\n\nchamp.addEventListener('input', () => rechercher(champ.value));"
+      },
+      "choices": [
+        "Une seule, avec `dune`, 300 ms après la dernière lettre",
+        "Quatre : `d`, `du`, `dun` puis `dune`",
+        "Une seule, avec `d`, la première lettre",
+        "Aucune : `clearTimeout` annule tous les appels"
+      ],
+      "answer": 0,
+      "explanation": "Chaque frappe arrive moins de 300 ms après la précédente : `clearTimeout` annule le minuteur en attente avant qu'il ne se déclenche. Seul le dernier minuteur, lancé après le « e », va au bout et envoie `dune`. Si l'utilisateur fait une pause de plus de 300 ms au milieu du mot, une requête part pour ce qu'il a tapé jusque-là."
+    },
+    {
+      "id": "debounce-missing-cleartimeout",
+      "type": "truefalse",
+      "question": "Avec ce code, taper « dune » rapidement n'envoie qu'une seule requête.",
+      "code": {
+        "lang": "js",
+        "content": "let timer;\nchamp.addEventListener('input', () => {\n  const texte = champ.value;\n  timer = setTimeout(() => rechercher(texte), 300);\n});"
+      },
+      "answer": false,
+      "explanation": "Sans `clearTimeout(timer)` au début du gestionnaire, aucun minuteur n'est annulé : les quatre se déclenchent, et partent quatre requêtes (`d`, `du`, `dun`, `dune`), simplement décalées de 300 ms. C'est l'annulation du minuteur précédent qui fait le debounce, pas le délai seul."
     }
   ]
 }
