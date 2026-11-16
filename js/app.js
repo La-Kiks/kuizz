@@ -64,9 +64,7 @@ async function showHome(isCurrent) {
     entry.id,
     settled[i].status === 'fulfilled' ? { quiz: settled[i].value } : { error: settled[i].reason },
   ]));
-  show('Mes révisions', (c) => renderHome(c, { index, quizzes, getProgress: progressOf,
-    isResumable: (quiz) => resumeInfo(quiz) !== null,
-  }));
+  show('Mes révisions', (c) => renderHome(c, { index, quizzes, getProgress: progressOf, getResume: resumeInfo }));
 }
 
 async function showQuizRoute(route, isCurrent) {
