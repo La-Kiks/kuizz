@@ -1,0 +1,109 @@
+{
+  "id": "frontend-react-api-deploiement",
+  "title": "React : API, performance et mise en ligne",
+  "subject": "applications-dynamiques",
+  "description": "Fonction de service et adaptateur, où ranger une donnée, statuts HTTP, droits vérifiés par l'API, lazy et Suspense, cache HTTP et URL d'API en production.",
+  "questions": [
+    {
+      "id": "api-service-function",
+      "type": "mcq",
+      "question": "Où placer l'appel à l'API des messages ?",
+      "choices": [
+        "Dans chaque `MessageCard`, au plus près de l'affichage",
+        "Dans une fonction de service, appelée par le thunk ou les composants",
+        "Dans le reducer, pour mettre le store à jour directement",
+        "Dans `index.html`, avant le chargement de React"
+      ],
+      "answer": 1,
+      "explanation": "Une fonction de service centralise l'adresse de l'API, la vérification de `response.ok` et la lecture du JSON. Si l'API change, on corrige un seul endroit, et les composants restent concentrés sur l'affichage."
+    },
+    {
+      "id": "api-adapter",
+      "type": "mcq",
+      "question": "L'équipe back-end renomme le champ `subject` en `title`. Que faut-il modifier côté front ?",
+      "code": { "lang": "js", "content": "// Réponse de l'API : { \"id\": 27, \"subject\": \"Refonte de la boutique\" }\nfunction toCarte(demande) {\n  return { id: demande.id, sujet: demande.subject };\n}" },
+      "choices": [
+        "Chaque composant qui affiche `carte.sujet`",
+        "Le store Redux et tous ses sélecteurs",
+        "Rien : `fetch` suit automatiquement le renommage",
+        "Uniquement l'adaptateur `toCarte`"
+      ],
+      "answer": 3,
+      "explanation": "L'adaptateur traduit le modèle de l'API en modèle de l'interface au moment où la donnée entre dans l'application. Les écrans qui lisent `carte.sujet` continuent à fonctionner. On garde aussi l'`id` : il désigne toujours la bonne demande, même si l'ordre de la liste change."
+    },
+    {
+      "id": "api-where-to-store",
+      "type": "mcq",
+      "question": "Le statut « Traitée » indique qu'un collègue a déjà répondu au client. Où l'enregistrer ?",
+      "choices": [
+        "Sur le serveur, via l'API",
+        "Dans l'état local de la carte, avec `useState`",
+        "Dans le `localStorage` du navigateur",
+        "Dans le store Redux uniquement"
+      ],
+      "answer": 0,
+      "explanation": "Toute l'équipe doit le savoir pour éviter une double réponse : c'est une donnée du serveur. Le store partage la liste entre la messagerie et le compteur, l'état local gère l'ouverture d'une carte, et `localStorage` convient à une préférence personnelle (masquer les messages lus sur ce navigateur)."
+    },
+    {
+      "id": "api-status-401",
+      "type": "mcq",
+      "question": "Deux personnes voient une messagerie vide. Pour la première, l'API répond `200` avec `[]` ; pour la seconde, `401`. Que doit afficher l'application à la seconde ?",
+      "choices": [
+        "« Aucun message », comme pour la première",
+        "Une erreur serveur, avec un bouton « Réessayer »",
+        "Que sa session a expiré et qu'elle doit se reconnecter",
+        "Que l'adresse de l'API est introuvable"
+      ],
+      "answer": 2,
+      "explanation": "`401` signifie que l'authentification manque ou que le jeton est invalide ou expiré. Pour mémoire : `403`, accès refusé ; `404`, ressource introuvable (vérifier l'URL) ; `500`, erreur serveur (proposer de réessayer). Seul `200` avec `[]` correspond vraiment à « Aucun message »."
+    },
+    {
+      "id": "api-hide-button-not-security",
+      "type": "truefalse",
+      "question": "Masquer le bouton « Supprimer » dans React suffit à empêcher un salarié sans droit de supprimer un devis.",
+      "answer": false,
+      "explanation": "Le JavaScript livré s'exécute sur le poste du visiteur, qui peut le lire et envoyer la requête lui-même. C'est l'API qui détient les données : elle vérifie le jeton (`Authorization: Bearer …`) et les droits. Pour la même raison, une valeur intégrée au bundle n'est jamais un secret."
+    },
+    {
+      "id": "perf-lazy-suspense",
+      "type": "mcq",
+      "question": "Quel est l'effet de ce code, et quelle est sa contrepartie ?",
+      "code": { "lang": "jsx", "content": "const Statistiques = lazy(() => import('./Statistiques'));\n\n<Suspense fallback={<p>Ouverture des statistiques…</p>}>\n  <Statistiques />\n</Suspense>" },
+      "choices": [
+        "Le panneau est chargé en priorité ; l'accueil s'affiche après",
+        "Le code part dans un fichier séparé, chargé au premier affichage ; cette ouverture attend",
+        "Les chiffres du serveur sont mis en cache ; aucune contrepartie",
+        "Le composant n'est rendu qu'une fois ; il ne se met plus à jour"
+      ],
+      "answer": 1,
+      "explanation": "L'import dynamique permet à Vite de placer le code dans un fichier séparé, demandé seulement quand le panneau doit s'afficher ; `Suspense` affiche le `fallback` pendant ce téléchargement. On allège l'accueil, mais la première ouverture attend : à réserver à une fonctionnalité peu utilisée, et à mesurer avant et après."
+    },
+    {
+      "id": "deploy-cache-hashed-files",
+      "type": "mcq",
+      "question": "`index.html` est servi en `no-cache` et `assets/index-4f9a1c.js` en `max-age=31536000, immutable`. Pourquoi ce JavaScript peut-il rester en cache un an sans empêcher de livrer un correctif ?",
+      "choices": [
+        "Le navigateur vide son cache à chaque nouvelle version",
+        "`immutable` oblige le navigateur à revérifier le fichier chaque jour",
+        "Le serveur efface l'ancien fichier du cache des visiteurs",
+        "Un correctif change l'empreinte dans le nom, donc l'URL du fichier"
+      ],
+      "answer": 3,
+      "explanation": "Le build nomme les fichiers d'après leur contenu : une correction produit une nouvelle adresse. Le HTML, en `no-cache`, est revalidé à chaque visite et référence cette nouvelle adresse. Ne mets jamais une longue durée de cache sur un fichier dont le nom ne change pas : les visiteurs garderaient l'ancienne version."
+    },
+    {
+      "id": "deploy-localhost-api-url",
+      "type": "mcq",
+      "question": "Chez le client, le tableau de bord s'affiche mais les demandes ne se chargent pas. Pourquoi ?",
+      "code": { "lang": "js", "content": "const API_URL = 'http://localhost:3000';" },
+      "choices": [
+        "`localhost` désigne la machine du client, pas ton serveur",
+        "Les navigateurs bloquent toujours le port `3000`",
+        "Le build de Vite supprime les URL absolues du code",
+        "React ne peut pas appeler d'API une fois en production"
+      ],
+      "answer": 0,
+      "explanation": "`localhost` désigne toujours la machine de la personne qui ouvre le site. L'adresse de l'API dépend de l'environnement : avec Vite, on la définit dans une variable comme `import.meta.env.VITE_API_URL`. Cette valeur est intégrée au build, donc publique : les contrôles d'accès restent côté serveur."
+    }
+  ]
+}

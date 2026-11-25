@@ -1,0 +1,103 @@
+{
+  "id": "frontend-react-redux",
+  "title": "React : état global avec Redux Toolkit",
+  "subject": "applications-dynamiques",
+  "description": "Props drilling, store, actions et reducers, Immer, thunks asynchrones, persistance, useSelector et sélecteurs mémorisés avec createSelector.",
+  "questions": [
+    {
+      "id": "redux-props-drilling",
+      "type": "mcq",
+      "question": "Le nombre de messages non lus doit traverser 5 composants qui ne s'en servent pas pour atteindre un badge. Comment s'appelle ce problème, et quelle solution propose Redux ?",
+      "choices": [
+        "Le re-render ; mémoriser chaque composant intermédiaire",
+        "Le props drilling ; un store central auquel le badge se connecte",
+        "Le lifting state up ; remonter l'état encore plus haut",
+        "Le data binding ; lier le badge directement au DOM"
+      ],
+      "answer": 1,
+      "explanation": "Faire descendre une donnée sur plusieurs niveaux s'appelle le props drilling et rend le code difficile à suivre. Avec un store, n'importe quel composant peut lire ou modifier la donnée directement, sans passer par ses parents."
+    },
+    {
+      "id": "redux-store-action-reducer",
+      "type": "flashcard",
+      "front": "Clic sur « Marquer comme lu » : quel rôle jouent l'action, le reducer et le store ?",
+      "code": { "lang": "jsx", "content": "// messagesSlice.js\nmarkAsRead(state, action) {\n  const msg = state.list.find((m) => m.id === action.payload);\n  if (msg) msg.isRead = true;\n}\n\n// MessageCard.jsx\ndispatch(markAsRead(message.id));" },
+      "back": "Le composant dispatch une action : l'intention, avec l'`id` du message en `payload`. Le reducer, seule fonction autorisée à modifier l'état, passe `isRead` à `true`. Le store, unique, contient l'état : tous les composants abonnés à cette donnée se mettent à jour."
+    },
+    {
+      "id": "redux-immer-mutation",
+      "type": "truefalse",
+      "question": "Dans un reducer de `createSlice`, écrire `msg.isRead = true` est une erreur, car on mute l'état.",
+      "answer": false,
+      "explanation": "Redux Toolkit utilise Immer : tu écris une modification sur un brouillon, et Immer produit un nouvel état sans toucher à l'ancien. Ce n'est valable que dans `createSlice` (ou `createReducer`) : avec `useState`, muter l'état reste une erreur."
+    },
+    {
+      "id": "redux-reducer-pure",
+      "type": "mcq",
+      "question": "Pourquoi ne pas lancer le `fetch` des messages directement dans un reducer ?",
+      "choices": [
+        "`fetch` n'est pas disponible dans les fichiers Redux",
+        "Le reducer s'exécute sur le serveur, pas dans le navigateur",
+        "Un reducer ne peut pas recevoir de tableau en `payload`",
+        "Un reducer doit être pur et immédiat : l'asynchrone va dans un thunk"
+      ],
+      "answer": 3,
+      "explanation": "Un reducer calcule le nouvel état à partir de l'ancien et de l'action, sans effet de bord ni attente. Les appels réseau passent par un middleware comme Redux Thunk, inclus par défaut dans Redux Toolkit, par exemple avec `createAsyncThunk`."
+    },
+    {
+      "id": "redux-thunk-pending",
+      "type": "mcq",
+      "question": "`status` vaut `'loading'` et `list` vaut `[]`. Que doit afficher la messagerie ?",
+      "code": { "lang": "js", "content": "export const fetchMessages = createAsyncThunk('messages/fetch', getMessages);\n\n// extraReducers\nbuilder\n  .addCase(fetchMessages.pending, (state) => { state.status = 'loading'; })\n  .addCase(fetchMessages.fulfilled, (state, action) => {\n    state.status = 'succeeded';\n    state.list = action.payload;\n  })\n  .addCase(fetchMessages.rejected, (state) => { state.status = 'failed'; });" },
+      "choices": [
+        "« Chargement… », car la réponse n'est pas encore arrivée",
+        "« Aucun message », puisque la liste est vide",
+        "« Erreur de chargement », car la liste n'a pas été remplie",
+        "Rien, tant que le statut ne vaut pas `'succeeded'`"
+      ],
+      "answer": 0,
+      "explanation": "`pending` signifie que la requête est en cours : une liste vide ne veut pas encore dire « aucune demande ». « Aucun message » ne s'affiche qu'après `fulfilled` avec `[]`, et un message d'erreur après `rejected`."
+    },
+    {
+      "id": "redux-persist-localstorage",
+      "type": "mcq",
+      "question": "Après un rafraîchissement, le store Redux est vide. Quelle solution native permet de le retrouver ?",
+      "choices": [
+        "Ajouter un `useEffect` sans dépendances dans `App`",
+        "Déclarer le store avec `const` au lieu de `let`",
+        "Avec `store.subscribe`, sauvegarder l'état en JSON dans `localStorage`, puis le relire au démarrage",
+        "Passer le store en props à chaque composant de la page"
+      ],
+      "answer": 2,
+      "explanation": "On abonne une fonction au store : à chaque changement, elle fait `JSON.stringify` de l'état et l'écrit dans `localStorage`. Au chargement, `JSON.parse` pré-remplit l'état initial. Sur un gros projet, `redux-persist` automatise ce travail et permet de choisir les slices à conserver."
+    },
+    {
+      "id": "redux-useselector-granular",
+      "type": "mcq",
+      "question": "Ce badge se re-rend à chaque frappe dans le champ de recherche, alors que le nom ne change pas. Pourquoi ?",
+      "code": { "lang": "jsx", "content": "function UserBadge() {\n  const state = useSelector((state) => state);\n  return <span>{state.user.name}</span>;\n}" },
+      "choices": [
+        "`useSelector` doit être appelé en dehors du composant",
+        "Il s'abonne à tout le store : chaque changement le re-rend",
+        "Le champ de recherche n'est pas un champ contrôlé",
+        "Un composant ne peut lire qu'une seule slice du store"
+      ],
+      "answer": 1,
+      "explanation": "Un composant se re-rend quand la valeur renvoyée par son sélecteur change. En renvoyant tout le store, n'importe quelle modification le concerne. Sélectionne uniquement la donnée utile : `useSelector((state) => state.user.name)`."
+    },
+    {
+      "id": "redux-create-selector",
+      "type": "mcq",
+      "question": "Quand ce sélecteur refait-il le `filter` ?",
+      "code": { "lang": "js", "content": "const selectPrioritaires = createSelector(\n  [(state) => state.demandes],\n  (demandes) => demandes.filter((d) => d.prioritaire)\n);" },
+      "choices": [
+        "À chaque appel, comme une fonction ordinaire",
+        "À chaque changement du store, même pour le thème",
+        "Uniquement quand `state.demandes` est un nouveau tableau",
+        "Jamais : le résultat est figé dès le premier appel"
+      ],
+      "answer": 2,
+      "explanation": "`createSelector` garde le résultat associé à la référence du tableau d'entrée. Changer de thème ne touche pas à `demandes` : le résultat en cache est réutilisé, par tous les composants qui appellent ce sélecteur. Si une demande change, Redux Toolkit fournit un nouveau tableau et le filtre est recalculé. C'est surtout utile pour un calcul coûteux ou souvent répété."
+    }
+  ]
+}

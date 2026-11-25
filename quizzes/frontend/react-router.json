@@ -1,0 +1,78 @@
+{
+  "id": "frontend-react-router",
+  "title": "React : routage avec React Router",
+  "subject": "applications-dynamiques",
+  "description": "SPA ou MPA, Link, layouts avec Outlet, paramètres d'URL avec useParams, routes protégées avec Navigate et favoris en production.",
+  "questions": [
+    {
+      "id": "router-spa-vs-mpa",
+      "type": "mcq",
+      "question": "WebCréa Admin est une SPA. Que se passe-t-il quand on clique sur « Messages » depuis le tableau de bord ?",
+      "choices": [
+        "Le serveur renvoie une nouvelle page HTML complète",
+        "Le navigateur recharge `index.html`, puis relance React",
+        "Le JavaScript change l'URL et remplace les composants, sans rechargement",
+        "React ouvre la messagerie dans un nouvel onglet"
+      ],
+      "answer": 2,
+      "explanation": "Une SPA n'a qu'une page HTML. `react-router-dom` intercepte le clic, met à jour l'URL et demande à React d'afficher les nouveaux composants. Dans une MPA, chaque lien redemande une page complète au serveur et l'écran se recharge."
+    },
+    {
+      "id": "router-link-vs-a",
+      "type": "mcq",
+      "question": "Ce lien du menu fonctionne, mais l'écran clignote et le store Redux est remis à zéro. Pourquoi ?",
+      "code": { "lang": "jsx", "content": "<nav>\n  <a href=\"/messages\">Messages</a>\n</nav>" },
+      "choices": [
+        "Il manque `target=\"_self\"` sur le lien",
+        "`<a href>` recharge toute la page : il faut `<Link to=\"/messages\">`",
+        "La route `/messages` n'est pas déclarée dans `<Routes>`",
+        "Le `<nav>` doit être placé hors du `BrowserRouter`"
+      ],
+      "answer": 1,
+      "explanation": "Une balise `<a>` classique déclenche une vraie navigation : le navigateur recharge l'application et la mémoire (dont le store) est vidée. `<Link>` produit un `<a>` mais intercepte le clic pour naviguer côté client."
+    },
+    {
+      "id": "router-outlet-layout",
+      "type": "mcq",
+      "question": "La `Sidebar` doit rester fixe pendant que le contenu change. Que placer dans `<main>` ?",
+      "code": { "lang": "jsx", "content": "function AdminLayout() {\n  return (\n    <div className=\"admin\">\n      <Sidebar />\n      <main>{/* ? */}</main>\n    </div>\n  );\n}\n\n<Route element={<AdminLayout />}>\n  <Route path=\"/\" element={<Dashboard />} />\n  <Route path=\"/messages\" element={<ListeMessages />} />\n</Route>" },
+      "choices": ["`<Outlet />`", "`{children}`", "`<Routes />`", "`<Navigate />`"],
+      "answer": 0,
+      "explanation": "`<Outlet />` est l'emplacement où React Router injecte la route enfant active (`Dashboard` ou `ListeMessages`). Le layout n'est pas rendu avec des `children` : ce sont les routes imbriquées qui le remplissent."
+    },
+    {
+      "id": "router-use-params",
+      "type": "flashcard",
+      "front": "La route est `/message/:id`. Comment `MessageDetail` récupère-t-il l'identifiant ?",
+      "code": { "lang": "jsx", "content": "<Route path=\"/message/:id\" element={<MessageDetail />} />\n\nfunction MessageDetail() {\n  const { id } = useParams();\n  // /message/27 → id vaut \"27\"\n}" },
+      "back": "Avec le hook `useParams()`, qui renvoie un objet dont les clés sont les segments `:nom` de la route. Attention : la valeur est toujours une chaîne (`\"27\"`), à convertir avant de la comparer à un `id` numérique."
+    },
+    {
+      "id": "router-guard-navigate",
+      "type": "mcq",
+      "question": "Ce guard doit renvoyer vers `/login` un utilisateur non connecté. Que retourner ?",
+      "code": { "lang": "jsx", "content": "function RequireAuth({ children }) {\n  const { isAuthenticated } = useAuth();\n  if (!isAuthenticated) return /* ? */;\n  return children;\n}" },
+      "choices": [
+        "`null`, pour ne rien afficher",
+        "`<Link to=\"/login\" />`",
+        "`window.location.href = '/login'`",
+        "`<Navigate to=\"/login\" replace />`"
+      ],
+      "answer": 3,
+      "explanation": "`<Navigate>` redirige dès son rendu, sans recharger la page (`replace` évite de revenir sur la page protégée avec « Précédent »). `<Link>` attendrait un clic, `null` laisserait un écran vide et `window.location` rechargerait l'application. Le guard sert la navigation ; la vraie protection reste le contrôle du jeton par l'API."
+    },
+    {
+      "id": "router-bookmark-rewrite",
+      "type": "mcq",
+      "question": "En ligne, `/messages` s'affiche depuis le menu, mais un favori vers `/messages` donne une erreur 404. Que faut-il corriger ?",
+      "choices": [
+        "Configurer l'hébergeur pour servir `index.html` sur toutes les routes",
+        "Remplacer `BrowserRouter` par des liens `<a>` classiques",
+        "Déclarer la route `/messages` avant la route `/`",
+        "Ajouter un `useEffect` qui redirige vers `/messages`"
+      ],
+      "answer": 0,
+      "explanation": "Depuis le menu, React Router est déjà chargé et affiche la vue. Depuis un favori, le navigateur demande `/messages` à l'hébergeur, qui n'a pas ce fichier. Une règle de réécriture sert le document d'entrée à cette adresse : React démarre et affiche la messagerie."
+    }
+  ]
+}
